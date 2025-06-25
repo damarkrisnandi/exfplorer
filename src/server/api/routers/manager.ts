@@ -138,13 +138,15 @@ export const managerRouter = createTRPCRouter({
       where: { id: managerId },
     });
     // unlink manager from user
-    const userUnlinked = await db.user.update({
+    const userUnlinked = await db.user.findUnique({
       where: { id: userId },
-      data: {
-        manager: {
-          disconnect: true,
-        },
-      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+
+      }
     });
 
     return userUnlinked;

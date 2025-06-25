@@ -27,7 +27,19 @@ export function ManagerForm({
   className,
   session,
   ...props
-}: React.ComponentProps<"div"> & { session: { user: { name: string, manager: { id: string, managerId: string, entry_name: string, player_first_name: string, player_last_name: string } } } }) {
+}: React.ComponentProps<"div"> & { session: {
+    user: {
+      name: string,
+      manager?: {
+        id: string,
+        managerId: string,
+        entry_name: string,
+        player_first_name: string,
+        player_last_name: string }
+      }
+    }
+  }
+) {
   const [manager, setManager] = useState<ManagerFromAPI | null>(null);
 
   const form = useForm<ManagerSchemaType>({
@@ -58,57 +70,59 @@ export function ManagerForm({
   }, []);
   if (!session.user.manager) {
     return (
-      <div className={cn("flex flex-col gap-6", className)} {...props}>
-        <Card className="bg-white/10 text-white">
-          <CardHeader>
-            <CardTitle>FPL Player?</CardTitle>
-            <CardDescription>
-              Find your FPL team by ID manager
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormProvider {...form}>
+      <SessionProvider>
+        <div className={cn("flex flex-col gap-6", className)} {...props}>
+          <Card className="bg-white/10 text-white">
+            <CardHeader>
+              <CardTitle>FPL Player?</CardTitle>
+              <CardDescription>
+                Find your FPL team by ID manager
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormProvider {...form}>
 
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-3">
-                  <FormField
-                    control={form.control}
-                    name="managerId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Manager ID</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="managerId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Manager ID</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <Button type="submit" variant="outline" disabled={isPendingFetchManagerFromAPI} className="w-full bg-white/10 text-white">
+                        {!isPendingFetchManagerFromAPI ?  <SearchIcon className="mr-2 size-4" /> : <Loader2 className="mr-2 size-4 animate-spin" />}
+                        Find Manager by ID
+                      </Button>
+
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-3">
-                    <Button type="submit" variant="outline" disabled={isPendingFetchManagerFromAPI} className="w-full bg-white/10 text-white">
-                      {!isPendingFetchManagerFromAPI ?  <SearchIcon className="mr-2 size-4" /> : <Loader2 className="mr-2 size-4 animate-spin" />}
-                      Find Manager by ID
-                    </Button>
 
-                  </div>
-                </div>
-
-              </form>
-            </FormProvider>
-          </CardContent>
-        </Card>
-        {manager && (
-          <ManagerCard
-            className="w-full"
-            managerId={manager.id.toString()}
-            name={manager.name}
-            player_first_name={manager.player_first_name}
-            player_last_name={manager.player_last_name}
-          />
-        )}
-      </div>
+                </form>
+              </FormProvider>
+            </CardContent>
+          </Card>
+          {manager && (
+            <ManagerCard
+              className="w-full"
+              managerId={manager.id.toString()}
+              name={manager.name}
+              player_first_name={manager.player_first_name}
+              player_last_name={manager.player_last_name}
+            />
+          )}
+        </div>
+      </SessionProvider>
     )
   }
   return (

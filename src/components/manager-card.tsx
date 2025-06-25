@@ -42,10 +42,15 @@ export function ManagerCard({
 }: ManagerCardProps) {
   const { data: session } = useSession();
 
-  const { mutateAsync: linkToFPL, isPending } = api.manager.linkManager.useMutation({
+  const [sessionData, setSessionData] = useState<typeof session>(session);
+
+  const { mutateAsync: linkToFPL, isPending: isPendingLink } = api.manager.linkManager.useMutation({
     onSuccess: (data) => {
       console.log("Manager mapped successfully:", data);
       toast.success(`Manager ${name} mapped successfully!`);
+      if (window !== undefined) {
+        window.location.reload();
+      }
     },
     onError: (error) => {
       console.error("Error mapping manager:", error);
@@ -57,6 +62,9 @@ export function ManagerCard({
     onSuccess: (data) => {
       console.log("Manager unmapped successfully:", data);
       toast.success(`Manager ${name} unmapped successfully!`);
+      if (window !== undefined) {
+        window.location.reload();
+      }
     },
     onError: (error) => {
       console.error("Error unmapping manager:", error);
@@ -116,14 +124,14 @@ export function ManagerCard({
             <CardContent>
               <div className="flex flex-col gap-4">
               {showButtonLink &&
-                <Button variant="outline" className="w-full bg-white/10 text-white" disabled={isPending} onClick={handleLinkToFPL}>
-                  {!isPending ? <Link /> : <Loader2 className="mr-2 size-4 animate-spin" />}
+                <Button variant="outline" className="w-full bg-white/10 text-white" disabled={isPendingLink} onClick={handleLinkToFPL}>
+                  {!isPendingLink ? <Link /> : <Loader2 className="mr-2 size-4 animate-spin" />}
                   Link to FPL Team
                 </Button>
               }
               {showButtonUnlink &&
-                <Button variant="outline" className="w-full bg-white/10 text-white" disabled={isPending} onClick={handleUnlinkToFPL}>
-                  {!isPending ? <Unlink2 /> : <Loader2 className="mr-2 size-4 animate-spin" />}
+                <Button variant="outline" className="w-full bg-white/10 text-white" disabled={isPendingUnlink} onClick={handleUnlinkToFPL}>
+                  {!isPendingUnlink ? <Unlink2 /> : <Loader2 className="mr-2 size-4 animate-spin" />}
                   Unlink
                 </Button>
               }
