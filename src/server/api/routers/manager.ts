@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { z } from "zod";
 import axios from "axios"
 
@@ -7,8 +11,9 @@ import {
   publicProcedure,
 } from "@/server/api/trpc";
 import { BASE_API_URL } from "@/lib/utils";
+import { TRPCError } from "@trpc/server";
 
-type ManagerFromAPI = {
+export type ManagerFromAPI = {
   id: number;
   joined_time: string;
   started_event: number;
@@ -44,7 +49,7 @@ export const managerRouter = createTRPCRouter({
     return managerFromAPI
   }),
 
-  mappingManager: protectedProcedure
+  linkManager: protectedProcedure
   .input(z.object({
     userId: z.string(), // Ensure userId
     managerId: z.string(),
@@ -52,9 +57,98 @@ export const managerRouter = createTRPCRouter({
     player_last_name: z.string(),
     entry_name: z.string(),
   })) // Ensure id
-  .mutation(async ({ input }) => {
+  .mutation(async ({ ctx, input }) => {
+    const { db } = ctx;
+    const { userId, managerId, player_first_name, player_last_name, entry_name } = input;
+    // check user ID exists in the database
+    const user = await db.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    // check if manager already exists in the database
 
-    return {}
+    const manager = await db.manager.create({
+      data: {
+        userId,
+        managerId,
+        player_first_name,
+        player_last_name,
+        entry_name,
+        createdById: userId, // or set this to the appropriate user id
+      },
+      select: {
+        id: true,
+        userId: true,
+        managerId: true,
+        player_first_name: true,
+        player_last_name: true,
+        entry_name: true,
+        createdById: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    });
+
+    if (!manager) {
+      throw new Error("Failed to create manager mapping");
+    }
+
+    // update user with managerId
+    const userLinked = await db.user.update({
+      where: { id: userId },
+      data: {
+        manager: {
+          connect: { id: manager.id },
+        },
+      },
+    });
+
+    return userLinked;
   }),
+
+  unlinkManager: protectedProcedure
+  .input(z.object({
+    userId: z.string(), // Ensure userId
+    managerId: z.string(),
+  }))
+  .mutation(async ({ ctx, input }) => {
+    const { db } = ctx;
+    const { userId, managerId } = input;
+
+    // check user ID exists in the database
+    const user = await db.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    // check if manager exists in the database
+    const manager = await db.manager.findUnique({
+      where: { id: managerId },
+    });
+    if (!manager) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Manager not found" });
+    }
+
+
+    const managerUnlinked = await db.manager.delete({
+      where: { id: managerId },
+    });
+    // unlink manager from user
+    const userUnlinked = await db.user.update({
+      where: { id: userId },
+      data: {
+        manager: {
+          disconnect: true,
+        },
+      },
+    });
+
+    return userUnlinked;
+  }),
+
 
 });

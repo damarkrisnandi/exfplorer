@@ -5,6 +5,8 @@ import { auth } from "@/server/auth";
 import { HydrateClient } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { DiscordIcon } from "@/components/svg-icon";
+import { ManagerForm } from "@/components/mapping-manager";
+import Image from "next/image";
 
 export default async function Home() {
   const session = await auth();
@@ -26,16 +28,24 @@ export default async function Home() {
 
           <div className="flex flex-col items-center gap-2">
             <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
+              <div className="text-center text-2xl text-white">
                 {session &&
                   <span className="flex items-center gap-2">
-                    <div className="w-8 h-8">
-                      <DiscordIcon />
+                    <div className="w-8 h-8 rounded-full">
+                      <div className="relative w-6 h-6 md:w-8 md:h-8">
+                        <Image
+                          src={session.user?.image ?? "/pl-main-logo.png"}
+                          fill={true}
+                          className="w-6 h-6 md:w-8 md:h-8"
+                          sizes="20"
+                          alt={`pl-logo`}
+                        />`
+                      </div>
                     </div>
 
                     Logged in as {session.user?.name}
                   </span>}
-              </p>
+              </div>
               <Button asChild>
                 <Link
                   href={session ? "/logout" : "/login"}
@@ -46,7 +56,12 @@ export default async function Home() {
                 </Link>
 
               </Button>
-            </div>
+              {session && (
+                <>
+                <ManagerForm className="w-full" session={session} />
+                </>
+              )}
+          </div>
           </div>
 
 

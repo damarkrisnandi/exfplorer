@@ -63,8 +63,9 @@ model User {
     accounts      Account[]
     sessions      Session[]
 
-    managers Manager[]        @relation("ManagerUser")
     createdManagers Manager[] @relation("ManagerCreatedBy")
+
+    manager Manager? @relation("ManagerUser")
 }
 
 model VerificationToken {
@@ -77,8 +78,8 @@ model VerificationToken {
 
 model Manager {
     id             String @id @default(cuid())
-    user            User   @relation("ManagerUser", fields: [userId], references: [id])
-    userId         String
+    user           User?  @relation("ManagerUser", fields: [userId], references: [id], onDelete: Cascade)
+    userId         String? @unique
     managerId      String
     player_first_name String
     player_last_name  String
@@ -87,7 +88,7 @@ model Manager {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation("ManagerCreatedBy", fields: [createdById], references: [id])
+    createdBy   User?   @relation("ManagerCreatedBy", fields: [createdById], references: [id])
     createdById String
 
     @@index([userId])
