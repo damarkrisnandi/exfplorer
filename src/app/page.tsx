@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DiscordIcon } from "@/components/svg-icon";
 import { ManagerForm } from "@/components/mapping-manager";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function Home() {
   const session = await auth();
@@ -31,17 +32,10 @@ export default async function Home() {
               <div className="text-center text-2xl text-white">
                 {session &&
                   <span className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full">
-                      <div className="relative w-6 h-6 md:w-8 md:h-8">
-                        <Image
-                          src={session.user?.image ?? "/pl-main-logo.png"}
-                          fill={true}
-                          className="w-6 h-6 md:w-8 md:h-8"
-                          sizes="20"
-                          alt={`pl-logo`}
-                        />`
-                      </div>
-                    </div>
+                    <Avatar>
+                      <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
+                      <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
+                    </Avatar>
 
                     Logged in as {session.user?.name}
                   </span>}
