@@ -18,7 +18,13 @@ declare module "next-auth" {
       id: string;
       name: string;
       // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-      manager?: Manager;
+      manager?: {
+        id: string,
+        managerId: string,
+        entry_name: string,
+        player_first_name: string,
+        player_last_name: string
+      };
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];

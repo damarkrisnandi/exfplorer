@@ -24,7 +24,7 @@ export function LogoutForm({
   const [isPendingSignOut, setIsPendingSignOut] = useState(false);
   // const router = useRouter();
 
-  const handleSignIn = useCallback(async () => {
+  const handleSignOut = useCallback(async () => {
     setIsPendingSignOut(true);
     await signOut({ callbackUrl: '/' });
 
@@ -46,7 +46,7 @@ export function LogoutForm({
           <form>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
-                <Button variant="outline" className="w-full bg-red/10 text-white" disabled={isPendingSignOut} onClick={handleSignIn}>
+                <Button variant="outline" className="w-full bg-red/10 text-white" disabled={isPendingSignOut} onClick={handleSignOut}>
                   {!isPendingSignOut ? <DiscordIcon /> : <Loader2 className="mr-2 size-4 animate-spin" />}
                   {!isPendingSignOut ? "Logout" : "Processing..."}
                 </Button>
