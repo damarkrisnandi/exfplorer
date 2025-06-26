@@ -1,6 +1,8 @@
+'use client'
 import { cn } from "@/lib/utils"
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 
 type ElementCardProps = {
   className?: string,
@@ -22,13 +24,39 @@ export default function ElementCard({
   is_vice_captain=false,
   multiplier=0,
 }:  ElementCardProps) {
+  const [easeInOutCard, setEaseInOutCard] = useState<boolean>(false);
+  const [easeInOutBadge, setEaseInOutBadge] = useState<boolean>(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setEaseInOutCard(true);
+    }, Math.random() * 100);
+  })
+
+  useEffect(() => {
+    setTimeout(() => {
+      setEaseInOutBadge(true);
+    }, 700);
+  })
   return (
     <Card className={cn(
       'w-12 h-16 md:w-20 md:h-24 py-1 md:py-4 relative',
+      'transition-all duration-300 -translate-6 opacity-0',
+      easeInOutCard ? 'translate-0 opacity-100' : '',
       className
     )}>
-      {is_captain && <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">C</div>}
-      {is_vice_captain && <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">V</div>}
+      {is_captain &&
+      <div className={cn(
+        "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
+        'transition-all duration-300 scale-0 opacity-0',
+        easeInOutBadge ? 'scale-100 opacity-100' : '',
+        )}>C</div>}
+      {is_vice_captain &&
+      <div className={cn(
+        "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
+        'transition-all duration-300 scale-0 opacity-0',
+        easeInOutBadge ? 'scale-100 opacity-100' : '',
+        )}>V</div>}
       <CardHeader className="p-0">
         <div className="w-full flex flex-col justify-center items-center">
           <div className="relative w-8 h-8 md:w-12 md:h-12">

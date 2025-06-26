@@ -4,6 +4,7 @@ import { api } from "@/trpc/react";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import ElementCard from "./element-card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export default function PickView() {
   const { data: session } = useSession();
@@ -83,16 +84,21 @@ export default function PickView() {
               ))
             )}
           </ul>
-        <div className="h-full w-full flex flex-col justify-center items-between">
-          <ul className="py-10 flex gap-2 justify-evenly items-center">
-              {benched.length > 0 && (
-                benched.map((pick: PlayerPicked) => (
-                  <li key={pick.element}>
-                    <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-                  </li>
-                ))
-              )}
-          </ul>
+        <div className="w-full flex flex-col justify-center items-between">
+          <Card className="p-0">
+            <CardHeader className="p-2">
+              <CardTitle className="flex justify-center">Bench</CardTitle>
+              <ul className="flex gap-2 justify-evenly items-center">
+                  {benched.length > 0 && (
+                    benched.map((pick: PlayerPicked) => (
+                      <li key={pick.element}>
+                        <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                      </li>
+                    ))
+                  )}
+              </ul>
+            </CardHeader>
+          </Card>
 
         </div>
       </div>
@@ -101,111 +107,14 @@ export default function PickView() {
 }
 
 function Skeleton() {
-  const dataSkeleton = {
-      // "position": 1,
-      "multiplier": 0,
-      "is_captain": false,
-      "is_vice_captain": false,
-      // "element_type": 2,
-      "web_name": "",
-      "photo": "https://placehold.co/20x20",
-      "event_points": 0
-  }
 
-  const skeleton_gkp = Array.from({ length: 1 }, (data: PlayerPicked, i: number) => { return {
-    ...data,
-    ...dataSkeleton,
-    element: i + 1,
-    element_type: 1,
-    position: 1
-  }})
-
-  const skeleton_def = Array.from({ length: 4 }, (data: PlayerPicked, i: number) => { return {
-    ...data,
-    ...dataSkeleton,
-    element: i + 1,
-    element_type: 2,
-    position: i + 1
-  }})
-
-  const skeleton_mid = Array.from({ length: 4 }, (data: PlayerPicked, i: number) => { return {
-    ...data,
-    ...dataSkeleton,
-    element: i + 1,
-    element_type: 3,
-    position: i + 1
-  }})
-
-  const skeleton_fwd = Array.from({ length: 2 }, (data: PlayerPicked, i: number) => { return {
-    ...data,
-    ...dataSkeleton,
-    element: i + 1,
-    element_type: 4,
-    position: i + 1
-  }})
-
-  const skeleton_benched = Array.from({ length: 4 }, (data: PlayerPicked, i: number) => { return {
-    ...data,
-    ...dataSkeleton,
-    element: i + 1,
-    element_type: 4,
-    position: i + 1
-  }})
   return (
     <div className="w-full flex flex-col justify-center items-center">
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
         style={{ backgroundImage: "url('./pitch-default.svg')" }}
       >
-        <ul className=" flex gap-2 justify-center">
-          {skeleton_gkp.length > 0 && (
-            skeleton_gkp.map((pick: PlayerPicked) => (
-              <li key={pick.element}>
-                <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-              </li>
-            ))
-          )}
-        </ul>
-
-        <ul className=" flex gap-2 justify-evenly items-center">
-          {skeleton_def.length > 0 && (
-            skeleton_def.map((pick: PlayerPicked) => (
-              <li key={pick.element}>
-                <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-              </li>
-            ))
-          )}
-        </ul>
-
-        <ul className=" flex gap-2 justify-evenly items-center">
-          {skeleton_mid.length > 0 && (
-            skeleton_mid.map((pick: PlayerPicked) => (
-              <li key={pick.element}>
-                <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-              </li>
-            ))
-          )}
-        </ul>
-
-        <ul className=" flex gap-2 justify-evenly items-center">
-          {skeleton_fwd.length > 0 && (
-            skeleton_fwd.map((pick: PlayerPicked) => (
-              <li key={pick.element}>
-                <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-              </li>
-            ))
-          )}
-        </ul>
       </div>
-      <ul className="py-10 flex gap-2 justify-evenly items-center">
-          {skeleton_benched.length > 0 && (
-            skeleton_benched.map((pick: PlayerPicked) => (
-              <li key={pick.element}>
-                <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
-              </li>
-            ))
-          )}
-        </ul>
     </div>
   )
 }
