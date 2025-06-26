@@ -13,7 +13,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { bgMain, cn } from "@/lib/utils"
+import { cn } from "@/lib/utils"
+import { SessionProvider } from "next-auth/react"
 
 export default function DashboardLayout({
   children,
@@ -51,7 +52,7 @@ export default function DashboardLayout({
               "flex flex-1 flex-col gap-4 p-4 pt-0",
               "bg-gray-100 dark:bg-gray-700"
               )}>
-              { children }
+                 { children }
             </div>
           </SidebarInset>
         </SidebarProvider>

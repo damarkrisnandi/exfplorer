@@ -6,7 +6,6 @@ import { HydrateClient } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { DiscordIcon } from "@/components/svg-icon";
 import { ManagerForm } from "@/components/mapping-manager";
-import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function Home() {

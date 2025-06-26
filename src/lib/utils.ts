@@ -9,3 +9,8 @@ export const bgMain = "flex min-h-screen flex-col items-center justify-center  b
 
 
 export const BASE_API_URL: Readonly<string> = "https://fantasy-pl-vercel-proxy.vercel.app";
+
+export function getElementPhotoUrl(photo: string): string {
+  const imageId = photo?.split(".")[0] ?? "";
+  return `https://resources.premierleague.com/premierleague/photos/players/250x250/p${imageId}.png`;
+}

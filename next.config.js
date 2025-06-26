@@ -7,7 +7,11 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
   images: {
-    domains: ["cdn.discordapp.com"],
+    domains: [
+      "cdn.discordapp.com",
+      "resources.premierleague.com",
+      "placehold.co"
+    ],
   },
 };
 

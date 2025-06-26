@@ -8,7 +8,6 @@ import axios from "axios"
 import {
   createTRPCRouter,
   protectedProcedure,
-  publicProcedure,
 } from "@/server/api/trpc";
 import { BASE_API_URL } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
@@ -134,7 +133,7 @@ export const managerRouter = createTRPCRouter({
     }
 
 
-    const managerUnlinked = await db.manager.delete({
+    await db.manager.delete({
       where: { id: managerId },
     });
     // unlink manager from user
