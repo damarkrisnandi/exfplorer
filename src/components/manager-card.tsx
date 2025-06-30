@@ -120,27 +120,27 @@ export function ManagerCard({
       <div className={cn("flex flex-col gap-6", className)}>
         <Card className="text-white ">
           <CardHeader>
-            <div className="flex gap-2">
-              <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
-                <Avatar>
-                  <AvatarImage src={`https://placehold.co/20x20?text=${player_first_name[0]}${player_last_name[0]}`} alt="player_first_name" />
-                  <AvatarFallback>{player_first_name[0]}{player_last_name[0]}</AvatarFallback>
-                </Avatar>
-                <Avatar>
-                  <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
-                  <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
-                </Avatar>
-              </div>
-              <div>
-                <CardTitle className="text-xl">{ name }</CardTitle>
-                <CardDescription>
-                  { player_first_name } { player_last_name } { alias ? `/ @${alias}` : "" }
-                </CardDescription>
+            <div className="flex gap-2 justify-between items-center">
+              <div className="flex gap-2">
+                <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
+                  <Avatar>
+                    <AvatarImage src={`https://placehold.co/20x20?text=${player_first_name[0]}${player_last_name[0]}`} alt="player_first_name" />
+                    <AvatarFallback>{player_first_name[0]}{player_last_name[0]}</AvatarFallback>
+                  </Avatar>
+                  <Avatar>
+                    <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
+                    <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
+                  </Avatar>
+                </div>
+                <div>
+                  <CardTitle className="text-xl">{ name }</CardTitle>
+                  <CardDescription>
+                    { player_first_name } { player_last_name } { alias ? `/ @${alias}` : "" }
+                  </CardDescription>
 
+                </div>
               </div>
-            </div>
-          </CardHeader>
-            <CardContent>
+
               <div className="flex flex-col gap-4">
               {showButtonLink &&
                 <Button variant="outline" className="w-full bg-white/10 text-white" disabled={isPendingLink} onClick={handleLinkToFPL}>
@@ -155,7 +155,9 @@ export function ManagerCard({
                 </Button>
               }
               </div>
-            </CardContent>
+            </div>
+          </CardHeader>
+
 
         </Card>
 

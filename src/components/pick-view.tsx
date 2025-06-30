@@ -124,8 +124,8 @@ export default function PickView({
             )}
           </ul>
       </div>
-      <div className="w-full flex flex-col justify-center items-between">
-        <Card className="p-0">
+      <div className="w-full flex flex-col justify-center items-center space-y-2">
+        <Card className="p-0 w-full md:w-7/12">
           <CardHeader className="p-2">
             <CardTitle className="flex justify-center">Bench</CardTitle>
             <ul className="flex gap-2 justify-evenly items-center">
