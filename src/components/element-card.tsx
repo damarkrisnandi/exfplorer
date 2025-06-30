@@ -70,7 +70,7 @@ export default function ElementCard({
           </div>
           <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
           <CardDescription className="w-full bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white rounded-b-lg border-white">
-            <div className="px-[0.3rem] md:px-2">
+            <div className="px-[0.3rem] md:px-2 py-full">
               <p className="text-[0.5em] md:text-[0.7rem] font-semibold">{!is_captain ?  event_points : event_points * multiplier }Pts</p>
             </div>
           </CardDescription>
