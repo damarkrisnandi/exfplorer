@@ -8,11 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { DiscordIcon } from "./svg-icon"
 import { useCallback, useState } from 'react';
 
 import { toast } from "sonner"
-import { SessionProvider, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { Link, Loader2, Unlink2 } from "lucide-react"
 import { api } from "@/trpc/react"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
@@ -43,7 +42,7 @@ export function ManagerCard({
 }: ManagerCardProps) {
   const { data: session } = useSession();
 
-  const [sessionData, setSessionData] = useState<typeof session>(session);
+  const [] = useState<typeof session>(session);
 
   const { mutateAsync: linkToFPL, isPending: isPendingLink } = api.manager.linkManager.useMutation({
     onSuccess: (data) => {

@@ -1,11 +1,7 @@
 "use client"
 
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
-  CreditCard,
-  LogOut,
   Sparkles,
 } from "lucide-react"
 
@@ -29,34 +25,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 
-import { signOut, useSession } from "next-auth/react"
-import { Button } from "./ui/button"
-import { useCallback, useState, type ComponentType } from "react"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { navUsers } from "./nav-user-items/nav-user-list"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar()
   const { data: session } = useSession();
 
@@ -162,43 +135,3 @@ export function NavUser({
   )
 }
 
-function LogoutOption() {
-  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-  const [isPendingSignOut, setIsPendingSignOut] = useState<boolean>(false);
-  const router = useRouter();
-
-  const handleSignOut = useCallback(async () => {
-    setIsPendingSignOut(true);
-    await signOut({ callbackUrl: '/' });
-
-    toast(`Logout from Discord Account...`)
-    setIsPendingSignOut(false)
-    setDialogOpen(false)
-    router.push('/')
-  }, [])
-
-  return (
-    <AlertDialog open={dialogOpen}>
-      <AlertDialogTrigger className="w-full" asChild>
-          <Button variant="outline" onClick={() => { setDialogOpen(true) }}>
-            <LogOut />
-            Log out
-          </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Logout </AlertDialogTitle>
-          <AlertDialogDescription>
-            Are you absolutely sure?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleSignOut} disabled={isPendingSignOut}>
-            {!isPendingSignOut ?  'Continue' : 'Logging out...'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}

@@ -7,7 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Button } from "../ui/button";
 import { LogOut } from "lucide-react";
 
-export default function LogoutOption({ session }: {
+export default function LogoutOption({ }: {
   session: {
     user: {
       id: string,

@@ -1,10 +1,9 @@
 "use client"
 import type { PlayerPicked } from "@/server/api/routers/squad-pick";
 import { api } from "@/trpc/react";
-import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import ElementCard from "./element-card";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardHeader, CardTitle } from "./ui/card";
 import DigitReel from "./digit-reel";
 import useBootstrapStore from "@/stores/bootstrap";
 type PickViewProps = {
@@ -30,7 +29,7 @@ export default function PickView({
 
 
   const [managerId, setManagerId] = useState(session?.user?.manager?.managerId ?? "1");
-  const [currentEventId, setCurrentEventId] = useState(bootstrapStore.currentEvent?.id ?? 1);
+  const [, setCurrentEventId] = useState(bootstrapStore.currentEvent?.id ?? 1);
   const [valid, setValid] = useState(false);
 
   const { data, isLoading, error } = api.pick.getCurrentPickFromAPI.useQuery({ currentEvent: bootstrapStore.currentEvent?.id ?? 1, managerId })
@@ -40,7 +39,7 @@ export default function PickView({
     bootstrapStore.setBootstrap(bootstrap!)
     setCurrentEventId(bootstrapStore.currentEvent?.id ?? 1)
   }
-}, [bootstrap, bootstrapStore.currentEvent])
+}, [bootstrap, bootstrapStore, bootstrapStore.currentEvent])
 
   useEffect(() => {
     if (!session) {

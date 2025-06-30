@@ -1,13 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
-import { z } from "zod";
 import axios from "axios"
 
 import {
   createTRPCRouter,
-  protectedProcedure,
   publicProcedure,
 } from "@/server/api/trpc";
 import { BASE_API_URL } from "@/lib/utils";
