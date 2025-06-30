@@ -60,13 +60,13 @@ export default function ElementCard({
       <CardHeader className="p-0">
         <div className="w-full flex flex-col justify-center items-center">
           <div className="relative w-8 h-8 md:w-12 md:h-12">
-            <Image
+            {/* <Image
               src={photo}
               fill={true}
               className="w-8 h-8 md:w-12 md:h-12"
               sizes="20"
               alt={`pl-logo`}
-            />`
+            /> */}
           </div>
           <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
           <CardDescription className="w-full bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white rounded-b-lg border-white">

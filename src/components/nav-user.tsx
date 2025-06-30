@@ -43,9 +43,10 @@ import {
 
 import { signOut, useSession } from "next-auth/react"
 import { Button } from "./ui/button"
-import { useCallback, useState } from "react"
+import { useCallback, useState, type ComponentType } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { navUsers } from "./nav-user-items/nav-user-list"
 
 export function NavUser({
   user,
@@ -105,14 +106,21 @@ export function NavUser({
             >
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs">{user.email}</span>
-                  </div>
+                  <div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
+                {session.user.manager ?  <Avatar>
+                  <AvatarImage src={`https://placehold.co/20x20?text=${session.user.manager.player_first_name[0]}${session.user.manager.player_last_name[0]}`} alt="player_first_name" />
+                  <AvatarFallback>{session.user.manager.player_first_name[0]}{session.user.manager.player_last_name[0]}</AvatarFallback>
+                </Avatar> : null}
+                <Avatar>
+                  <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
+                  <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
+                </Avatar>
+              </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{session.user.manager ? session.user.manager.entry_name : session.user.name }</span>
+                  <span className="truncate text-xs">{session.user.manager ?
+                  `${session.user.manager.player_first_name} ${session.user.manager.player_last_name} / @ ${session.user.name}` : ''}</span>
+                </div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -124,23 +132,28 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCard />
-                  Billing
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
+                { session && session.user && session.user.manager && navUsers.map(({ name, component: Component }) => (
+                  <DropdownMenuItem asChild key={name}>
+                    <Component session={{
+                      user: {
+                        name: session.user.name,
+                        manager: {
+                          id: session.user.manager?.id,
+                          entry_name: session.user.manager?.entry_name,
+                          managerId: session.user.manager?.managerId,
+                          userId: session.user.id,
+                          player_first_name: session.user.manager?.player_first_name,
+                          player_last_name: session.user.manager?.player_last_name,
+                        }
+                      }
+                    }} />
+                  </DropdownMenuItem>
+                )) }
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
+              {/* <DropdownMenuItem asChild>
                 <LogoutOption />
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>
