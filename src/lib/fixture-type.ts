@@ -3,10 +3,10 @@ export type ElementStat = {
   element: number
 };
 
-export type FixtureStatIdentifier = 'goals_scored' | 'assists' | 'own_goals' | 'penalties_saved' | 'penalties_missed' | 'yellow_cards' | 'red_cards' | 'saves' | 'bonus' | 'bps' | 'influence' | 'creativity' | 'threat' | 'ict_index' | 'clean_sheets';
+export type StatIdentifier = 'goals_scored' | 'assists' | 'own_goals' | 'penalties_saved' | 'penalties_missed' | 'yellow_cards' | 'red_cards' | 'saves' | 'bonus' | 'bps' | 'influence' | 'creativity' | 'threat' | 'ict_index' | 'clean_sheets';
 
 export type FixtureStat = {
-  identifier: FixtureStatIdentifier;
+  identifier: StatIdentifier;
   a: ElementStat[];
   h: ElementStat[];
 };
