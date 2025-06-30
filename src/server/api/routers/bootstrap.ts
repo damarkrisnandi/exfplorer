@@ -21,20 +21,5 @@ export const bootstrapRouter = createTRPCRouter({
 
     return bootstrapFromAPI
   }),
-  fetch: publicProcedure
-  .mutation(async () => {
-    const bootstrapFromAPI = await axios.get(BASE_API_URL + "/bootstrap-static", {
-      headers: {}
-    })
-    .then((resp: { data: Bootstrap }) =>  resp.data)
-    .catch((error) => {
-      console.error("Error fetching manager data:", error);
-      throw new Error("Failed to fetch manager data");
-    });
-
-    return bootstrapFromAPI
-  }),
-
-
 
 });

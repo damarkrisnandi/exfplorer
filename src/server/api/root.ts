@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { managerRouter } from "./routers/manager";
 import { pickRouter } from "./routers/squad-pick";
 import { bootstrapRouter } from "./routers/bootstrap";
+import { fixturesRouter } from "./routers/fixtures";
 
 /**
  * This is the primary router for your server.
@@ -10,6 +11,7 @@ import { bootstrapRouter } from "./routers/bootstrap";
  */
 export const appRouter = createTRPCRouter({
   bootstrap: bootstrapRouter,
+  fixtures: fixturesRouter,
   manager: managerRouter,
   pick: pickRouter,
 });
