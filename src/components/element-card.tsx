@@ -41,6 +41,7 @@ export default function ElementCard({
   return (
     <Card className={cn(
       'w-12 h-16 md:w-20 md:h-24 py-2 md:py-4 relative',
+      'bg-gray-900/10',
       'transition-all duration-300 -translate-6 opacity-0',
       easeInOutCard ? 'translate-0 opacity-100' : '',
       className
@@ -69,8 +70,8 @@ export default function ElementCard({
             /> */}
           </div>
           <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
-          <CardDescription className="w-full bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white border-white">
-            <div className="px-[0.3rem] md:px-2 py-full">
+          <CardDescription className="w-full text-white">
+            <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
               <p className="text-[0.5em] md:text-[0.7rem] font-semibold">{!is_captain ?  event_points : event_points * multiplier }Pts</p>
             </div>
           </CardDescription>
