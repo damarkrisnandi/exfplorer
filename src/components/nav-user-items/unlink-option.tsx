@@ -9,6 +9,7 @@ import { api } from "@/trpc/react";
 export default function UnlinkOption({ session }: {
   session: {
     user: {
+      id: string,
       name: string,
       manager: {
         id: string,

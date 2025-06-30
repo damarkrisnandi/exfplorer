@@ -10,6 +10,7 @@ import { LogOut } from "lucide-react";
 export default function LogoutOption({ session }: {
   session: {
     user: {
+      id: string,
       name: string,
       manager: {
         id: string,

@@ -136,14 +136,15 @@ export function NavUser({
                   <DropdownMenuItem asChild key={name}>
                     <Component session={{
                       user: {
-                        name: session.user.name,
+                        name: session.user.name ?? "",
+                        id: session.user.id ?? "",
                         manager: {
-                          id: session.user.manager?.id,
-                          entry_name: session.user.manager?.entry_name,
-                          managerId: session.user.manager?.managerId,
-                          userId: session.user.id,
-                          player_first_name: session.user.manager?.player_first_name,
-                          player_last_name: session.user.manager?.player_last_name,
+                          id: session.user.manager?.id ?? "",
+                          entry_name: session.user.manager?.entry_name ?? "",
+                          managerId: session.user.manager?.managerId ?? "",
+                          userId: session.user.id ?? "",
+                          player_first_name: session.user.manager?.player_first_name ?? "",
+                          player_last_name: session.user.manager?.player_last_name ?? "",
                         }
                       }
                     }} />
