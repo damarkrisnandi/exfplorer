@@ -13,6 +13,7 @@ type NavUser<T> =  {
 export const navUsers: NavUser<{
   session: {
     user: {
+      id: string,
       name: string,
       manager: {
         id: string,
