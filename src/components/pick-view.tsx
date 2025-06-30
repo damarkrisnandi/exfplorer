@@ -32,7 +32,7 @@ export default function PickView({
   const [, setCurrentEventId] = useState(bootstrapStore.currentEvent?.id ?? 1);
   const [valid, setValid] = useState(false);
 
-  const { data, isLoading, error } = api.pick.getCurrentPickFromAPI.useQuery({ currentEvent: bootstrapStore.currentEvent?.id ?? 1, managerId })
+  const { data, isLoading, error } = api.pick.getCurrentPickFromAPI.useQuery({ currentEvent: bootstrapStore.currentEvent?.id ?? null, managerId })
 
   useEffect(() => {
   if (!bootstrapStore.bootstrap) {
@@ -63,11 +63,13 @@ export default function PickView({
 
   if (!valid) return ( <Skeleton /> );
 
-  const { points, event, event_transfers, event_transfers_cost } = data!.entry_history;
+  if (!data) return ( <Skeleton /> );
+
+  const { points, event, event_transfers, event_transfers_cost } = data.entry_history;
   const event_points = points.toString().padStart(2, "0")
 
-  const played = data!.picks?.filter((pick: PlayerPicked) => [1,2, 3, 4, 5, 6, 7, 8, 9,10,11].includes(pick.position)) ?? [];
-  const benched = data!.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
+  const played = data.picks?.filter((pick: PlayerPicked) => [1,2, 3, 4, 5, 6, 7, 8, 9,10,11].includes(pick.position)) ?? [];
+  const benched = data.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
 
   const gkp_played = played.filter((pick: PlayerPicked) => pick.element_type === 1)
   const def_played = played.filter((pick: PlayerPicked) => pick.element_type === 2)

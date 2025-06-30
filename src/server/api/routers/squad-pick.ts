@@ -45,10 +45,13 @@ export const pickRouter = createTRPCRouter({
   getCurrentPickFromAPI: protectedProcedure
   .input(z.object({
     managerId: z.string(),
-    currentEvent: z.number()
+    currentEvent: z.number().nullable()
   }))
   .query(async ({ input }) => {
     const { managerId, currentEvent } = input;
+    if (!currentEvent) {
+      return null;
+    }
     const response = await axios.get(BASE_API_URL + `/picks/${managerId}/${currentEvent}`, {
           headers: {}
     })

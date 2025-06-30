@@ -1,6 +1,6 @@
 'use client'
 import { cn } from "@/lib/utils"
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 

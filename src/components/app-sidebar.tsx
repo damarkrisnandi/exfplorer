@@ -2,19 +2,12 @@
 
 import * as React from "react"
 import {
-  BookOpen,
-  Bot,
   ChartScatter,
   Home,
-  LifeBuoy,
   Radio,
-  Send,
-  Settings2,
   ShieldHalfIcon,
-  SquareTerminal,
 } from "lucide-react"
 
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
