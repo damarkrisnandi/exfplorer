@@ -16,7 +16,6 @@ export default async function Page() {
         <ManagerForm className="w-full !text-black" session={session} />
         </div>
       )}
-      <MainDeadline />
       {session?.user?.manager && (
         <>
           <PickView session={{
