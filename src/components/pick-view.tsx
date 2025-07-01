@@ -90,7 +90,7 @@ export default function PickView({
             {gkp_played.length > 0 && (
               gkp_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -100,7 +100,7 @@ export default function PickView({
             {def_played.length > 0 && (
               def_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -110,7 +110,7 @@ export default function PickView({
             {mid_played.length > 0 && (
               mid_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -120,7 +120,7 @@ export default function PickView({
             {fwd_played.length > 0 && (
               fwd_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -134,7 +134,7 @@ export default function PickView({
                 {benched.length > 0 && (
                   benched.map((pick: PlayerPicked) => (
                     <li key={pick.element}>
-                      <ElementCard {...pick} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                      <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                     </li>
                   ))
                 )}

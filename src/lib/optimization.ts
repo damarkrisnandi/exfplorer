@@ -48,19 +48,18 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
   const xPG = ((expected_goals_per_90 + goalp90) / 2) * game_config.scoring.goals_scored[position(element_type) as keyof PointPerPosition];
   const xPA = ((expected_assists_per_90 + assistp90) / 2) * game_config.scoring.assists;
   const xCS = starts_per_90 >= 0.67
-  ? (clean_sheets_per_90 >= 0.67 ? (game_config.scoring.clean_sheets[position(element_type) as keyof PointPerPosition] * clean_sheets_per_90) : 0)
-  : 0;
+    ? (clean_sheets_per_90 >= 0.67 ? (game_config.scoring.clean_sheets[position(element_type) as keyof PointPerPosition] * clean_sheets_per_90) : 0)
+    : 0;
   const xGC = Math.floor(expected_goals_conceded_per_90 / 2) * game_config.scoring.goals_conceded[position(element_type) as keyof PointPerPosition];
   const xSaves = Math.floor((saves * indexPer90) / 3);
 
-  xP = pMP + xOG + xYC + xRC +  xPG + xPA + xGC + xSaves + xCS;
+  xP = pMP + xOG + xYC + xRC + xPG + xPA + xGC + xSaves + xCS;
 
   const xMin = (minutes / (90 * fixturesLen))
   xP *= (xMin > 0.5) ? 1 : xMin;
   return xP;
 };
 
-// TODO
 const calculateBaseExpectedLastMatches = (
   baseEl: Element,
   game_config: GameConfig,
@@ -114,27 +113,27 @@ const calculateBaseExpectedLastMatches = (
     const goalp90 = goals_scored * indexPer90;
     const assistp90 = assists * indexPer90;
     const position = (element_type: number) => {
-    switch (element_type) {
-      case 1:
-        return 'GKP'
-      case 2:
-        return 'DEF'
-      case 3:
-        return 'MID'
-      case 4:
-        return 'FWD'
+      switch (element_type) {
+        case 1:
+          return 'GKP'
+        case 2:
+          return 'DEF'
+        case 3:
+          return 'MID'
+        case 4:
+          return 'FWD'
 
-      default:
-        return 'FWD'
+        default:
+          return 'FWD'
+      }
     }
-  }
-  const xPG = ((Number(expected_goals) + Number(goalp90)) / 2) * game_config.scoring.goals_scored[position(element_type) as keyof PointPerPosition];
-  const xPA = ((Number(expected_assists) + assistp90) / 2) * game_config.scoring.assists;
-  const xCS = starts >= 0.67
-  ? (clean_sheets >= 0.67 ? (game_config.scoring.clean_sheets[position(element_type) as keyof PointPerPosition] * clean_sheets) : 0)
-  : 0;
-  const xGC = Math.floor(Number(expected_goals_conceded) / 2) * game_config.scoring.goals_conceded[position(element_type) as keyof PointPerPosition];
-  const xSaves = Math.floor((saves * indexPer90) / 3);
+    const xPG = ((Number(expected_goals) + Number(goalp90)) / 2) * game_config.scoring.goals_scored[position(element_type) as keyof PointPerPosition];
+    const xPA = ((Number(expected_assists) + assistp90) / 2) * game_config.scoring.assists;
+    const xCS = starts >= 0.67
+      ? (clean_sheets >= 0.67 ? (game_config.scoring.clean_sheets[position(element_type) as keyof PointPerPosition] * clean_sheets) : 0)
+      : 0;
+    const xGC = Math.floor(Number(expected_goals_conceded) / 2) * game_config.scoring.goals_conceded[position(element_type) as keyof PointPerPosition];
+    const xSaves = Math.floor((saves * indexPer90) / 3);
     if (element_type === 4) {
       const xPG = ((Number(expected_goals) + goalp90) / 2) * 4;
       const xPA = ((Number(expected_assists) + assistp90) / 2) * 3;
@@ -184,7 +183,16 @@ const calculateBaseExpectedLastMatches = (
 
 }
 
-export function getExpectedPoints(
+export function getExpectedPoints({
+  element,
+  currentGameWeek,
+  deltaEvent,
+  game_config,
+  fixtures,
+  teams,
+  elementHistory,
+  last5
+}: {
   element: Element,
   currentGameWeek: number,
   deltaEvent: number,
@@ -193,7 +201,7 @@ export function getExpectedPoints(
   teams: Team[],
   elementHistory?: Element,
   last5?: LiveEvent[]
-) {
+}) {
   const gameWeek = currentGameWeek + deltaEvent;
 
   if (gameWeek > 38) {
@@ -298,12 +306,12 @@ export function getExpectedPoints(
   return totalXP;
 }
 
-  function getHomeAwayIndex(
-    element: Element,
-    teamData: Team,
-    opponentData: Team,
-    isHome: boolean,
-  ) {
+function getHomeAwayIndex(
+  element: Element,
+  teamData: Team,
+  opponentData: Team,
+  isHome: boolean,
+) {
   let haIdxValue = 1;
 
   const homeOff = teamData.strength_attack_home;

@@ -2,6 +2,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { BASE_API_URL, getElementPhotoUrl } from "@/lib/utils";
 import axios from "axios";
+import type { Element, Event, GameConfig, Team } from "@/lib/bootstrap-type";
+import { getExpectedPoints } from "@/lib/optimization";
+import type { Fixture } from "@/lib/fixture-type";
 
 export type PickData = {
   active_chip: string | null;
@@ -39,6 +42,13 @@ export type PlayerPicked = {
     web_name?: string,
     photo?: string,
     event_points?: number
+
+    xp?:number,
+    xp_o5?:number,
+    xp_current?: number,
+    xp_o5_current?: number,
+    delta_xp?: number,
+    delta_xp_05?: number
   }
 
 export const pickRouter = createTRPCRouter({
@@ -61,29 +71,79 @@ export const pickRouter = createTRPCRouter({
       throw new Error("Failed to fetch data");
     });
 
-    const responseElements = await axios.get(BASE_API_URL + `/bootstrap-static`, {
+    // bootstrap-static
+    const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
           headers: {}
     })
-    .then((resp: { data: { elements: {
-      photo: string;
-      web_name: string,
-      id: number,
-      event_points: number
-    }[]} }) =>  resp.data.elements)
+    .then((resp: { data: {
+      elements: Element[],
+      game_config: GameConfig,
+      teams: Team[],
+      events: Event[]
+    } }) =>  resp.data)
     .catch((error) => {
       console.error("Error fetching data:", error);
       throw new Error("Failed to fetch data");
     });
 
+    const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
+          headers: {}
+    })
+    .then((resp: { data: Fixture[] }) => resp.data)
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw new Error("Failed to fetch data");
+    });
+
+    const [
+      {
+        elements,
+        game_config,
+        teams,
+        events
+      },
+      fixtures
+    ] = await Promise.all([bootstrapQuery, fixturesQuery])
+
+    // const {
+    //   elements: responseElements,
+    //   game_config,
+    //   teams,
+    //   events
+    // }
     const finalData: PickData = {
       ...response,
       picks: response.picks.map((pick: PlayerPicked) => {
-        const found = responseElements.find((data: { id: number }) => data.id === pick.element);
+        const foundElement = elements.find((data: { id: number }) => data.id === pick.element);
+        const foundCurrentEvent = events.find((data: Event) => data.is_current)
+
+        const xp_next = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 1,
+          element: foundElement!,
+          game_config,
+          teams,
+          fixtures,
+        })
+
+        const xp_current = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 0,
+          element: foundElement!,
+          game_config,
+          teams,
+          fixtures,
+        })
+
         return {
           ...pick,
-          web_name: found ? found.web_name : undefined,
-          photo: found ? getElementPhotoUrl(found.photo ?? "") : undefined,
-          event_points: found ? found.event_points : 0
+          web_name: foundElement ? foundElement.web_name : undefined,
+          photo: foundElement ? getElementPhotoUrl(foundElement.photo ?? "") : undefined,
+          event_points: foundElement ? foundElement.event_points : 0,
+
+          xp: xp_next,
+          xp_current,
+          delta_xp: (foundElement?.event_points ?? 0) - xp_current
         };
       }),
 

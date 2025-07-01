@@ -6,7 +6,7 @@ import { HydrateClient } from "@/trpc/server";
 import { Button } from "@/components/ui/button";
 import { DiscordIcon } from "@/components/svg-icon";
 import { ManagerForm } from "@/components/mapping-manager";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
@@ -33,7 +33,7 @@ export default async function Home() {
           <div className="flex flex-col items-center gap-2">
             <div className="flex flex-col items-center justify-center gap-4">
               <div className="text-center text-2xl text-white">
-                {session &&
+                {/* {session &&
                   <span className="flex items-center gap-2">
                     <Avatar>
                       <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
@@ -41,7 +41,7 @@ export default async function Home() {
                     </Avatar>
 
                     Logged in as {session.user?.name}
-                  </span>}
+                  </span>} */}
               </div>
               <Button asChild>
                 <Link
