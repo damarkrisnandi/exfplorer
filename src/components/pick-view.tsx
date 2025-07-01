@@ -110,7 +110,7 @@ export default function PickView({
             {mid_played.length > 0 && (
               mid_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
