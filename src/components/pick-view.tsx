@@ -177,14 +177,14 @@ function GameweekPoint({ currentEvent, formattedValue}: { currentEvent?: number,
 }
 
 function GameweekTransfer({ event_transfers, event_transfers_cost}: { event_transfers: number, event_transfers_cost: number}) {
+  const formattedValue = event_transfers.toString().padStart(2, "0")
   return (
-    <div className=" mt-[1.5em] py-8 flex flex-col gap-2">
+    <div className="flex flex-col items-center mt-[1.5em] py-8">
       <div className="flex justify-center items-center">Transfers</div>
-      <Card className="w-32 flex justify-center">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">{ event_transfers } ({ event_transfers_cost > 0 ?  `-${event_transfers_cost}` : event_transfers_cost })</CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="flex">
+          <DigitReel className="rounded-l-lg" value={formattedValue?.[0] ?? "0"} />
+          <DigitReel className="rounded-r-lg" value={formattedValue?.[1] ?? "0"} />
+      </div>
     </div>
   )
 }
