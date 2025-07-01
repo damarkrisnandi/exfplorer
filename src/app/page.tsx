@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { DiscordIcon } from "@/components/svg-icon";
 import { ManagerForm } from "@/components/mapping-manager";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await auth();
 
+  if (session) {
+    redirect("/dashboard");
+  }
 
   return (
     <HydrateClient>
