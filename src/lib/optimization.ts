@@ -1,8 +1,8 @@
 import type { Element, GameConfig, PointPerPosition, Team } from "./bootstrap-type";
-import type { Fixture } from "./fixture-type";
+import type { Fixture, FixtureStat } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
 
-const calculateBaseExpected = (element: Element, game_config: GameConfig, fixturesLen: number) => {
+const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtures: Fixture[]) => {
   let xP = 0;
   const {
     element_type,
@@ -52,10 +52,19 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
     : 0;
   const xGC = Math.floor(expected_goals_conceded_per_90 / 2) * game_config.scoring.goals_conceded[position(element_type) as keyof PointPerPosition];
   const xSaves = Math.floor((saves * indexPer90) / 3);
+  const bpsRank = averageRank(element, fixtures);
+  let xBonus = 0;
+  if (bpsRank && bpsRank <= 1.05) {
+    xBonus = 3
+  } else if (bpsRank && bpsRank <= 2.05) {
+    xBonus = 2
+  } else if (bpsRank && bpsRank <= 3.05) {
+    xBonus = 1
+  }
 
-  xP = pMP + xOG + xYC + xRC + xPG + xPA + xGC + xSaves + xCS;
+  xP = pMP + xOG + xYC + xRC + xPG + xPA + xGC + xSaves + xCS + xBonus;
 
-  const xMin = (minutes / (90 * fixturesLen))
+  const xMin = (minutes / (90 * fixtures.length))
   xP *= (xMin > 0.5) ? 1 : xMin;
   return xP;
 };
@@ -65,7 +74,7 @@ const calculateBaseExpectedLastMatches = (
   game_config: GameConfig,
   stat5: LiveEvent[],
 
-  fixturesLen: number
+  fixtures: Fixture[]
 ) => {
   let xP5 = 0;
   let match = 0
@@ -127,6 +136,8 @@ const calculateBaseExpectedLastMatches = (
           return 'FWD'
       }
     }
+
+
     const xPG = ((Number(expected_goals) + Number(goalp90)) / 2) * game_config.scoring.goals_scored[position(element_type) as keyof PointPerPosition];
     const xPA = ((Number(expected_assists) + assistp90) / 2) * game_config.scoring.assists;
     const xCS = starts >= 0.67
@@ -134,44 +145,20 @@ const calculateBaseExpectedLastMatches = (
       : 0;
     const xGC = Math.floor(Number(expected_goals_conceded) / 2) * game_config.scoring.goals_conceded[position(element_type) as keyof PointPerPosition];
     const xSaves = Math.floor((saves * indexPer90) / 3);
-    if (element_type === 4) {
-      const xPG = ((Number(expected_goals) + goalp90) / 2) * 4;
-      const xPA = ((Number(expected_assists) + assistp90) / 2) * 3;
-      xP = xPG + xPA;
-    }
-    if (element_type === 3) {
-      const xPG = ((Number(expected_goals) + goalp90) / 2) * 5;
-      const xPA = ((Number(expected_assists) + assistp90) / 2) * 3;
-      const xCS = clean_sheets >= 0.67 ? clean_sheets : 0;
-      const xGC = Math.floor(Number(expected_goals_conceded) / 2) * -1;
-      xP = xPG + xPA + xGC + xCS;
-    }
-    if (element_type === 2) {
-      const xPG = ((Number(expected_goals) + goalp90) / 2) * 6;
-      const xPA = ((Number(expected_assists) + assistp90) / 2) * 3;
-      const xCS = starts >= 0.67
-        ? (clean_sheets >= 0.67 ? (4 * clean_sheets) : 0)
-        : 0;
-      const xGC = Math.floor(Number(expected_goals_conceded) / 2) * -1;
-      xP = xPG + xPA + xGC + xCS;
-    }
 
-    if (element_type === 1) {
-      const xPG = ((Number(expected_goals) + goalp90) / 2) * 10;
-      const xPA = ((Number(expected_assists) + assistp90) / 2) * 3;
-      const xCS = starts >= 0.67
-        ? (clean_sheets >= 0.67 ? (4 * clean_sheets) : 0)
-        : 0;
-      const xGC = Math.floor(Number(expected_goals_conceded) / 2) * -1;
-      const xSaves = Math.floor((saves * indexPer90) / 3);
-      xP = xPG +
-        xPA +
-        xGC +
-        xSaves +
-        xCS;
+    const bpsRank = averageRank(baseEl, fixtures);
+    let xBonus = 0;
+    if (bpsRank && bpsRank <= 1.05) {
+      xBonus = 3
+    } else if (bpsRank && bpsRank <= 2.05) {
+      xBonus = 2
+    } else if (bpsRank && bpsRank <= 3.05) {
+      xBonus = 1
     }
 
 
+
+    xP = xPG + xPA + xGC + xSaves + xCS + xBonus;
     xP += pMP + xOG + xYC + xRC;
     // const xMin = (minutes / (90 * fixturesLen))
     // xP *= (xMin > 0.5) ? 1 : xMin;
@@ -191,6 +178,7 @@ export function getExpectedPoints({
   fixtures,
   teams,
   elementHistory,
+  fixturesHistory,
   last5
 }: {
   element: Element,
@@ -200,6 +188,7 @@ export function getExpectedPoints({
   fixtures: Fixture[],
   teams: Team[],
   elementHistory?: Element,
+  fixturesHistory?: Fixture[],
   last5?: LiveEvent[]
 }) {
   const gameWeek = currentGameWeek + deltaEvent;
@@ -219,15 +208,15 @@ export function getExpectedPoints({
   );
 
   if (last5) {
-    xP = calculateBaseExpectedLastMatches(element, game_config, last5, last5.length);
+    xP = calculateBaseExpectedLastMatches(element, game_config, last5, filteredFixtures.filter((f: Fixture) => f.event >= currentGameWeek - last5.length));
   } else {
-    xP = calculateBaseExpected(element, game_config, filteredFixtures.length);
+    xP = calculateBaseExpected(element, game_config, filteredFixtures);
   }
 
 
   let xPHistory = 0;
-  if (elementHistory) {
-    xPHistory = calculateBaseExpected(elementHistory, game_config, 38);
+  if (elementHistory && fixturesHistory) {
+    xPHistory = calculateBaseExpected(elementHistory, game_config, fixturesHistory);
   }
 
   if (elementHistory) {
@@ -375,4 +364,38 @@ function getHomeAwayIndex(
   }
 
   return haIdxValue;
+}
+
+function averageRank(element: Element, fixtures: Fixture[]) {
+  const filteredFixtures = fixtures.filter(
+    (f: Fixture) => f.stats.find(
+      (stat: FixtureStat) => (
+        stat.identifier === 'bps' &&
+        (stat.h.find((e: { element: number, value: number}) => e.element === element.id ) ??
+        stat.a.find((e: { element: number, value: number}) => e.element === element.id ))
+      )
+    )
+  )
+
+  const ranksBPS: number[] = [];
+
+  for (const fixture of filteredFixtures) {
+    const stat = fixture.stats.find((s: FixtureStat) => s.identifier === 'bps');
+    if (!stat) continue;
+
+    // Combine home and away BPS arrays
+    const allBps = [...(stat.h ?? []), ...(stat.a ?? [])];
+
+    // Sort descending by value (higher BPS is better)
+    allBps.sort((a, b) => b.value - a.value);
+
+    // Find the rank (1-based) of the element
+    const rank = allBps.findIndex(e => e.element === element.id);
+    if (rank !== -1) {
+      ranksBPS.push(rank + 1);
+    }
+  }
+
+  if (ranksBPS.length === 0) return null;
+  return ranksBPS.reduce((a, b) => a + b, 0) / ranksBPS.length;
 }
