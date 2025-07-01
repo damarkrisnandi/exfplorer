@@ -3,7 +3,6 @@ import { auth } from "@/server/auth";
 import PickView from "@/components/pick-view";
 import { ManagerForm } from "@/components/mapping-manager";
 import { cn } from "@/lib/utils";
-import MainDeadline from "../_components/main-deadline";
 
 export default async function Page() {
   const session = await auth();
@@ -16,16 +15,15 @@ export default async function Page() {
         <ManagerForm className="w-full !text-black" session={session} />
         </div>
       )}
-      <MainDeadline />
-      {session?.user?.manager && (
-        <>
-          <PickView session={{
-            user: {
-              manager: session.user.manager
-            }
-          }} />
-        </>
-      )}
+        {session?.user?.manager && (
+          <>
+            <PickView session={{
+              user: {
+                manager: session.user.manager
+              }
+            }} />
+          </>
+        )}
     </div>
   )
 }
