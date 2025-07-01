@@ -236,6 +236,7 @@ export function getExpectedPoints({
     s: 0,
   };
 
+  // TODO: specify diffRef for each element
   const diffRef = {
     1: 1.2,
     2: 1.04,

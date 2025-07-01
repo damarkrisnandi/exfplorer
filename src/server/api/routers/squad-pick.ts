@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { BASE_API_URL, getElementPhotoUrl } from "@/lib/utils";
+import { ARCHIVED_API_URL, BASE_API_URL, getElementPhotoUrl, previousSeason } from "@/lib/utils";
 import axios from "axios";
 import type { Element, Event, GameConfig, Team } from "@/lib/bootstrap-type";
 import { getExpectedPoints } from "@/lib/optimization";
 import type { Fixture } from "@/lib/fixture-type";
 import type { LiveEvent } from "@/lib/live-event-type";
-
 export type PickData = {
+
   active_chip: string | null;
   automatic_subs: Array<{
     entry: number;
@@ -87,6 +87,18 @@ export const pickRouter = createTRPCRouter({
       throw new Error("Failed to fetch data");
     });
 
+    const bootstrapHistoryQuery = axios.get(ARCHIVED_API_URL + `/${previousSeason}/bootstrap-static.json`, {
+          headers: {}
+    })
+    .then((resp: { data: {
+      elements: Element[],
+
+    } }) =>  resp.data)
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw new Error("Failed to fetch data");
+    });
+
     const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
           headers: {}
     })
@@ -117,9 +129,12 @@ export const pickRouter = createTRPCRouter({
         teams,
         events
       },
+      {
+        elements: elementsHistory
+      },
       fixtures,
       ...last5
-    ] = await Promise.all([picksQuery, bootstrapQuery, fixturesQuery, ...last5Queries])
+    ] = await Promise.all([picksQuery, bootstrapQuery, bootstrapHistoryQuery,  fixturesQuery, ...last5Queries])
 
     // const {
     //   elements: responseElements,
@@ -131,6 +146,7 @@ export const pickRouter = createTRPCRouter({
       ...picksData,
       picks: picksData.picks.map((pick: PlayerPicked) => {
         const foundElement = elements.find((data: { id: number }) => data.id === pick.element);
+        const foundElementHistory = elementsHistory.find((data: { id: number }) => data.id === pick.element);
         const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
         const xp = getExpectedPoints({
@@ -140,6 +156,9 @@ export const pickRouter = createTRPCRouter({
           game_config,
           teams,
           fixtures,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
+
         })
 
         const xp_current = getExpectedPoints({
@@ -149,6 +168,8 @@ export const pickRouter = createTRPCRouter({
           game_config,
           teams,
           fixtures,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
         })
 
         const xp_o5 = getExpectedPoints({
@@ -158,7 +179,9 @@ export const pickRouter = createTRPCRouter({
           game_config,
           teams,
           fixtures,
-          last5
+          last5,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
         })
 
         const xp_o5_current = getExpectedPoints({
@@ -168,7 +191,9 @@ export const pickRouter = createTRPCRouter({
           game_config,
           teams,
           fixtures,
-          last5
+          last5,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
         })
 
         return {

@@ -9,6 +9,9 @@ export const bgMain = "flex min-h-screen flex-col items-center justify-center  b
 
 
 export const BASE_API_URL: Readonly<string> = "https://fantasy-pl-vercel-proxy.vercel.app";
+export const ARCHIVED_API_URL: Readonly<string> = "https://fpl-static-data.vercel.app";
+export const currentSeason: Readonly<string> = '2024-2025';
+export const previousSeason: Readonly<string> = '2023-2024';
 
 export function getElementPhotoUrl(photo: string): string {
   const imageId = photo?.split(".")[0] ?? "";
