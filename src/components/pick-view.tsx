@@ -84,7 +84,7 @@ export default function PickView({
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center items-between  space-y-2 md:space-y-8"
-        style={{ backgroundImage: "url('./pitch-default.svg')" }}
+        style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
       >
           <ul className=" flex gap-2 justify-center">
             {gkp_played.length > 0 && (
@@ -127,7 +127,7 @@ export default function PickView({
           </ul>
       </div>
       <div className="w-full flex flex-col justify-center items-center space-y-2">
-        <Card className="p-0 w-full md:w-7/12">
+        <Card className="p-0 w-full md:w-7/12 bg-green-400">
           <CardHeader className="p-2">
             <CardTitle className="flex justify-center">Bench</CardTitle>
             <ul className="flex gap-2 justify-evenly items-center">
@@ -157,7 +157,7 @@ function Skeleton() {
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
-        style={{ backgroundImage: "url('./pitch-default.svg')" }}
+        style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
       >
       </div>
     </div>

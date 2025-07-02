@@ -1,3 +1,4 @@
+'use client'
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
@@ -14,10 +15,23 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { usePathname } from "next/navigation"
+
+
 
 export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname()
+
+  const titleMapping = new Map<string, string>();
+  titleMapping.set('', 'Home');
+  titleMapping.set('/data-visualization', 'Data Visualization');
+  titleMapping.set('/live-event', 'Live Event');
+  titleMapping.set('/my-team', 'My Team');
+
+
+
   return (
       <div className={cn(
         'w-full',
@@ -35,13 +49,13 @@ export default function DashboardLayout({
                 <Breadcrumb>
                   <BreadcrumbList>
                     <BreadcrumbItem className="hidden md:block">
-                      <BreadcrumbLink href="#">
-                        Building Your Application
+                      <BreadcrumbLink href="/dashboard">
+                        exFPLorer
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
-                      <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                      <BreadcrumbPage>{ titleMapping.get(pathname?.replace('/dashboard', '') ?? '') }</BreadcrumbPage>
                     </BreadcrumbItem>
                   </BreadcrumbList>
                 </Breadcrumb>

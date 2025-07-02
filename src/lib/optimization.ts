@@ -1,4 +1,4 @@
-import type { Element, GameConfig, PointPerPosition, Team } from "./bootstrap-type";
+import type { Bootstrap, Element, Event, GameConfig, PointPerPosition, Team } from "./bootstrap-type";
 import type { Fixture, FixtureStat } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
 
@@ -400,3 +400,182 @@ function averageRank(element: Element, fixtures: Fixture[]) {
   if (ranksBPS.length === 0) return null;
   return ranksBPS.reduce((a, b) => a + b, 0) / ranksBPS.length;
 }
+
+
+export function wildcardOptimizationModel(
+  {
+    bootstrap,
+    bootstrapHistory,
+    // elements,
+    fixtures,
+    fixturesHistory,
+    // teams,
+    // inputGw,
+    last5,
+  }: {
+  // elements: Element[],
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  // teams: Team[],
+  // inputGw?: number,
+  last5?: LiveEvent[],
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+
+}
+) {
+  bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
+
+  // bootstrap.elements.sort((a: Element, b: Element) => {
+  //   return b["xp"] - a["xp"];
+  // });
+
+  // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
+  const teamConstaints = Object.fromEntries(
+    bootstrap.elements.map((e: Element) => [`team_${e.team_code}`, { max: 3 }]),
+  );
+
+  // only integers
+  const fplInts = Object.fromEntries(
+    bootstrap.elements.map((e: Element) => [`player_${e.id}`, 1]),
+  );
+
+  //#region pick optimization
+  // variables
+  const fplVariables2 = createVariables({
+    bootstrap,
+    bootstrapHistory,
+    fixtures,
+    fixturesHistory,
+    last5
+  });
+  // constraints
+  const maxPick2 = Object.fromEntries(
+    bootstrap.elements.map((e: Element) => [`player_${e.id}`, { max: 1, min: 0 }]),
+  );
+  const posConstraints2 = {
+    gkp: { equal: 2 },
+    def: { equal: 5 },
+    mid: { equal: 5 },
+    fwd: { equal: 3 },
+  };
+  // const playerConstraints2 = Object.fromEntries(mandatoryPlayer.map(p => [p, {"min": 0, "max": 1}]))
+
+  // pick optimization model
+  return {
+    direction: "maximize" as const,
+    objective: "xp",
+    constraints: {
+      ...maxPick2,
+      now_cost: { max: 1000 },
+      ...posConstraints2,
+      ...teamConstaints,
+      max_pick: { equal: 15 },
+    },
+    variables: {
+      ...fplVariables2,
+      // ...fplCaptaincyVariables2
+    },
+    integers: [...Object.keys(fplInts)],
+  };
+};
+
+/**
+ * create variable models
+ * @param {string} suffix
+ * @param {function} filterCat
+ * @param {Array} addEntries
+ * @returns
+ */
+const createVariables = ({
+    bootstrap,
+    bootstrapHistory,
+    // elements,
+    fixtures,
+    fixturesHistory,
+    // teams,
+    // inputGw,
+    last5,
+  }: {
+  // elements: Element[],
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  // teams: Team[],
+  // inputGw?: number,
+  last5?: LiveEvent[],
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+
+}) =>
+  Object.fromEntries(
+    bootstrap.elements
+      .map((e: Element) => {
+        const picksData = {
+          picks: [
+            {
+              element: e.id,
+              multiplier: 1,
+            },
+          ],
+        };
+
+        const elementHist = bootstrapHistory.elements.find((eh: Element) => e.code == eh.code)
+
+        const foundCurrentEvent = bootstrap.events.find((ev: Event) => ev.is_current);
+        const xpDatas = [1, 2, 3].map((n: number) => [
+          `xp_next_${n}`, getExpectedPoints({
+            element: e, currentGameWeek:
+            foundCurrentEvent ? foundCurrentEvent.id :  1,
+            deltaEvent: n,
+            fixtures,
+            teams: bootstrap.teams,
+            last5,
+            elementHistory: elementHist,
+            fixturesHistory: fixturesHistory,
+            game_config: bootstrap.game_config
+          })]);
+
+        const sigmaXpDatas = [1, 2, 3].map((n: number) => getExpectedPoints({
+          element: e, currentGameWeek:
+          foundCurrentEvent ? foundCurrentEvent.id :  1,
+          deltaEvent: n,
+          fixtures,
+          teams: bootstrap.teams,
+          last5,
+          elementHistory: elementHist,
+          fixturesHistory: fixturesHistory,
+          game_config: bootstrap.game_config
+          }));
+        const sigmaXpSum = sigmaXpDatas.reduce((sum, val) => sum + val, 0);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const entries = Object.fromEntries([
+          [`player_${e.id}`, 1],
+          ["fwd", e.element_type == 4 ? 1 : 0],
+          ["mid", e.element_type == 3 ? 1 : 0],
+          ["def", e.element_type == 2 ? 1 : 0],
+          ["gkp", e.element_type == 1 ? 1 : 0],
+          ...xpDatas,
+          [
+            "xp_sigm_3",
+            sigmaXpSum
+          ],
+          [
+            "surplus_point",
+            typeof e.event_points === "number" && typeof xpDatas[0]?.[1] === "number"
+              ? e.event_points - (xpDatas[0][1])
+              : 0,
+          ],
+
+          [`team_${e.team_code}`, 1],
+          [`is_playing_next`, e.chance_of_playing_next_round || 0],
+        ]);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return {
+          ...e,
+          max_pick: 1,
+          ...entries,
+        };
+      })
+      .map((e: Element & Record<string, unknown>): [string, Element & Record<string, unknown>] => [`player_${e.id}`, e]),
+  );
