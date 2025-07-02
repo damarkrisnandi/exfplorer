@@ -94,7 +94,7 @@ export default function ElementCard({
 
         </CardHeader>
       </Card>
-      <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
+      <div className="px-[0.3rem] md:px-2 py-full flex justify-center" style={{ zIndex: 10 }}>
         <p className={cn(
           "text-[0.5em] md:text-[0.7rem]",
           )}>Next</p>
