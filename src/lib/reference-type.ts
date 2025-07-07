@@ -8,7 +8,4 @@ export type Reference = {
   bootstrapHistory: Bootstrap | null,
   fixturesHistory: Fixture[],
   liveEvents: LiveEvent[],
-
-  isLoading: boolean, // handle react-query
-  isError: boolean, // handle react-query
 }
