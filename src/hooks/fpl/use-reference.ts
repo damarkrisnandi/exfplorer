@@ -2,14 +2,11 @@
 
 import type { Event } from "@/lib/bootstrap-type";
 import type { Reference } from "@/lib/reference-type";
-import { fromStorage } from "@/lib/storage";
 import useReferenceStore from "@/stores/reference";
-import { api } from "@/trpc/react";
-import useBootstrap from "./use-bootstrap";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { getArchivedBootstrap, getBootstrapFromStorage, getFixtures, getLiveEventData } from "@/services";
 import { previousSeason } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export default function useReference() {
   const { reference, setReference } = useReferenceStore();
