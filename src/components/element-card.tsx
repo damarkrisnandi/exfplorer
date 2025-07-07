@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils"
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { Ellipsis } from "lucide-react"
+import { Button } from "./ui/button"
 
 type ElementCardProps = {
   className?: string,
@@ -65,6 +67,13 @@ export default function ElementCard({
           'transition-all duration-300 scale-0 opacity-0',
           easeInOutBadge ? 'scale-100 opacity-100' : '',
           )}>V</div>}
+
+          <Button className={cn(
+          "absolute inline-flex items-center justify-center w-6 h-6 text-xs text-white bg-black/50 border-2 border-white rounded-lg top-1 start-1 dark:border-gray-900",
+
+          )}>
+            <Ellipsis />
+            </Button>
         <CardHeader className="p-0">
           <div className="w-full flex flex-col justify-center items-center">
             <div className="relative w-8 h-8 md:w-12 md:h-12">
