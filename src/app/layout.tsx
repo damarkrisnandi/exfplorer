@@ -22,13 +22,17 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${outfit.className}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          {children}
+        </TRPCReactProvider>
         <Toaster toastOptions={
           {
             className: "bg-gray-700 text-white",

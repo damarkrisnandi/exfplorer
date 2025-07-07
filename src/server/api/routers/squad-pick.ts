@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { ARCHIVED_API_URL, BASE_API_URL, getElementPhotoUrl, previousSeason } from "@/lib/utils";
 import axios from "axios";
-import type { Element, Event, GameConfig, Team } from "@/lib/bootstrap-type";
-import { getExpectedPoints } from "@/lib/optimization";
+import type { Bootstrap, Element, Event, GameConfig, Team } from "@/lib/bootstrap-type";
+import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
 import type { Fixture } from "@/lib/fixture-type";
 import type { LiveEvent } from "@/lib/live-event-type";
 export type PickData = {
@@ -52,6 +52,47 @@ export type PlayerPicked = {
     delta_xp_05?: number
   }
 
+  // bootstrap-static
+    const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
+          headers: {}
+    })
+    .then((resp: { data: Bootstrap }) =>  resp.data)
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw new Error("Failed to fetch data");
+    });
+
+    const bootstrapHistoryQuery = axios.get(ARCHIVED_API_URL + `/${previousSeason}/bootstrap-static.json`, {
+          headers: {}
+    })
+    .then((resp: { data: Bootstrap }) =>  resp.data)
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw new Error("Failed to fetch data");
+    });
+
+    const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
+          headers: {}
+    })
+    .then((resp: { data: Fixture[] }) => resp.data)
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      throw new Error("Failed to fetch data");
+    });
+
+    const last5Queries = (currentEvent: number) => [1,2,3,4,5]
+    .filter((n: number) =>  n <= currentEvent)
+    .map((n: number) => {
+      return axios.get(BASE_API_URL + `/live-event/${currentEvent - n - 1}`, {
+        headers: {}
+      })
+      .then((resp: { data: LiveEvent }) =>  resp.data)
+      .catch((error) => {
+        console.error("Error fetching liveEvent:", error);
+        throw new Error("Failed to fetch liveEvent");
+      });
+    })
+
 export const pickRouter = createTRPCRouter({
   getCurrentPickFromAPI: protectedProcedure
   .input(z.object({
@@ -72,54 +113,7 @@ export const pickRouter = createTRPCRouter({
       throw new Error("Failed to fetch data");
     });
 
-    // bootstrap-static
-    const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
-          headers: {}
-    })
-    .then((resp: { data: {
-      elements: Element[],
-      game_config: GameConfig,
-      teams: Team[],
-      events: Event[]
-    } }) =>  resp.data)
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      throw new Error("Failed to fetch data");
-    });
 
-    const bootstrapHistoryQuery = axios.get(ARCHIVED_API_URL + `/${previousSeason}/bootstrap-static.json`, {
-          headers: {}
-    })
-    .then((resp: { data: {
-      elements: Element[],
-
-    } }) =>  resp.data)
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      throw new Error("Failed to fetch data");
-    });
-
-    const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
-          headers: {}
-    })
-    .then((resp: { data: Fixture[] }) => resp.data)
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      throw new Error("Failed to fetch data");
-    });
-
-    const last5Queries = [1,2,3,4,5]
-    .filter((n: number) =>  n <= currentEvent)
-    .map((n: number) => {
-      return axios.get(BASE_API_URL + `/live-event/${currentEvent - n - 1}`, {
-        headers: {}
-      })
-      .then((resp: { data: LiveEvent }) =>  resp.data)
-      .catch((error) => {
-        console.error("Error fetching liveEvent:", error);
-        throw new Error("Failed to fetch liveEvent");
-      });
-    })
 
     const [
       picksData,
@@ -134,7 +128,7 @@ export const pickRouter = createTRPCRouter({
       },
       fixtures,
       ...last5
-    ] = await Promise.all([picksQuery, bootstrapQuery, bootstrapHistoryQuery,  fixturesQuery, ...last5Queries])
+    ] = await Promise.all([picksQuery, bootstrapQuery, bootstrapHistoryQuery,  fixturesQuery, ...last5Queries(currentEvent)])
 
     // const {
     //   elements: responseElements,
@@ -212,5 +206,101 @@ export const pickRouter = createTRPCRouter({
 
     }
     return finalData
+  }),
+
+  getWildcardDraft: publicProcedure
+  .input(z.object({
+    currentEvent: z.number().nullable()
+  }))
+  .query(async ({ input }) => {
+    const { currentEvent } = input;
+    if (!currentEvent) {
+      return null
+    }
+
+    const [
+      bootstrap,
+      bootstrapHistory,
+      fixtures,
+      ...last5
+    ] = await Promise.all([bootstrapQuery, bootstrapHistoryQuery,  fixturesQuery, ...last5Queries(currentEvent)])
+
+    const picksData = optimizationProcess({
+      bootstrap,
+      bootstrapHistory,
+      fixtures,
+      fixturesHistory: fixtures,
+      last5
+    })
+    const finalData: PickData = {
+      ...picksData,
+      picks: picksData.picks.map((pick: PlayerPicked) => {
+        const foundElement = bootstrap.elements.find((data: { id: number }) => data.id === pick.element);
+        const foundElementHistory = bootstrapHistory.elements.find((data: { id: number }) => data.id === pick.element);
+        const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
+
+        const xp = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 1,
+          element: foundElement!,
+          game_config: bootstrap.game_config,
+          teams: bootstrap.teams,
+          fixtures,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
+
+        })
+
+        const xp_current = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 0,
+          element: foundElement!,
+          game_config: bootstrap.game_config,
+          teams: bootstrap.teams,
+          fixtures,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
+        })
+
+        const xp_o5 = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 1,
+          element: foundElement!,
+          game_config: bootstrap.game_config,
+          teams: bootstrap.teams,
+          fixtures,
+          last5,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
+        })
+
+        const xp_o5_current = getExpectedPoints({
+          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+          deltaEvent: 0,
+          element: foundElement!,
+          game_config: bootstrap.game_config,
+          teams: bootstrap.teams,
+          fixtures,
+          last5,
+          elementHistory: foundElementHistory!,
+          fixturesHistory: fixtures,
+        })
+
+        return {
+          ...pick,
+          web_name: foundElement ? foundElement.web_name : undefined,
+          photo: foundElement ? getElementPhotoUrl(foundElement.photo ?? "") : undefined,
+          event_points: foundElement ? foundElement.event_points : 0,
+
+          xp,
+          xp_current,
+          xp_o5,
+          xp_o5_current,
+          delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current
+        };
+      })
+    }
+
+    return finalData;
   })
 })

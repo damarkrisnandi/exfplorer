@@ -1,24 +1,30 @@
-type Mutation<T> = {
-  mutateAsync: () => Promise<void>,
-  data: T | undefined
+export function getCompressedOnly<T>(key: string): string | null {
+  return localStorage.getItem(key) ?? null;
 }
-export async function fromStorage<T>(key: string, mutation: Mutation<T>, holdTime?: number) {
+
+export async function fromStorage<T>(key: string, urlFetch: string, holdTime?: number) {
   // console.log('test encode decode', '{"name": "damar", "id"}', lzw_encode('abcdefgh'), lzw_decode(lzw_encode('abcdefgh')))
   storageSizeCheck();
   clearStorage(key, holdTime);
   if (localStorage.getItem(key)) {
-    return JSON.parse(lzw_decode(localStorage.getItem(key) ?? "")) as T;
+    return JSON.parse(lzw_decode(lzw_decode(localStorage.getItem(key) ?? ''))) as T;
   } else {
-    await mutation.mutateAsync();
-    if (mutation.data) {
-      localStorage.setItem(key, lzw_encode(JSON.stringify(mutation.data)));
+    const response = await import('axios').then(async (axios) =>
+      axios.default.get(urlFetch)
+      .then(({ data }: { data: T }) => data)
+      .catch(() => {
+        throw new Error ('Failed to fetch data')
+      })
+    );
+    if (response) {
+      localStorage.setItem(key, lzw_encode(lzw_encode(JSON.stringify(response))));
     } else {
       localStorage.removeItem(key);
       localStorage.removeItem(`expired_data_storage:${key}`);
       return null;
     }
   }
-  return JSON.parse(lzw_decode(localStorage.getItem(key) ?? "")) as T;
+  return JSON.parse(lzw_decode(lzw_decode(localStorage.getItem(key) ?? ""))) as T;
 }
 
 function clearStorage(key: string, holdTime?: number) {
@@ -162,4 +168,8 @@ function lzw_decode(s: string) {
     oldPhrase = phrase;
   }
   return out.join("");
+}
+
+export function decompress<T>(s: string) {
+  return lzw_decode(lzw_decode(s)) as T;
 }

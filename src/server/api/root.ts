@@ -4,6 +4,7 @@ import { pickRouter } from "./routers/squad-pick";
 import { bootstrapRouter } from "./routers/bootstrap";
 import { fixturesRouter } from "./routers/fixtures";
 import { liveEventRouter } from "./routers/live-event";
+import { referenceRouter } from "./routers/reference";
 
 /**
  * This is the primary router for your server.
@@ -15,7 +16,8 @@ export const appRouter = createTRPCRouter({
   fixtures: fixturesRouter,
   manager: managerRouter,
   pick: pickRouter,
-  liveEvent: liveEventRouter
+  liveEvent: liveEventRouter,
+  reference: referenceRouter
 });
 
 // export type definition of API

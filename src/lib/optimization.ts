@@ -1,6 +1,8 @@
+import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick";
 import type { Bootstrap, Element, Event, GameConfig, PointPerPosition, Team } from "./bootstrap-type";
 import type { Fixture, FixtureStat } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
+import { solve, type Solution } from 'yalps';
 
 const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtures: Fixture[]) => {
   let xP = 0;
@@ -577,5 +579,221 @@ const createVariables = ({
           ...entries,
         };
       })
-      .map((e: Element & Record<string, unknown>): [string, Element & Record<string, unknown>] => [`player_${e.id}`, e]),
+      .map((e: Element & Record<string, unknown>): [string, Record<string, number>] => {
+        // Only include numeric coefficients for the solver
+        const allowedKeys = [
+          `player_${e.id}`,
+          "fwd",
+          "mid",
+          "def",
+          "gkp",
+          "xp_next_1",
+          "xp_next_2",
+          "xp_next_3",
+          "xp_sigm_3",
+          "surplus_point",
+          `team_${e.team_code}`,
+          `is_playing_next`,
+          "max_pick",
+          "now_cost"
+        ];
+        const coeffs: Record<string, number> = {};
+        for (const key of allowedKeys) {
+          if (typeof (e as Record<string, unknown>)[key] === "number") {
+            coeffs[key] = (e as Record<string, unknown>)[key] as number;
+          }
+        }
+        return [`player_${e.id}`, coeffs];
+      }),
   );
+
+  export function optimizationProcess({
+    bootstrap,
+    bootstrapHistory,
+    fixtures,
+    fixturesHistory,
+    last5,
+    picksData
+  }: {
+    bootstrap: Bootstrap,
+    bootstrapHistory: Bootstrap,
+    fixtures: Fixture[],
+    fixturesHistory: Fixture[],
+    last5?: LiveEvent[],
+    picksData?: PickData
+  }) {
+  try {
+    let picksData1;
+    if (!picksData) {
+      picksData1 = {
+        picks: bootstrap.elements.map((el: Element) => {
+          return { element: el.id };
+        }),
+      };
+
+    } else {
+      picksData1 = picksData;
+    }
+
+    const model = wildcardOptimizationModel({
+      bootstrap,
+      bootstrapHistory,
+      fixtures,
+      fixturesHistory,
+      last5
+    });
+
+    const solution: Solution<string> = solve(model);
+    const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
+    const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value ))
+    const choosenCapt = solution.variables.find(([, value]: [string, number]) => value === max)
+    // Build PickData from solution
+    const fakePicks: PickData = {
+      active_chip: null,
+      automatic_subs: [],
+      entry_history: {
+        percentile_rank: 1,
+        event: currentEvent ? currentEvent.id : 1,
+        points: 0,
+        total_points: 0,
+        rank: 0,
+        rank_sort: 0,
+        overall_rank: 0,
+        bank: 0,
+        value: 0,
+        event_transfers: 0,
+        event_transfers_cost: 0,
+        points_on_bench: 0,
+      },
+      picks: solution.variables.map(([identifier, value]: [string, number], index: number) => {
+        const element = Number(identifier.split('_')[1]);
+        const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
+        let multiplier = 1;
+        if (element === captainElement) {
+          multiplier = 2;
+        }
+        if (index > 10) {
+          multiplier = 0;
+        }
+        return {
+          element,
+          multiplier,
+          is_captain: captainElement === element,
+          is_vice_captain: false,
+          position: index + 1,
+        } as PlayerPicked;
+      }),
+    };
+    // if (!picksData) {
+    //   picksData1 = {
+    //     picks: solution2.variables.map((sol: any) => {
+    //       return {
+    //         element: bootstrap.elements.find((e: Element) =>
+    //           e.id == Number(sol[0].split("_")[1])
+    //         ).id,
+    //       };
+    //     }),
+    //   };
+    // }
+
+    // const benched = picksData
+    //   ? picksData1.picks
+    //     .map((p: any, index: number) => {
+    //       return {
+    //         ...p,
+    //         multiplier: 0,
+    //         web_name: elements.find((el: any) => el.id == p.element).web_name,
+    //         xp: getExpectedPoints(
+    //           elements.find((e: any) => e.id == p.element),
+    //           currentEvent.id,
+    //           deltaEvent,
+    //           fixtures,
+    //           teams,
+    //           elementsHistory.find((eh: any) =>
+    //             elements.find((el: any) => el.id == p.element).code == eh.code
+    //           ),
+    //           last5
+    //         ),
+    //       };
+    //     })
+    //     .filter(
+    //       (p: any) =>
+    //         !solution2.variables.map((v: any) => Number(v[0].split("_")[1]))
+    //           .includes(p.element),
+    //     )
+    //   : [];
+
+    // const solutionAsObject: any[] = [
+    //   ...solution2.variables.map((v: any, idx: number) => {
+    //     return {
+    //       element: elements.find((e: any) =>
+    //         e.id == Number(v[0].split("_")[1])
+    //       ).id,
+    //       position: idx + 1,
+    //       is_captain: false,
+    //       is_vice_captain: false,
+    //       multiplier: 1,
+    //       xp: getExpectedPoints(
+    //         elements.find((e: any) => e.id == Number(v[0].split("_")[1])),
+    //         currentEvent.id,
+    //         deltaEvent,
+    //         fixtures,
+    //         teams,
+    //         elementsHistory.find((eh: any) =>
+    //           elements.find((el: any) => el.id == Number(v[0].split("_")[1]))
+    //             .code == eh.code
+    //         ),
+    //         last5
+    //       ),
+    //     };
+    //   }),
+    //   ...benched,
+    // ];
+
+    // const captaincySolution = solutionAsObject.toSorted((a: any, b: any) =>
+    //   b.xp - a.xp
+    // ).slice(0, 2);
+
+    // const result = solutionAsObject.map((res: any, idx: number) => {
+    //   return {
+    //     ...res,
+    //     web_name: elements.find((el: any) => el.id == res.element).web_name,
+    //     position: idx + 1,
+    //     multiplier: captaincySolution[0].element == res.element
+    //       ? 2
+    //       : res.multiplier,
+    //     is_captain: captaincySolution[0].element == res.element ? true : false,
+    //     is_vice_captain: captaincySolution[1].element == res.element
+    //       ? true
+    //       : false,
+    //   };
+    // });
+
+
+    return fakePicks;
+  } catch (error) {
+    // willReplace += 1;
+    // console.log(`replace + 1 = ${willReplace}`)
+  }
+
+  return {
+    active_chip: null,
+    automatic_subs: [],
+    entry_history: {
+      percentile_rank: 1,
+      event:  1,
+      points: 0,
+      total_points: 0,
+      rank: 0,
+      rank_sort: 0,
+      overall_rank: 0,
+      bank: 0,
+      value: 0,
+      event_transfers: 0,
+      event_transfers_cost: 0,
+      points_on_bench: 0,
+    },
+    picks: []
+  } as PickData
+}
+

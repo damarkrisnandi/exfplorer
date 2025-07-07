@@ -14,10 +14,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import useReference from "@/hooks/fpl/use-reference"
+import type { Reference } from "@/lib/reference-type"
+// import { getStorage } from "@/lib/storage"
 import { cn } from "@/lib/utils"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { usePathname } from "next/navigation"
 
-
+const queryClient = new QueryClient();
 
 export default function DashboardLayout({
   children,
@@ -29,10 +33,13 @@ export default function DashboardLayout({
   titleMapping.set('/data-visualization', 'Data Visualization');
   titleMapping.set('/live-event', 'Live Event');
   titleMapping.set('/my-team', 'My Team');
+  // const refData = getStorage('reference') as Reference | undefined;
 
+  // const reference = useReference(refData);
 
 
   return (
+    <QueryClientProvider client={queryClient}>
       <div className={cn(
         'w-full',
       )}>
@@ -71,6 +78,8 @@ export default function DashboardLayout({
           </SidebarInset>
         </SidebarProvider>
       </div>
+
+    </QueryClientProvider>
     )
 
 }

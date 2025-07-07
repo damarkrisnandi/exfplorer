@@ -6,33 +6,17 @@ import ElementCard from "./element-card";
 import { Card, CardHeader, CardTitle } from "./ui/card";
 import DigitReel from "./digit-reel";
 import useBootstrapStore from "@/stores/bootstrap";
-type PickViewProps = {
-  session: {
-    user: {
-      manager: {
-        id: string,
-        managerId: string,
-        player_first_name: string,
-        player_last_name: string,
-        entry_name: string
-      }
-    }
-  }
-}
 
-export default function PickView({
-  session
-}: PickViewProps ) {
+
+export default function WildcardView() {
 
   const {data: bootstrap} = api.bootstrap.get.useQuery();
   const bootstrapStore = useBootstrapStore();
 
-
-  const [managerId, setManagerId] = useState(session?.user?.manager?.managerId ?? "1");
   const [, setCurrentEventId] = useState(bootstrapStore.currentEvent?.id ?? 1);
   const [valid, setValid] = useState(false);
 
-  const { data, isLoading, error } = api.pick.getCurrentPickFromAPI.useQuery({ currentEvent: bootstrapStore.currentEvent?.id ?? null, managerId })
+  const { data, isLoading, error } = api.pick.getWildcardDraft.useQuery({currentEvent: bootstrapStore.currentEvent?.id ?? null,})
 
   useEffect(() => {
   if (!bootstrapStore.bootstrap) {
@@ -40,21 +24,6 @@ export default function PickView({
     setCurrentEventId(bootstrapStore.currentEvent?.id ?? 1)
   }
 }, [bootstrap, bootstrapStore, bootstrapStore.currentEvent])
-
-  useEffect(() => {
-    if (!session) {
-      return
-    }
-
-    if (!session.user) {
-      return
-    }
-    setManagerId(session.user.manager?.managerId ?? "1")
-    // setCurrentEventId(bootstrapStore.currentEvent.id)
-    setValid(true);
-
-
-  }, [session])
 
   if (isLoading) return (
     <Skeleton />
@@ -65,8 +34,8 @@ export default function PickView({
 
   if (!data) return ( <Skeleton /> );
 
-  const { points, event, event_transfers, event_transfers_cost } = data.entry_history;
-  const event_points = points.toString().padStart(2, "0")
+  // const { points, event, event_transfers, event_transfers_cost } = data.entry_history;
+  // const event_points = points.toString().padStart(2, "0")
 
   const played = data.picks?.filter((pick: PlayerPicked) => [1,2, 3, 4, 5, 6, 7, 8, 9,10,11].includes(pick.position)) ?? [];
   const benched = data.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
@@ -79,8 +48,7 @@ export default function PickView({
     <div className="w-full flex flex-col justify-center items-center">
 
       <div className="w-full flex justify-center items-center gap-2">
-        <GameweekTransfer event_transfers={event_transfers ?? 0} event_transfers_cost={event_transfers_cost ?? 0}/>
-        <GameweekPoint currentEvent={ event } formattedValue={event_points}/>
+        <h1>Wildcard Draft</h1>
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center items-between  space-y-2 md:space-y-8"
@@ -169,23 +137,21 @@ function GameweekPoint({ currentEvent, formattedValue}: { currentEvent?: number,
     <div className="flex flex-col items-center mt-[1.5em] py-8">
         <div className="flex justify-center items-center">Gameweek { currentEvent ?? '-'}</div>
         <div className="flex">
-            <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
-              <p className="text-2xl text-white">{formattedValue}</p>
-            </div>
+            <DigitReel className="rounded-l-lg" value={formattedValue?.[0] ?? "0"} />
+            <DigitReel className="rounded-r-lg" value={formattedValue?.[1] ?? "0"} />
         </div>
       </div>
   )
 }
 
 function GameweekTransfer({ event_transfers, event_transfers_cost}: { event_transfers: number, event_transfers_cost: number}) {
-  const formattedValue = (`${event_transfers} (${event_transfers_cost > 0 ? '-'+event_transfers_cost : event_transfers_cost })`).toString()
+  const formattedValue = event_transfers.toString().padStart(2, "0")
   return (
     <div className="flex flex-col items-center mt-[1.5em] py-8">
       <div className="flex justify-center items-center">Transfers</div>
       <div className="flex">
-        <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
-          <p className="text-2xl text-white">{formattedValue}</p>
-        </div>
+          <DigitReel className="rounded-l-lg" value={formattedValue?.[0] ?? "0"} />
+          <DigitReel className="rounded-r-lg" value={formattedValue?.[1] ?? "0"} />
       </div>
     </div>
   )
