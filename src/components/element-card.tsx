@@ -71,6 +71,8 @@ export default function ElementCard({
           <div className={cn(
             "absolute inline-flex items-end justify-center text-white rounded-lg top-1 start-1 dark:border-gray-900",
             delta_xp >= 0 ? "bg-green-700" : "bg-red-700",
+            'transition-all duration-300 opacity-0',
+            easeInOutBadge ? 'opacity-100' : '',
           )}>
             <p className={cn(
               "font-bold",
