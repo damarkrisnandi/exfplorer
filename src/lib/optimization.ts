@@ -540,7 +540,7 @@ export function picksOptimizationModel({
       ...posConstraints2,
       // ...playerConstraints2,
       ...teamConstaints,
-      max_pick: { max: 11 },
+      max_pick: { equal: 11 },
     },
     variables: {
       ...fplVariables2,
@@ -736,11 +736,13 @@ export function optimizationProcess({
       last5,
     }
 
-    const pickOpt = picksOptimizationModel({ ...reference, picksData: picksData1 })
+    const pickOpt = picksOptimizationModel({ ...reference, picksData: picksData1 ?? undefined })
     const wildcardOpt = wildcardOptimizationModel({ ...reference });
 
     let model: typeof pickOpt | typeof wildcardOpt  = pickOpt;
     if (!picksData) model = wildcardOpt
+
+
 
     const solution: Solution<string> = solve(model);
 
@@ -768,6 +770,7 @@ export function optimizationProcess({
         const element = Number(identifier.split('_')[1]);
         const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
         let multiplier = 1;
+        const foundElement = bootstrap.elements.find((el: Element) => el.id === element);
         if (element === captainElement) {
           multiplier = 2;
         }
@@ -775,7 +778,9 @@ export function optimizationProcess({
           multiplier = 0;
         }
         return {
+          element_type: foundElement ? foundElement.element_type : 1,
           element,
+          web_name: foundElement ? foundElement.web_name : 'Player',
           multiplier,
           is_captain: captainElement === element,
           is_vice_captain: false,
@@ -783,6 +788,7 @@ export function optimizationProcess({
         } as PlayerPicked;
       }),
     };
+
     // if (!picksData) {
     //   picksData1 = {
     //     picks: solution2.variables.map((sol: any) => {

@@ -25,15 +25,16 @@ export default function WildcardView() {
   }
 }, [bootstrap, bootstrapStore, bootstrapStore.currentEvent])
 
-  if (isLoading) return (
-    <Skeleton />
-  );
+if (isLoading) return (
+  <Skeleton />
+);
   if (error) return <div>Error loading picks: {error.message}</div>;
 
-  if (!valid) return ( <Skeleton /> );
+  // if (!valid) return ( <Skeleton /> );
 
   if (!data) return ( <Skeleton /> );
 
+  console.log('cek data', data)
   // const { points, event, event_transfers, event_transfers_cost } = data.entry_history;
   // const event_points = points.toString().padStart(2, "0")
 
@@ -123,6 +124,9 @@ function Skeleton() {
         <GameweekTransfer event_transfers={0} event_transfers_cost={0}/>
         <GameweekPoint />
       </div> */}
+      <div className="w-full flex justify-center items-center gap-2">
+        <h1>Wildcard Draft</h1>
+      </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
         style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
