@@ -119,10 +119,10 @@ function Skeleton() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
-      <div className="flex gap-2 justify-center items-center">
+      {/* <div className="flex gap-2 justify-center items-center">
         <GameweekTransfer event_transfers={0} event_transfers_cost={0}/>
         <GameweekPoint />
-      </div>
+      </div> */}
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
         style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
