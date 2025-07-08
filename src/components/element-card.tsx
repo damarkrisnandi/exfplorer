@@ -69,10 +69,10 @@ export default function ElementCard({
           )}>V</div>}
 
           <div className={cn(
-            "absolute inline-flex items-end justify-center w-6 h-6 text-white rounded-lg top-1 start-1 dark:border-gray-900",
+            "absolute inline-flex items-end justify-center w-6 h-6 md:w-10 md:h-10 text-white rounded-lg top-1 start-1 dark:border-gray-900",
             delta_xp >= 0 ? "bg-green-700" : "bg-red-700",
           )}>
-            <p className="text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
+            <p className="text-lg md:text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
             <p className="text-xs">Pts</p>
           </div>
         <CardHeader className="p-0">

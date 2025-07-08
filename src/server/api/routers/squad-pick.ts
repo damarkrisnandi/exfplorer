@@ -2,10 +2,11 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { ARCHIVED_API_URL, BASE_API_URL, getElementPhotoUrl, previousSeason } from "@/lib/utils";
 import axios from "axios";
-import type { Bootstrap, Element, Event, GameConfig, Team } from "@/lib/bootstrap-type";
+import type { Bootstrap, Event } from "@/lib/bootstrap-type";
 import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
 import type { Fixture } from "@/lib/fixture-type";
 import type { LiveEvent } from "@/lib/live-event-type";
+import type { XPoint } from "@/lib/xp-type";
 export type PickData = {
 
   active_chip: string | null;
@@ -43,14 +44,7 @@ export type PlayerPicked = {
     web_name?: string,
     photo?: string,
     event_points?: number
-
-    xp?:number,
-    xp_o5?:number,
-    xp_current?: number,
-    xp_o5_current?: number,
-    delta_xp?: number,
-    delta_xp_05?: number
-  }
+  } & XPoint
 
   // bootstrap-static
     const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
