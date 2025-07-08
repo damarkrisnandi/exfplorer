@@ -68,12 +68,13 @@ export default function ElementCard({
           easeInOutBadge ? 'scale-100 opacity-100' : '',
           )}>V</div>}
 
-          <Button className={cn(
-          "absolute inline-flex items-center justify-center w-6 h-6 text-xs text-white bg-black/50 border-2 border-white rounded-lg top-1 start-1 dark:border-gray-900",
-
+          <div className={cn(
+            "absolute inline-flex items-end justify-center w-6 h-6 text-white rounded-lg top-1 start-1 dark:border-gray-900",
+            delta_xp >= 0 ? "bg-green-700" : "bg-red-700",
           )}>
-            <Ellipsis />
-            </Button>
+            <p className="text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
+            <p className="text-xs">Pts</p>
+          </div>
         <CardHeader className="p-0">
           <div className="w-full flex flex-col justify-center items-center">
             <div className="relative w-8 h-8 md:w-12 md:h-12">
@@ -88,7 +89,7 @@ export default function ElementCard({
             </div>
             <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
             <CardDescription className="w-full text-white">
-              <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
+              {/* <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
                 <p className={cn(
                   "text-[0.5em] md:text-[0.7rem] font-semibold",
                   delta_xp >= 0 ? "bg-green-700" : "bg-red-700",
@@ -97,7 +98,7 @@ export default function ElementCard({
                   "text-[0.5em] md:text-[0.7rem] bg-gray-700",
 
                   )}>{ (!is_captain ?  xp_current : xp_current * multiplier).toFixed(1) }xP</p>
-              </div>
+              </div> */}
             </CardDescription>
           </div>
 
