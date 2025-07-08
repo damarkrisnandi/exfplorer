@@ -75,12 +75,16 @@ export default function PickView({
   const def_played = played.filter((pick: PlayerPicked) => pick.element_type === 2)
   const mid_played = played.filter((pick: PlayerPicked) => pick.element_type === 3)
   const fwd_played = played.filter((pick: PlayerPicked) => pick.element_type === 4)
+
+  const totalDeltaNumber = data.picks?.reduce((a: number, b: PlayerPicked) => a + ((b.event_points ?? 0) - (b.xp_o5_current ?? 0)), 0);
+  const totalDelta = totalDeltaNumber >= 0 ? `+${totalDeltaNumber.toFixed(1)}` : totalDeltaNumber.toFixed(1)
   return (
     <div className="w-full flex flex-col justify-center items-center">
 
       <div className="w-full flex justify-center items-center gap-2">
         <GameweekTransfer event_transfers={event_transfers ?? 0} event_transfers_cost={event_transfers_cost ?? 0}/>
         <GameweekPoint currentEvent={ event } formattedValue={event_points}/>
+        <DeltaXPts currentEvent={ event } formattedValue={totalDelta}/>
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center items-between  space-y-2 md:space-y-8"
@@ -90,7 +94,7 @@ export default function PickView({
             {gkp_played.length > 0 && (
               gkp_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp_05 ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -100,7 +104,7 @@ export default function PickView({
             {def_played.length > 0 && (
               def_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp_05 ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -110,7 +114,7 @@ export default function PickView({
             {mid_played.length > 0 && (
               mid_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp_05 ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -120,7 +124,7 @@ export default function PickView({
             {fwd_played.length > 0 && (
               fwd_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
-                  <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                  <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp_05 ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                 </li>
               ))
             )}
@@ -134,7 +138,7 @@ export default function PickView({
                 {benched.length > 0 && (
                   benched.map((pick: PlayerPicked) => (
                     <li key={pick.element}>
-                      <ElementCard {...pick} xp_current={pick.xp_current ?? 0} xp={pick.xp ?? 0} delta_xp={pick.delta_xp ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
+                      <ElementCard {...pick} xp_current={pick.xp_o5_current ?? 0} xp={pick.xp_o5 ?? 0} delta_xp={pick.delta_xp_05 ?? 0} event_points={pick.event_points ?? 0} photo={pick.photo ?? `https://placehold.co/20x20?text=${pick.web_name ? pick.web_name[0] : 'PL'}`}/>
                     </li>
                   ))
                 )}
@@ -154,6 +158,7 @@ function Skeleton() {
       <div className="flex gap-2 justify-center items-center">
         <GameweekTransfer event_transfers={0} event_transfers_cost={0}/>
         <GameweekPoint />
+        <DeltaXPts />
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
@@ -164,10 +169,23 @@ function Skeleton() {
   )
 }
 
-function GameweekPoint({ currentEvent, formattedValue}: { currentEvent?: number, formattedValue?: string}) {
+function GameweekPoint({ currentEvent, formattedValue }: { currentEvent?: number, formattedValue?: string}) {
   return (
     <div className="flex flex-col items-center mt-[1.5em] py-8">
         <div className="flex justify-center items-center">Gameweek { currentEvent ?? '-'}</div>
+        <div className="flex">
+            <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
+              <p className="text-2xl text-white">{formattedValue}</p>
+            </div>
+        </div>
+      </div>
+  )
+}
+
+function DeltaXPts({ currentEvent, formattedValue }: { currentEvent?: number, formattedValue?: string}) {
+  return (
+    <div className="flex flex-col items-center mt-[1.5em] py-8">
+        <div className="flex justify-center items-center">Δ(xP{ currentEvent ?? '-' },P{ currentEvent ?? '-'})</div>
         <div className="flex">
             <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
               <p className="text-2xl text-white">{formattedValue}</p>

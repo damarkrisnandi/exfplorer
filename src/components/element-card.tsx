@@ -72,12 +72,14 @@ export default function ElementCard({
             "absolute inline-flex items-end justify-center text-white rounded-lg top-1 start-1 dark:border-gray-900",
             'transition-all duration-300 opacity-0',
             easeInOutBadge ? 'opacity-100' : '',
-          )}>
-            <p className={cn(
-              "font-bold",
-              delta_xp >= 0 ? "text-green-700" : "text-red-700",
-            )}>|</p>
-            <p className="text-lg md:text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
+          )} >
+            <div className="flex items-center">
+              <p className={cn(
+                "font-bold",
+                delta_xp >= 0 ? "text-green-700" : "text-red-700",
+              )}>|</p>
+              <p className="text-lg md:text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
+            </div>
             <p className="text-xs">Pts</p>
           </div>
         <CardHeader className="p-0">
