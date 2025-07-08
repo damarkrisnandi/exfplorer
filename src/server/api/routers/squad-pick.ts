@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { ARCHIVED_API_URL, BASE_API_URL, getElementPhotoUrl, previousSeason } from "@/lib/utils";
+import { ARCHIVED_API_URL, BASE_API_URL, currentSeason, getElementPhotoUrl, previousSeason } from "@/lib/utils";
 import axios from "axios";
 import type { Bootstrap, Event } from "@/lib/bootstrap-type";
 import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
@@ -47,7 +47,10 @@ export type PlayerPicked = {
   } & XPoint
 
   // bootstrap-static
-    const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
+    // const bootstrapQuery = axios.get(BASE_API_URL + `/bootstrap-static`, {
+    //       headers: {}
+    // })
+    const bootstrapQuery = axios.get(ARCHIVED_API_URL + `/${currentSeason}/bootstrap-static.json`, {
           headers: {}
     })
     .then((resp: { data: Bootstrap }) =>  resp.data)
@@ -65,7 +68,10 @@ export type PlayerPicked = {
       throw new Error("Failed to fetch data");
     });
 
-    const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
+    // const fixturesQuery = axios.get(BASE_API_URL + `/fixtures`, {
+    //       headers: {}
+    // })
+    const fixturesQuery = axios.get(ARCHIVED_API_URL + `/${currentSeason}/fixtures.json`, {
           headers: {}
     })
     .then((resp: { data: Fixture[] }) => resp.data)
@@ -77,7 +83,10 @@ export type PlayerPicked = {
     const last5Queries = (currentEvent: number) => [1,2,3,4,5]
     .filter((n: number) =>  n <= currentEvent)
     .map((n: number) => {
-      return axios.get(BASE_API_URL + `/live-event/${currentEvent - n - 1}`, {
+      // return axios.get(BASE_API_URL + `/live-event/${currentEvent - n - 1}`, {
+      //   headers: {}
+      // })
+      return axios.get(ARCHIVED_API_URL + `/${currentSeason}/live-event/${currentEvent - n - 1}.json`, {
         headers: {}
       })
       .then((resp: { data: LiveEvent }) =>  resp.data)
@@ -206,52 +215,20 @@ export const pickRouter = createTRPCRouter({
         const foundElementHistory = bootstrapHistory.elements.find((data: { id: number }) => data.id === pick.element);
         const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
 
-        const xp = getExpectedPoints({
+        const xpRef = {
           currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 1,
           element: foundElement!,
           game_config: bootstrap.game_config,
           teams: bootstrap.teams,
           fixtures,
           elementHistory: foundElementHistory!,
           fixturesHistory: fixtures,
+        }
+        const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1 })
+        const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0 })
 
-        })
-
-        const xp_current = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 0,
-          element: foundElement!,
-          game_config: bootstrap.game_config,
-          teams: bootstrap.teams,
-          fixtures,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
-
-        const xp_o5 = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 1,
-          element: foundElement!,
-          game_config: bootstrap.game_config,
-          teams: bootstrap.teams,
-          fixtures,
-          last5,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
-
-        const xp_o5_current = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 0,
-          element: foundElement!,
-          game_config: bootstrap.game_config,
-          teams: bootstrap.teams,
-          fixtures,
-          last5,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
+        const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
+        const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
 
         return {
           ...pick,

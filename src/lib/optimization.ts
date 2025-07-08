@@ -691,6 +691,8 @@ export function optimizationProcess({
   picksData?: PickData
 }) {
   try {
+    const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
+
     const newBootstrap = {
       ...bootstrap,
       elements: bootstrap.elements.map((el: Element) => {
@@ -731,8 +733,6 @@ export function optimizationProcess({
       fixturesHistory,
       last5,
     }
-
-    const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
 
     let picksData1: PickData;
     if (!picksData) {
@@ -928,6 +928,7 @@ export function optimizationProcess({
 
     return fakePicks;
   } catch (error) {
+    console.log('cekkkkk error', error);
     // willReplace += 1;
     // console.log(`replace + 1 = ${willReplace}`)
   }
