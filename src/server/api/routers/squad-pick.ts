@@ -219,13 +219,16 @@ export const pickRouter = createTRPCRouter({
       ...last5
     ] = await Promise.all([bootstrapQuery, bootstrapHistoryQuery,  fixturesQuery, ...last5Queries(currentEvent)])
 
-    const picksData = optimizationProcess({
+    const reference = {
       bootstrap,
       bootstrapHistory,
       fixtures,
       fixturesHistory: fixtures,
       last5
-    })
+    }
+    const wildCardDraftAsPickData = optimizationProcess({ ...reference });
+    const picksData = optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
+
     const finalData: PickData = {
       ...picksData,
       picks: picksData.picks.map((pick: PlayerPicked) => {

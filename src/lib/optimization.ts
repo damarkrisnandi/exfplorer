@@ -374,8 +374,8 @@ function averageRank(element: Element, fixtures: Fixture[]) {
     (f: Fixture) => f.stats.find(
       (stat: FixtureStat) => (
         stat.identifier === 'bps' &&
-        (stat.h.find((e: { element: number, value: number}) => e.element === element.id ) ??
-        stat.a.find((e: { element: number, value: number}) => e.element === element.id ))
+        (stat.h.find((e: { element: number, value: number }) => e.element === element.id) ??
+          stat.a.find((e: { element: number, value: number }) => e.element === element.id))
       )
     )
   )
@@ -404,33 +404,24 @@ function averageRank(element: Element, fixtures: Fixture[]) {
 }
 
 
-export function wildcardOptimizationModel(
-  {
+export function wildcardOptimizationModel({
     bootstrap,
     bootstrapHistory,
-    // elements,
     fixtures,
     fixturesHistory,
-    // teams,
-    // inputGw,
     last5,
   }: {
-  // elements: Element[],
-  fixtures: Fixture[],
-  fixturesHistory: Fixture[],
-  // teams: Team[],
-  // inputGw?: number,
-  last5?: LiveEvent[],
-  bootstrap: Bootstrap,
-  bootstrapHistory: Bootstrap,
-
-}
-) {
+    fixtures: Fixture[],
+    fixturesHistory: Fixture[],
+    last5?: LiveEvent[],
+    bootstrap: Bootstrap,
+    bootstrapHistory: Bootstrap,
+}) {
   bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
 
-  // bootstrap.elements.sort((a: Element, b: Element) => {
-  //   return b["xp"] - a["xp"];
-  // });
+  bootstrap.elements.sort((a: Element, b: Element) => {
+    return (b.xp_o5_current ?? 0) - (a.xp_o5_current ?? 0);
+  });
 
   // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
   const teamConstaints = Object.fromEntries(
@@ -466,13 +457,90 @@ export function wildcardOptimizationModel(
   // pick optimization model
   return {
     direction: "maximize" as const,
-    objective: "xp",
+    objective: "xp_o5",
     constraints: {
       ...maxPick2,
       now_cost: { max: 1000 },
       ...posConstraints2,
       ...teamConstaints,
       max_pick: { equal: 15 },
+    },
+    variables: {
+      ...fplVariables2,
+      // ...fplCaptaincyVariables2
+    },
+    integers: [...Object.keys(fplInts)],
+  };
+};
+
+export function picksOptimizationModel({
+  bootstrap,
+  bootstrapHistory,
+  fixtures,
+  fixturesHistory,
+  last5,
+  picksData
+}: {
+  // elements: Element[],
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  last5?: LiveEvent[],
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+  picksData: PickData
+
+}) {
+  bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
+  const elements1 = bootstrap.elements.filter((el: Element) =>
+    picksData.picks.map((a: PlayerPicked) => a.element).includes(el.id)
+  );
+  elements1.sort((a: Element, b: Element) => {
+    return (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0);
+  });
+
+  // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
+  const teamConstaints = Object.fromEntries(
+    elements1.map((e: Element) => [`team_${e.team_code}`, { max: 3 }]),
+  );
+
+  // only integers
+  const fplInts = Object.fromEntries(
+    elements1.map((e: Element) => [`player_${e.id}`, 1]),
+  );
+
+  //#region pick optimization
+  // variables
+  const fplVariables2 = createVariables({
+    bootstrap,
+    bootstrapHistory,
+    fixtures,
+    fixturesHistory,
+    last5
+  });
+
+  // constraints
+  const maxPick2 = Object.fromEntries(
+    elements1.map((e: Element) => [`player_${e.id}`, { max: 1, min: 0 }]),
+  );
+  const posConstraints2 = {
+    gkp: { min: 1, max: 1 },
+    def: { min: 3, max: 5 },
+    mid: { min: 2, max: 5 },
+    fwd: { min: 1, max: 3 },
+  };
+  // const playerConstraints2 = Object.fromEntries(mandatoryPlayer.map(p => [p, {"min": 0, "max": 1}]))
+
+  // pick optimization model
+  return {
+    direction: "maximize" as const,
+    objective: "xp_o5",
+    constraints: {
+      ...maxPick2,
+      // "now_cost": {"max": money},
+      ...posConstraints2,
+      // ...playerConstraints2,
+      ...teamConstaints,
+      max_pick: { max: 11 },
     },
     variables: {
       ...fplVariables2,
@@ -490,15 +558,15 @@ export function wildcardOptimizationModel(
  * @returns
  */
 const createVariables = ({
-    bootstrap,
-    bootstrapHistory,
-    // elements,
-    fixtures,
-    fixturesHistory,
-    // teams,
-    // inputGw,
-    last5,
-  }: {
+  bootstrap,
+  bootstrapHistory,
+  // elements,
+  fixtures,
+  fixturesHistory,
+  // teams,
+  // inputGw,
+  last5,
+}: {
   // elements: Element[],
   fixtures: Fixture[],
   fixturesHistory: Fixture[],
@@ -527,7 +595,7 @@ const createVariables = ({
         const xpDatas = [1, 2, 3].map((n: number) => [
           `xp_next_${n}`, getExpectedPoints({
             element: e, currentGameWeek:
-            foundCurrentEvent ? foundCurrentEvent.id :  1,
+              foundCurrentEvent ? foundCurrentEvent.id : 1,
             deltaEvent: n,
             fixtures,
             teams: bootstrap.teams,
@@ -539,7 +607,7 @@ const createVariables = ({
 
         const sigmaXpDatas = [1, 2, 3].map((n: number) => getExpectedPoints({
           element: e, currentGameWeek:
-          foundCurrentEvent ? foundCurrentEvent.id :  1,
+            foundCurrentEvent ? foundCurrentEvent.id : 1,
           deltaEvent: n,
           fixtures,
           teams: bootstrap.teams,
@@ -547,7 +615,7 @@ const createVariables = ({
           elementHistory: elementHist,
           fixturesHistory: fixturesHistory,
           game_config: bootstrap.game_config
-          }));
+        }));
         const sigmaXpSum = sigmaXpDatas.reduce((sum, val) => sum + val, 0);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const entries = Object.fromEntries([
@@ -607,27 +675,52 @@ const createVariables = ({
       }),
   );
 
-  export function optimizationProcess({
-    bootstrap,
-    bootstrapHistory,
-    fixtures,
-    fixturesHistory,
-    last5,
-    picksData
-  }: {
-    bootstrap: Bootstrap,
-    bootstrapHistory: Bootstrap,
-    fixtures: Fixture[],
-    fixturesHistory: Fixture[],
-    last5?: LiveEvent[],
-    picksData?: PickData
-  }) {
+export function optimizationProcess({
+  bootstrap,
+  bootstrapHistory,
+  fixtures,
+  fixturesHistory,
+  last5,
+  picksData
+}: {
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  last5?: LiveEvent[],
+  picksData?: PickData
+}) {
   try {
-    let picksData1;
+    const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
+
+    let picksData1: PickData;
     if (!picksData) {
       picksData1 = {
+        active_chip: null,
+        automatic_subs: [],
+        entry_history: {
+          percentile_rank: 1,
+          event: currentEvent ? currentEvent.id : 1,
+          points: 0,
+          total_points: 0,
+          rank: 0,
+          rank_sort: 0,
+          overall_rank: 0,
+          bank: 0,
+          value: 0,
+          event_transfers: 0,
+          event_transfers_cost: 0,
+          points_on_bench: 0,
+        },
         picks: bootstrap.elements.map((el: Element) => {
-          return { element: el.id };
+          return {
+            element: el.id,
+            position: 1,
+            multiplier: 1,
+            is_captain: false,
+            is_vice_captain: false,
+            element_type: el.element_type
+          };
         }),
       };
 
@@ -635,17 +728,23 @@ const createVariables = ({
       picksData1 = picksData;
     }
 
-    const model = wildcardOptimizationModel({
+    const reference = {
       bootstrap,
       bootstrapHistory,
       fixtures,
       fixturesHistory,
-      last5
-    });
+      last5,
+    }
+
+    const pickOpt = picksOptimizationModel({ ...reference, picksData: picksData1 })
+    const wildcardOpt = wildcardOptimizationModel({ ...reference });
+
+    let model: typeof pickOpt | typeof wildcardOpt  = pickOpt;
+    if (!picksData) model = wildcardOpt
 
     const solution: Solution<string> = solve(model);
-    const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
-    const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value ))
+
+    const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value))
     const choosenCapt = solution.variables.find(([, value]: [string, number]) => value === max)
     // Build PickData from solution
     const fakePicks: PickData = {
@@ -781,7 +880,7 @@ const createVariables = ({
     automatic_subs: [],
     entry_history: {
       percentile_rank: 1,
-      event:  1,
+      event: 1,
       points: 0,
       total_points: 0,
       rank: 0,

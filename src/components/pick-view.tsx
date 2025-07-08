@@ -4,7 +4,6 @@ import { api } from "@/trpc/react";
 import React, { useEffect, useState } from "react";
 import ElementCard from "./element-card";
 import { Card, CardHeader, CardTitle } from "./ui/card";
-import DigitReel from "./digit-reel";
 import useBootstrapStore from "@/stores/bootstrap";
 type PickViewProps = {
   session: {

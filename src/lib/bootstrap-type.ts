@@ -1,3 +1,4 @@
+import type { XPoint } from "./xp-type";
 
 export type Chip = {
   id: number;
@@ -311,4 +312,4 @@ export type Element = {
   selected_rank_type: number;
   starts_per_90: number;
   clean_sheets_per_90: number;
-};
+} & XPoint;

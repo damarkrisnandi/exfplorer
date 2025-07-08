@@ -21,6 +21,10 @@ export default async function Page() {
         <ManagerForm className="w-full !text-black" session={session} />
         </div>
       )}
+      <div className="my-16">
+        <WildcardView />
+      </div>
+
       {session?.user?.manager && (
         <>
           <PickView session={{
