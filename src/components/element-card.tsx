@@ -1,10 +1,8 @@
 'use client'
 import { cn } from "@/lib/utils"
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
-import Image from "next/image"
+// import Image from "next/image"
 import { useEffect, useState } from "react"
-import { Ellipsis } from "lucide-react"
-import { Button } from "./ui/button"
 
 type ElementCardProps = {
   className?: string,
@@ -85,14 +83,14 @@ export default function ElementCard({
         <CardHeader className="p-0">
           <div className="w-full flex flex-col justify-center items-center">
             <div className="relative w-8 h-8 md:w-12 md:h-12">
-              <Image
+              {/* <Image
                 src={photo}
                 fill={true}
                 className="w-8 h-8 md:w-12 md:h-12"
                 sizes="20"
                 alt={`pl-logo`}
                 priority={true}
-              />
+              /> */}
             </div>
             <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
             <CardDescription className="w-full text-white">
