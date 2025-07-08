@@ -137,52 +137,20 @@ export const pickRouter = createTRPCRouter({
         const foundElementHistory = elementsHistory.find((data: { id: number }) => data.id === pick.element);
         const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
-        const xp = getExpectedPoints({
+        const xpRef = {
           currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 1,
           element: foundElement!,
           game_config,
           teams,
           fixtures,
           elementHistory: foundElementHistory!,
           fixturesHistory: fixtures,
+        }
 
-        })
-
-        const xp_current = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 0,
-          element: foundElement!,
-          game_config,
-          teams,
-          fixtures,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
-
-        const xp_o5 = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 1,
-          element: foundElement!,
-          game_config,
-          teams,
-          fixtures,
-          last5,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
-
-        const xp_o5_current = getExpectedPoints({
-          currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
-          deltaEvent: 0,
-          element: foundElement!,
-          game_config,
-          teams,
-          fixtures,
-          last5,
-          elementHistory: foundElementHistory!,
-          fixturesHistory: fixtures,
-        })
+        const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1, });
+        const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, });
+        const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
+        const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
 
         return {
           ...pick,
@@ -194,7 +162,8 @@ export const pickRouter = createTRPCRouter({
           xp_current,
           xp_o5,
           xp_o5_current,
-          delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current
+          delta_xp: (foundElement?.event_points ?? 0) - xp_current,
+          delta_xp_05: (foundElement?.event_points ?? 0) - xp_o5_current
         };
       }),
 
@@ -227,10 +196,8 @@ export const pickRouter = createTRPCRouter({
       last5
     }
     const wildCardDraftAsPickData = optimizationProcess({ ...reference });
-    console.log('cekkkk', wildCardDraftAsPickData);
-    const picksData = optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
+    const picksData = wildCardDraftAsPickData //optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
 
-    console.log(picksData);
 
     const finalData: PickData = {
       ...picksData,

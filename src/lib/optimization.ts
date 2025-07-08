@@ -691,6 +691,47 @@ export function optimizationProcess({
   picksData?: PickData
 }) {
   try {
+    const newBootstrap = {
+      ...bootstrap,
+      elements: bootstrap.elements.map((el: Element) => {
+        const foundElementHistory = bootstrapHistory.elements.find((elh: Element) => elh.code === el.code )
+
+        const xpRef = {
+          fixtures,
+          game_config: bootstrap.game_config,
+          teams: bootstrap.teams,
+          fixturesHistory: fixtures,
+          element: el,
+          currentGameWeek: currentEvent ? currentEvent.id : 1,
+          elementHistory: foundElementHistory!
+        }
+
+        const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1, });
+        const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, });
+        const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
+
+
+        const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
+        return {
+          ...el,
+          xp,
+          xp_current,
+          xp_o5,
+          xp_o5_current,
+          delta_xp: el.event_points - xp_current,
+          delta_xp_05: el.event_points - xp_o5_current
+        }
+      })
+    };
+
+    const reference = {
+      bootstrap: newBootstrap,
+      bootstrapHistory,
+      fixtures,
+      fixturesHistory,
+      last5,
+    }
+
     const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
 
     let picksData1: PickData;
@@ -712,28 +753,37 @@ export function optimizationProcess({
           event_transfers_cost: 0,
           points_on_bench: 0,
         },
-        picks: bootstrap.elements.map((el: Element) => {
+        picks: reference.bootstrap.elements.map((el: Element) => {
           return {
             element: el.id,
             position: 1,
             multiplier: 1,
             is_captain: false,
             is_vice_captain: false,
-            element_type: el.element_type
+            element_type: el.element_type,
+
+            xp: el.xp,
+            xp_current: el.xp_current,
+            xp_o5: el.xp_o5,
+            xp_o5_current: el.xp_o5_current
           };
         }),
       };
 
     } else {
-      picksData1 = picksData;
-    }
-
-    const reference = {
-      bootstrap,
-      bootstrapHistory,
-      fixtures,
-      fixturesHistory,
-      last5,
+      picksData1 = {
+        ...picksData,
+        picks: picksData.picks.map((pick: PlayerPicked) => {
+          const foundElement = reference.bootstrap.elements.find((el: Element) => el.id === pick.element);
+          return {
+            ...pick,
+            xp: foundElement?.xp,
+            xp_o5: foundElement?.xp_o5,
+            xp_current: foundElement?.xp_current,
+            xp_o5_current: foundElement?.xp_o5_current
+          }
+        })
+      };
     }
 
     const pickOpt = picksOptimizationModel({ ...reference, picksData: picksData1 ?? undefined })
@@ -788,6 +838,7 @@ export function optimizationProcess({
         } as PlayerPicked;
       }),
     };
+    console.log('picks:', fakePicks.picks.map(({web_name}) => web_name).join(', '))
 
     // if (!picksData) {
     //   picksData1 = {
