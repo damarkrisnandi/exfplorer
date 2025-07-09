@@ -6,6 +6,7 @@ import ElementCard from "./element-card";
 import { Card, CardHeader, CardTitle } from "./ui/card";
 import useBootstrapStore from "@/stores/bootstrap";
 import type { Element } from "@/lib/bootstrap-type";
+import { Sparkles } from "lucide-react";
 
 
 export default function WildcardView() {
@@ -51,9 +52,9 @@ export default function WildcardView() {
   const totalXP = played.reduce((a: number, item: PlayerPicked) => a + (item.xp_o5 ?? 0), 0).toFixed(1);
   return (
     <div className="w-full flex flex-col justify-center items-center gap-2">
-
-      <div className="w-full flex justify-center items-center gap-2">
-        <h1>Wildcard Draft</h1>
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-hsl(34,197,94)/10 text-hsl(34,197,94) font-medium mb-6">
+        <Sparkles className="w-4 h-4" />
+        Wildcard Draft
       </div>
 
       <div className="flex gap-2 justify-center items-center">
@@ -129,9 +130,11 @@ function Skeleton() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
-      <div className="w-full flex justify-center items-center gap-2">
-        <h1>Wildcard Draft</h1>
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-hsl(34,197,94)/10 text-hsl(34,197,94) font-medium mb-6">
+        <Sparkles className="w-4 h-4" />
+        Wildcard Draft
       </div>
+
       <div className="flex gap-2 justify-center items-center">
         <Cost cost={0}/>
         <ExpectedPoints />
