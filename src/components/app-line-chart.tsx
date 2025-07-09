@@ -89,6 +89,18 @@ export function AppLineChart({ session }: AppLineChartProps) {
       fill: chipUsage ? `var(--color-${chipUsage.name})` : `var(--color-rank)`
     }
   })
+
+  const DataFormater = (number) => {
+  if(number > 1000000000){
+    return (number/1000000000).toString() + 'B';
+  }else if(number > 1000000){
+    return (number/1000000).toString() + 'M';
+  }else if(number > 1000){
+    return (number/1000).toString() + 'K';
+  }else{
+    return number.toString();
+  }
+  }
   return (
     <Card className="w-full">
       <CardHeader>
@@ -106,7 +118,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
               right: 24,
             }}
           >
-            <YAxis reversed />
+            <YAxis tickFormatter={DataFormatter} reversed />
             <CartesianGrid vertical={false} />
             {/* <ChartTooltip
               cursor={false}
