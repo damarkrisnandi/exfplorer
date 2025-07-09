@@ -1,7 +1,7 @@
 import type { TooltipIndex } from "recharts/types/state/tooltipSlice";
 
 type PropertiesReadFromContext = 'viewBox' | 'active' | 'coordinate' | 'accessibilityLayer';
-export type TooltipProps<TValue extends ValueType, TName extends NameType> = Omit<DefaultTooltipContentProps<TValue, TName>, PropertiesReadFromContext> & {
+export type CustomTooltipProps<TValue extends ValueType, TName extends NameType> = Omit<DefaultTooltipContentProps<TValue, TName>, PropertiesReadFromContext> & {
     /**
      * If true, then Tooltip is always displayed, once an activeIndex is set by mouse over, or programmatically.
      * If false, then Tooltip is never displayed.
@@ -62,4 +62,4 @@ export type TooltipProps<TValue extends ValueType, TName extends NameType> = Omi
      */
     axisId?: AxisId;
 };
-export declare function CustomTooltip<TValue extends ValueType, TName extends NameType>(outsideProps: TooltipProps<TValue, TName>): React.JSX.Element;
+export declare function CustomTooltip<TValue extends ValueType, TName extends NameType>(outsideProps: CustomTooltipProps<TValue, TName>): React.JSX.Element;
