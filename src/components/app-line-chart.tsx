@@ -108,7 +108,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
           >
             <YAxis reversed />
             <CartesianGrid vertical={false} />
-            <ChartTooltip
+            {/* <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
@@ -117,7 +117,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
                   hideLabel
                 />
               }
-            />
+            /> */}
             <Line
               dataKey="rank"
               type="natural"
