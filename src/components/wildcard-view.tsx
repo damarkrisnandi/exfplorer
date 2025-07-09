@@ -4,8 +4,8 @@ import { api } from "@/trpc/react";
 import React, { useEffect, useState } from "react";
 import ElementCard from "./element-card";
 import { Card, CardHeader, CardTitle } from "./ui/card";
-import DigitReel from "./digit-reel";
 import useBootstrapStore from "@/stores/bootstrap";
+import type { Element } from "@/lib/bootstrap-type";
 
 
 export default function WildcardView() {
@@ -30,13 +30,11 @@ if (isLoading) return (
 );
   if (error) return <div>Error loading picks: {error.message}</div>;
 
-  // if (!valid) return ( <Skeleton /> );
-
   if (!data) return ( <Skeleton /> );
 
-  console.log('cek data', data)
-  // const { points, event, event_transfers, event_transfers_cost } = data.entry_history;
+  const { event } = data.entry_history;
   // const event_points = points.toString().padStart(2, "0")
+
 
   const played = data.picks?.filter((pick: PlayerPicked) => [1,2, 3, 4, 5, 6, 7, 8, 9,10,11].includes(pick.position)) ?? [];
   const benched = data.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
@@ -45,11 +43,21 @@ if (isLoading) return (
   const def_played = played.filter((pick: PlayerPicked) => pick.element_type === 2)
   const mid_played = played.filter((pick: PlayerPicked) => pick.element_type === 3)
   const fwd_played = played.filter((pick: PlayerPicked) => pick.element_type === 4)
+  const totalCost = bootstrap?.elements
+  .filter((el) => played.map((p: PlayerPicked) => p.element).includes(el.id))
+  .reduce((a: number, item: Element) => a + item.now_cost, 0)
+  ?? 0
+  const totalXP = played.reduce((a: number, item: PlayerPicked) => a + (item.xp_o5 ?? 0), 0).toFixed(1);
   return (
     <div className="w-full flex flex-col justify-center items-center">
 
       <div className="w-full flex justify-center items-center gap-2">
         <h1>Wildcard Draft</h1>
+      </div>
+
+      <div className="flex gap-2 justify-center items-center">
+        <Cost cost={ totalCost }/>
+        <ExpectedPoints currentEvent={ event } formattedValue={ totalXP } />
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center items-between  space-y-2 md:space-y-8"
@@ -120,10 +128,10 @@ function Skeleton() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
-      {/* <div className="flex gap-2 justify-center items-center">
-        <GameweekTransfer event_transfers={0} event_transfers_cost={0}/>
-        <GameweekPoint />
-      </div> */}
+      <div className="flex gap-2 justify-center items-center">
+        <Cost cost={0}/>
+        <ExpectedPoints />
+      </div>
       <div className="w-full flex justify-center items-center gap-2">
         <h1>Wildcard Draft</h1>
       </div>
@@ -136,27 +144,31 @@ function Skeleton() {
   )
 }
 
-function GameweekPoint({ currentEvent, formattedValue}: { currentEvent?: number, formattedValue?: string}) {
+
+function ExpectedPoints({ currentEvent, formattedValue }: { currentEvent?: number, formattedValue?: string}) {
   return (
     <div className="flex flex-col items-center mt-[1.5em] py-8">
-        <div className="flex justify-center items-center">Gameweek { currentEvent ?? '-'}</div>
+        <div className="flex justify-center items-center">XP{ currentEvent ? currentEvent + 1 : '-'}</div>
         <div className="flex">
-            <DigitReel className="rounded-l-lg" value={formattedValue?.[0] ?? "0"} />
-            <DigitReel className="rounded-r-lg" value={formattedValue?.[1] ?? "0"} />
+            <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
+              <p className="text-2xl text-white">{formattedValue}</p>
+            </div>
         </div>
       </div>
   )
 }
 
-function GameweekTransfer({ event_transfers, event_transfers_cost}: { event_transfers: number, event_transfers_cost: number}) {
-  const formattedValue = event_transfers.toString().padStart(2, "0")
+function Cost({ cost }: { cost: number }) {
+  const formattedValue = (cost/10).toFixed(1);
   return (
     <div className="flex flex-col items-center mt-[1.5em] py-8">
-      <div className="flex justify-center items-center">Transfers</div>
+      <div className="flex justify-center items-center">Cost</div>
       <div className="flex">
-          <DigitReel className="rounded-l-lg" value={formattedValue?.[0] ?? "0"} />
-          <DigitReel className="rounded-r-lg" value={formattedValue?.[1] ?? "0"} />
+        <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
+          <p className="text-2xl text-white">{formattedValue}£</p>
+        </div>
       </div>
     </div>
   )
 }
+

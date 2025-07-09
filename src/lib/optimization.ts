@@ -3,6 +3,7 @@ import type { Bootstrap, Element, Event, GameConfig, PointPerPosition, Team } fr
 import type { Fixture, FixtureStat } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
 import { solve, type Solution } from 'yalps';
+import type { XPoint } from "./xp-type";
 
 const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtures: Fixture[]) => {
   let xP = 0;
@@ -405,17 +406,19 @@ function averageRank(element: Element, fixtures: Fixture[]) {
 
 
 export function wildcardOptimizationModel({
-    bootstrap,
-    bootstrapHistory,
-    fixtures,
-    fixturesHistory,
-    last5,
-  }: {
-    fixtures: Fixture[],
-    fixturesHistory: Fixture[],
-    last5?: LiveEvent[],
-    bootstrap: Bootstrap,
-    bootstrapHistory: Bootstrap,
+  bootstrap,
+  bootstrapHistory,
+  fixtures,
+  fixturesHistory,
+  last5,
+  objective,
+}: {
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  last5?: LiveEvent[],
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+  objective?: keyof XPoint
 }) {
   bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
 
@@ -494,6 +497,7 @@ export function picksOptimizationModel({
   const elements1 = bootstrap.elements.filter((el: Element) =>
     picksData.picks.map((a: PlayerPicked) => a.element).includes(el.id)
   );
+
   elements1.sort((a: Element, b: Element) => {
     return (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0);
   });
@@ -510,8 +514,12 @@ export function picksOptimizationModel({
 
   //#region pick optimization
   // variables
+  const newBootstrap = {
+    ...bootstrap,
+    elements: elements1
+  }
   const fplVariables2 = createVariables({
-    bootstrap,
+    bootstrap: newBootstrap,
     bootstrapHistory,
     fixtures,
     fixturesHistory,
@@ -536,9 +544,91 @@ export function picksOptimizationModel({
     objective: "xp_o5",
     constraints: {
       ...maxPick2,
-      // "now_cost": {"max": money},
       ...posConstraints2,
-      // ...playerConstraints2,
+      ...teamConstaints,
+      max_pick: { equal: 11 },
+    },
+    variables: {
+      ...fplVariables2,
+      // ...fplCaptaincyVariables2
+    },
+    integers: [...Object.keys(fplInts)],
+  };
+};
+
+export function optimizationModel({
+  direction,
+  objective,
+  bootstrap,
+  bootstrapHistory,
+  fixtures,
+  fixturesHistory,
+  last5,
+  picksData
+}: {
+  direction: 'maximize' | 'minimize',
+  objective: keyof Element,
+  // elements: Element[],
+  fixtures: Fixture[],
+  fixturesHistory: Fixture[],
+  last5?: LiveEvent[],
+  bootstrap: Bootstrap,
+  bootstrapHistory: Bootstrap,
+  picksData: PickData
+
+}) {
+  bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
+  const elements1 = bootstrap.elements.filter((el: Element) =>
+    picksData.picks.map((a: PlayerPicked) => a.element).includes(el.id)
+  );
+
+  elements1.sort((a: Element, b: Element) => {
+    return (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0);
+  });
+
+  // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
+  const teamConstaints = Object.fromEntries(
+    elements1.map((e: Element) => [`team_${e.team_code}`, { max: 3 }]),
+  );
+
+  // only integers
+  const fplInts = Object.fromEntries(
+    elements1.map((e: Element) => [`player_${e.id}`, 1]),
+  );
+
+  //#region pick optimization
+  // variables
+  const newBootstrap = {
+    ...bootstrap,
+    elements: elements1
+  }
+  const fplVariables2 = createVariables({
+    bootstrap: newBootstrap,
+    bootstrapHistory,
+    fixtures,
+    fixturesHistory,
+    last5
+  });
+
+  // constraints
+  const maxPick2 = Object.fromEntries(
+    elements1.map((e: Element) => [`player_${e.id}`, { max: 1, min: 0 }]),
+  );
+  const posConstraints2 = {
+    gkp: { min: 1, max: 1 },
+    def: { min: 3, max: 5 },
+    mid: { min: 2, max: 5 },
+    fwd: { min: 1, max: 3 },
+  };
+  // const playerConstraints2 = Object.fromEntries(mandatoryPlayer.map(p => [p, {"min": 0, "max": 1}]))
+
+  // pick optimization model
+  return {
+    direction,
+    objective,
+    constraints: {
+      ...maxPick2,
+      ...posConstraints2,
       ...teamConstaints,
       max_pick: { equal: 11 },
     },
@@ -681,22 +771,25 @@ export function optimizationProcess({
   fixtures,
   fixturesHistory,
   last5,
-  picksData
+  picksData,
+  modelName
 }: {
   bootstrap: Bootstrap,
   bootstrapHistory: Bootstrap,
   fixtures: Fixture[],
   fixturesHistory: Fixture[],
   last5?: LiveEvent[],
-  picksData?: PickData
+  picksData?: PickData,
+  modelName?: 'wildcard' | 'pick' | 'overqualified'
 }) {
+  const isWildcard = !picksData;
   try {
     const currentEvent = bootstrap.events.find((event: Event) => event.is_current);
 
     const newBootstrap = {
       ...bootstrap,
       elements: bootstrap.elements.map((el: Element) => {
-        const foundElementHistory = bootstrapHistory.elements.find((elh: Element) => elh.code === el.code )
+        const foundElementHistory = bootstrapHistory.elements.find((elh: Element) => elh.code === el.code)
 
         const xpRef = {
           fixtures,
@@ -735,7 +828,7 @@ export function optimizationProcess({
     }
 
     let picksData1: PickData;
-    if (!picksData) {
+    if (isWildcard) {
       picksData1 = {
         active_chip: null,
         automatic_subs: [],
@@ -765,7 +858,9 @@ export function optimizationProcess({
             xp: el.xp,
             xp_current: el.xp_current,
             xp_o5: el.xp_o5,
-            xp_o5_current: el.xp_o5_current
+            xp_o5_current: el.xp_o5_current,
+            delta_xp_05: el.event_points - (el.xp_o5_current ?? 0),
+            delta_xp: el.event_points - (el.xp ?? 0)
           };
         }),
       };
@@ -780,24 +875,38 @@ export function optimizationProcess({
             xp: foundElement?.xp,
             xp_o5: foundElement?.xp_o5,
             xp_current: foundElement?.xp_current,
-            xp_o5_current: foundElement?.xp_o5_current
+            xp_o5_current: foundElement?.xp_o5_current,
+            delta_xp_05: (foundElement?.event_points ?? 0) - (foundElement?.xp_o5_current ?? 0),
+            delta_xp: (foundElement?.event_points ?? 0) - (foundElement?.xp ?? 0)
           }
         })
       };
     }
 
     const pickOpt = picksOptimizationModel({ ...reference, picksData: picksData1 ?? undefined })
-    const wildcardOpt = wildcardOptimizationModel({ ...reference });
+    const wildcardOpt = wildcardOptimizationModel({ ...reference, objective: 'delta_xp_05' });
 
-    let model: typeof pickOpt | typeof wildcardOpt  = pickOpt;
-    if (!picksData) model = wildcardOpt
-
-
+    const model: typeof pickOpt | typeof wildcardOpt = !isWildcard ? pickOpt : wildcardOpt;
 
     const solution: Solution<string> = solve(model);
 
+
     const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value))
     const choosenCapt = solution.variables.find(([, value]: [string, number]) => value === max)
+    const benched = [];
+    if (!isWildcard && solution.variables.length === 11) {
+      const benchPicks: PlayerPicked[] = picksData1.picks
+        .filter((pick: PlayerPicked) => !solution.variables.map(
+          (v: [string, number]) => Number(v[0].replace('player_', ''))
+        ).includes(pick.element))
+        .map((pick: PlayerPicked, i: number) => {
+          return {
+            ...pick,
+            position: i + 12
+          }
+        })
+      benched.push(...benchPicks)
+    }
     // Build PickData from solution
     const fakePicks: PickData = {
       active_chip: null,
@@ -816,119 +925,44 @@ export function optimizationProcess({
         event_transfers_cost: 0,
         points_on_bench: 0,
       },
-      picks: solution.variables.map(([identifier, value]: [string, number], index: number) => {
-        const element = Number(identifier.split('_')[1]);
-        const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
-        let multiplier = 1;
-        const foundElement = bootstrap.elements.find((el: Element) => el.id === element);
-        if (element === captainElement) {
-          multiplier = 2;
-        }
-        if (index > 10) {
-          multiplier = 0;
-        }
-        return {
-          element_type: foundElement ? foundElement.element_type : 1,
-          element,
-          web_name: foundElement ? foundElement.web_name : 'Player',
-          multiplier,
-          is_captain: captainElement === element,
-          is_vice_captain: false,
-          position: index + 1,
-        } as PlayerPicked;
-      }),
+      picks: [
+        ...solution.variables.map(([identifier, value]: [string, number], index: number) => {
+          const element = Number(identifier.split('_')[1]);
+          const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
+          let multiplier = 1;
+          const foundElement = bootstrap.elements.find((el: Element) => el.id === element);
+          if (element === captainElement) {
+            multiplier = 2;
+          }
+          if (index > 10) {
+            multiplier = 0;
+          }
+
+
+          return {
+            element_type: foundElement ? foundElement.element_type : 1,
+            element,
+            web_name: foundElement ? foundElement.web_name : 'Player',
+            multiplier,
+            is_captain: captainElement === element,
+            is_vice_captain: false,
+            position: index + 1,
+
+            xp: foundElement?.xp,
+            xp_o5: foundElement?.xp_o5,
+            xp_current: foundElement?.xp_current,
+            xp_o5_current: foundElement?.xp_o5_current,
+            delta_xp_05: (foundElement?.event_points ?? 0) - (foundElement?.xp_o5_current ?? 0),
+            delta_xp: (foundElement?.event_points ?? 0) - (foundElement?.xp ?? 0)
+          } as PlayerPicked;
+        }),
+        ...benched
+      ]
     };
-    console.log('picks:', fakePicks.picks.map(({web_name}) => web_name).join(', '))
-
-    // if (!picksData) {
-    //   picksData1 = {
-    //     picks: solution2.variables.map((sol: any) => {
-    //       return {
-    //         element: bootstrap.elements.find((e: Element) =>
-    //           e.id == Number(sol[0].split("_")[1])
-    //         ).id,
-    //       };
-    //     }),
-    //   };
-    // }
-
-    // const benched = picksData
-    //   ? picksData1.picks
-    //     .map((p: any, index: number) => {
-    //       return {
-    //         ...p,
-    //         multiplier: 0,
-    //         web_name: elements.find((el: any) => el.id == p.element).web_name,
-    //         xp: getExpectedPoints(
-    //           elements.find((e: any) => e.id == p.element),
-    //           currentEvent.id,
-    //           deltaEvent,
-    //           fixtures,
-    //           teams,
-    //           elementsHistory.find((eh: any) =>
-    //             elements.find((el: any) => el.id == p.element).code == eh.code
-    //           ),
-    //           last5
-    //         ),
-    //       };
-    //     })
-    //     .filter(
-    //       (p: any) =>
-    //         !solution2.variables.map((v: any) => Number(v[0].split("_")[1]))
-    //           .includes(p.element),
-    //     )
-    //   : [];
-
-    // const solutionAsObject: any[] = [
-    //   ...solution2.variables.map((v: any, idx: number) => {
-    //     return {
-    //       element: elements.find((e: any) =>
-    //         e.id == Number(v[0].split("_")[1])
-    //       ).id,
-    //       position: idx + 1,
-    //       is_captain: false,
-    //       is_vice_captain: false,
-    //       multiplier: 1,
-    //       xp: getExpectedPoints(
-    //         elements.find((e: any) => e.id == Number(v[0].split("_")[1])),
-    //         currentEvent.id,
-    //         deltaEvent,
-    //         fixtures,
-    //         teams,
-    //         elementsHistory.find((eh: any) =>
-    //           elements.find((el: any) => el.id == Number(v[0].split("_")[1]))
-    //             .code == eh.code
-    //         ),
-    //         last5
-    //       ),
-    //     };
-    //   }),
-    //   ...benched,
-    // ];
-
-    // const captaincySolution = solutionAsObject.toSorted((a: any, b: any) =>
-    //   b.xp - a.xp
-    // ).slice(0, 2);
-
-    // const result = solutionAsObject.map((res: any, idx: number) => {
-    //   return {
-    //     ...res,
-    //     web_name: elements.find((el: any) => el.id == res.element).web_name,
-    //     position: idx + 1,
-    //     multiplier: captaincySolution[0].element == res.element
-    //       ? 2
-    //       : res.multiplier,
-    //     is_captain: captaincySolution[0].element == res.element ? true : false,
-    //     is_vice_captain: captaincySolution[1].element == res.element
-    //       ? true
-    //       : false,
-    //   };
-    // });
-
 
     return fakePicks;
   } catch (error) {
-    console.log('cekkkkk error', error);
+    console.log('error', error);
     // willReplace += 1;
     // console.log(`replace + 1 = ${willReplace}`)
   }

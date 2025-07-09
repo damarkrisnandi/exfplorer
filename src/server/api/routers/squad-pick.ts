@@ -205,7 +205,7 @@ export const pickRouter = createTRPCRouter({
       last5
     }
     const wildCardDraftAsPickData = optimizationProcess({ ...reference });
-    const picksData = wildCardDraftAsPickData //optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
+    const picksData = optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
 
 
     const finalData: PickData = {
