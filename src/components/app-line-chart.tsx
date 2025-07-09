@@ -1,7 +1,7 @@
 "use client"
 
 import { Ellipsis, TrendingUp, X } from "lucide-react"
-import { CartesianGrid, LabelList, Line, LineChart } from "recharts"
+import { CartesianGrid, LabelList, Line, LineChart, YAxis } from "recharts"
 
 import {
   Card,
@@ -84,9 +84,9 @@ export function AppLineChart({ session }: AppLineChartProps) {
     //  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" }
     const chipUsage = managerHistory.chips.find((chip: ChipUsage) => chip.event === data.event)
     return {
-      chip: chipUsage ?? '',
+      chip: chipUsage?.name ?? '',
       rank: data.overall_rank,
-      fill: chipUsage ? `var(--color-${chipUsage.name})` : `var(--color-basic)`
+      fill: chipUsage ? `var(--color-${chipUsage.name})` : `var(--color-rank)`
     }
   })
   return (
@@ -106,6 +106,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
               right: 24,
             }}
           >
+            <YAxis reversed />
             <CartesianGrid vertical={false} />
             <ChartTooltip
               cursor={false}
@@ -120,10 +121,10 @@ export function AppLineChart({ session }: AppLineChartProps) {
             <Line
               dataKey="rank"
               type="natural"
-              stroke="var(--color-basic)"
+              stroke="var(--color-rank)"
               strokeWidth={2}
               dot={{
-                fill: "var(--color-basic)",
+                fill: "var(--color-rank)",
               }}
               activeDot={{
                 r: 6,
