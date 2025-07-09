@@ -90,7 +90,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
     }
   })
 
-  const DataFormater = (number: number) => {
+  const DataFormatter = (number: number) => {
   if(number > 1000000000){
     return (number/1000000000).toString() + 'B';
   }else if(number > 1000000){
