@@ -167,7 +167,7 @@ function Cost({ cost }: { cost: number }) {
       <div className="flex justify-center items-center">Cost</div>
       <div className="flex">
         <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
-          <p className="text-2xl font-bold text-white">{formattedValue}£</p>
+          <p className="text-2xl font-bold text-white">£{formattedValue}m</p>
         </div>
       </div>
     </div>

@@ -66,8 +66,8 @@ const MainDeadline = () => {
       "flex flex-col items-center",
       themeGradient
       )}>
-      <div className="bg-hsl(34,197,94) text-white rounded-lg p-4 min-w-[80px] shadow-lg">
-        <div className="text-3xl md:text-4xl font-bold text-center">
+      <div className="bg-hsl(34,197,94) text-white rounded-lg p-4 min-w-[80px] md:min-h-[160px] shadow-lg flex items-center justify-center">
+        <div className="text-3xl md:text-7xl font-bold text-center">
           {value.toString().padStart(2, '0')}
         </div>
       </div>
