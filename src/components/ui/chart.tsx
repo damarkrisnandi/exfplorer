@@ -4,7 +4,7 @@ import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
 import { cn } from "@/lib/utils"
-import { CustomTooltip } from "@/lib/custom-tooltip"
+// import { CustomTooltip } from "@/lib/custom-tooltip"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -101,7 +101,7 @@ ${colorConfig
   )
 }
 
-const ChartTooltip = CustomTooltip
+const ChartTooltip = RechartsPrimitive.Tooltip
 
 function ChartTooltipContent({
   active,
@@ -117,7 +117,7 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-}: React.ComponentProps<typeof CustomTooltip> &
+}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<"div"> & {
     hideLabel?: boolean
     hideIndicator?: boolean
