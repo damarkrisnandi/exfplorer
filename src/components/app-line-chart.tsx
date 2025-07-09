@@ -118,7 +118,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
               right: 24,
             }}
           >
-            <YAxis tickFormatter={DataFormatter} reversed />
+            <YAxis tickFormatter={DataFormatter} width={20} reversed />
             <CartesianGrid vertical={false} />
             {/* <ChartTooltip
               cursor={false}
