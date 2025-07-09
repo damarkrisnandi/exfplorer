@@ -21,8 +21,10 @@ export default async function Page() {
         <ManagerForm className="w-full !text-black" session={session} />
         </div>
       )}
-      <div className="my-16">
-        <WildcardView />
+      <div className="my-16 w-full flex justify-center">
+        <div className="w-full md:w-7/12 ">
+          <WildcardView />
+        </div>
       </div>
 
       {session?.user?.manager && (

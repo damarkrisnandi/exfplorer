@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils"
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
 // import Image from "next/image"
 import { useEffect, useState } from "react"
+import { CheckIcon, X, type Check } from "lucide-react"
 
 type ElementCardProps = {
   className?: string,
@@ -76,9 +77,15 @@ export default function ElementCard({
                 "font-bold",
                 delta_xp >= 0 ? "text-green-700" : "text-red-700",
               )}>|</p>
-              <p className="text-lg md:text-2xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
+              <p className="text-lg md:text-3xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
             </div>
-            <p className="text-xs">Pts</p>
+              <div className="flex flex-col">
+                <p className="text-xs">Pts</p>
+                <span className="flex items-center bg-gray-600 text-white">
+                  {delta_xp >= 0 ? <CheckIcon className="w-[0.6em] h-[0.6em]"/> : <X className="w-[0.6em] h-[0.6em]"/>}
+                  <p className="text-[0.6em] text-white">{xp_current.toFixed(1)}xP</p>
+                </span>
+              </div>
           </div>
         <CardHeader className="p-0">
           <div className="w-full flex flex-col justify-center items-center">
