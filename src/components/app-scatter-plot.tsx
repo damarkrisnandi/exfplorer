@@ -52,7 +52,7 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
         <XAxis {...dataX}  domain={[0, 12]} />
         <YAxis {...dataY}  domain={[0, 12]} />
 
-        <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+        {/* <Tooltip cursor={{ strokeDasharray: "3 3" }} /> */}
         <Legend />
         {dataSeparation.map((obj: { label: string, filter: (el: Element) => boolean, fill: string}) => (
           <Scatter key={obj.label} name={obj.label} data={bootstrap.elements.filter((el: Element) => obj.filter(el))} fill={obj.fill}>
