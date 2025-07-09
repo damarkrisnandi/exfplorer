@@ -14,8 +14,8 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
+  // ChartTooltip,
+  // ChartTooltipContent,
 } from "@/components/ui/chart"
 import { api } from "@/trpc/react"
 import type { ChipUsage, EventManager } from "@/lib/manager-history-type"
