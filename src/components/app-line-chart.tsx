@@ -92,8 +92,8 @@ export function AppLineChart({ session }: AppLineChartProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Line Chart - Custom Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Overall Ranks</CardTitle>
+        <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
