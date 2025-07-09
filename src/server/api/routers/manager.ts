@@ -11,6 +11,7 @@ import {
 } from "@/server/api/trpc";
 import { BASE_API_URL } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
+import type { ManagerHistory } from "@/lib/manager-history-type";
 
 export type ManagerFromAPI = {
   id: number;
@@ -151,5 +152,28 @@ export const managerRouter = createTRPCRouter({
     return userUnlinked;
   }),
 
+
+  fetchManagerHistory: protectedProcedure
+  .input(z.object({
+    managerId: z.string().nullable()
+  }))
+  .query(async ({ input }) => {
+    const { managerId } = input;
+    if (!managerId) {
+      return null;
+    }
+
+    const managerHistory = await axios.get(BASE_API_URL + "/manager/" + managerId + "/history", {
+      headers: {}
+    })
+    .then((resp: { data: ManagerHistory }) =>  resp.data)
+    .catch((error) => {
+      console.error("Error fetching manager data:", error);
+      throw new Error("Failed to fetch manager data");
+    });
+
+    return managerHistory
+
+  })
 
 });
