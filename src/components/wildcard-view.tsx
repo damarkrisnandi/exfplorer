@@ -61,7 +61,7 @@ export default function WildcardView() {
         <ExpectedPoints currentEvent={ event } formattedValue={ totalXP } />
       </div>
       <div
-        className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center items-between  space-y-2 md:space-y-8"
+        className="bg bg-cover bg-center h-72 md:h-screen w-full flex flex-col justify-center items-between  space-y-2 md:space-y-8"
         style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
       >
           <ul className=" flex gap-2 justify-center">
@@ -105,7 +105,7 @@ export default function WildcardView() {
           </ul>
       </div>
       <div className="w-full flex flex-col justify-center items-center space-y-2">
-        <Card className="p-0 w-full md:w-7/12 bg-green-400">
+        <Card className="p-0 w-full bg-green-400">
           <CardHeader className="p-2">
             <CardTitle className="flex justify-center">Bench</CardTitle>
             <ul className="flex gap-2 justify-evenly items-center">
@@ -137,7 +137,7 @@ function Skeleton() {
         <ExpectedPoints />
       </div>
       <div
-        className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"
+        className="bg bg-cover bg-center h-72 md:h-screen w-full flex flex-col justify-center space-y-8"
         style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
       >
       </div>
@@ -152,12 +152,13 @@ function ExpectedPoints({ currentEvent, formattedValue }: { currentEvent?: numbe
         <div className="flex justify-center items-center">XP{ currentEvent ? currentEvent + 1 : '-'}</div>
         <div className="flex">
             <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
-              <p className="text-2xl text-white">{formattedValue}</p>
+              <p className="text-2xl text-white font-bold">{formattedValue}</p>
             </div>
         </div>
       </div>
   )
 }
+
 
 function Cost({ cost }: { cost: number }) {
   const formattedValue = (cost/10).toFixed(1);
@@ -166,7 +167,7 @@ function Cost({ cost }: { cost: number }) {
       <div className="flex justify-center items-center">Cost</div>
       <div className="flex">
         <div className="w-20 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
-          <p className="text-xl text-white">{formattedValue}£</p>
+          <p className="text-2xl font-bold text-white">{formattedValue}£</p>
         </div>
       </div>
     </div>
