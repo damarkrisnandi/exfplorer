@@ -25,9 +25,10 @@ export default function WildcardView() {
   }
 }, [bootstrap, bootstrapStore, bootstrapStore.currentEvent])
 
-if (isLoading) return (
-  <Skeleton />
-);
+  if (window === undefined) return <>Please wait...</>
+  if (isLoading) return (
+    <Skeleton />
+  );
   if (error) return <div>Error loading picks: {error.message}</div>;
 
   if (!data) return ( <Skeleton /> );

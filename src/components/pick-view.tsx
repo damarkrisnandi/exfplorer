@@ -55,6 +55,7 @@ export default function PickView({
 
   }, [session])
 
+  if (window === undefined) return <>Please wait...</>
   if (isLoading) return (
     <Skeleton />
   );
