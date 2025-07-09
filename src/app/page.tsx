@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import WildcardView from "@/components/wildcard-view";
 import WildcardFeature from "./_components/wildcard-feature";
 import HeroSection from "./_components/hero-section";
+import FeaturesSection from "./_components/feature-section";
 
 export default async function Home() {
   const session = await auth();
@@ -31,22 +32,8 @@ export default async function Home() {
         <div className="w-full">
           <WildcardFeature />
         </div>
-
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex flex-col items-center justify-center gap-4">
-            <div className="text-center text-2xl text-white">
-              {/* {session &&
-                <span className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage src={session?.user.image ?? `https://placehold.co/20x20?text=A`} alt={session?.user.name} />
-                    <AvatarFallback>{session?.user.name[0]}</AvatarFallback>
-                  </Avatar>
-
-                  Logged in as {session.user?.name}
-                </span>} */}
-            </div>
-
-          </div>
+        <div className="w-full">
+          <FeaturesSection />
         </div>
         <footer className="flex justify-center items-center w-full p-10">
           <p className="text-xs text-white font-semibold">2025 &copy;damarkrisnandi</p>
