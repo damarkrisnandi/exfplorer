@@ -49,7 +49,7 @@ if (isLoading) return (
   ?? 0
   const totalXP = played.reduce((a: number, item: PlayerPicked) => a + (item.xp_o5 ?? 0), 0).toFixed(1);
   return (
-    <div className="w-full flex flex-col justify-center items-center">
+    <div className="w-full flex flex-col justify-center items-center gap-2">
 
       <div className="w-full flex justify-center items-center gap-2">
         <h1>Wildcard Draft</h1>
@@ -128,12 +128,12 @@ function Skeleton() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center">
+      <div className="w-full flex justify-center items-center gap-2">
+        <h1>Wildcard Draft</h1>
+      </div>
       <div className="flex gap-2 justify-center items-center">
         <Cost cost={0}/>
         <ExpectedPoints />
-      </div>
-      <div className="w-full flex justify-center items-center gap-2">
-        <h1>Wildcard Draft</h1>
       </div>
       <div
         className="bg bg-cover bg-center h-72 md:h-screen w-full md:w-7/12 flex flex-col justify-center space-y-8"

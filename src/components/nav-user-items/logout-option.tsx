@@ -12,7 +12,7 @@ export default function LogoutOption({ }: {
     user: {
       id: string,
       name: string,
-      manager: {
+      manager?: {
         id: string,
         entry_name: string,
         managerId: string,

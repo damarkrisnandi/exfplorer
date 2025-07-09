@@ -11,7 +11,7 @@ export default function UnlinkOption({ session }: {
     user: {
       id: string,
       name: string,
-      manager: {
+      manager?: {
         id: string,
         entry_name: string,
         managerId: string,
@@ -29,7 +29,7 @@ export default function UnlinkOption({ session }: {
   const { mutateAsync: unlinkToFPL, isPending: isPendingUnlink } = api.manager.unlinkManager.useMutation({
       onSuccess: (data) => {
         console.log("Manager unmapped successfully:", data);
-        toast.success(`Manager ${session.user.manager.entry_name} unmapped successfully!`);
+        toast.success(`Manager ${session.user.manager?.entry_name} unmapped successfully!`);
         if (window !== undefined) {
           window.location.reload();
         }
@@ -47,6 +47,10 @@ const handleUnlinkToFPL = useCallback(async () => {
     }
 
     if (!session.user) {
+      return
+    }
+
+    if (!session.user.manager) {
       return
     }
 
@@ -75,7 +79,7 @@ const handleUnlinkToFPL = useCallback(async () => {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Unlink </AlertDialogTitle>
+          <AlertDialogTitle>{session.user.manager ? 'Unlink' : 'Link'} </AlertDialogTitle>
           <AlertDialogDescription>
             Are you absolutely sure?
           </AlertDialogDescription>

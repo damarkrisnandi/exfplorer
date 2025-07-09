@@ -15,7 +15,7 @@ export const navUsers: NavUser<{
     user: {
       id: string,
       name: string,
-      manager: {
+      manager?: {
         id: string,
         entry_name: string,
         managerId: string,
@@ -30,8 +30,8 @@ export const navUsers: NavUser<{
     name: 'Unlink',
     component: UnlinkOption as ComponentType<UnlinkOptionProps>
   },
-  {
-    name: 'Logout',
-    component: LogoutOption as ComponentType<LogoutOptionProps>
-  }
+  // {
+  //   name: 'Logout',
+  //   component: LogoutOption as ComponentType<LogoutOptionProps>
+  // }
 ]

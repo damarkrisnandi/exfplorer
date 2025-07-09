@@ -8,6 +8,7 @@ import { DiscordIcon } from "@/components/svg-icon";
 import { ManagerForm } from "@/components/mapping-manager";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { redirect } from "next/navigation";
+import WildcardView from "@/components/wildcard-view";
 
 export default async function Home() {
   const session = await auth();
@@ -19,7 +20,7 @@ export default async function Home() {
   return (
     <HydrateClient>
       <main className="flex min-h-screen flex-col items-center justify-center  bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white">
-        <div className="container flex flex-col items-center justify-center4 px-4 py-16">
+        <div className="container flex flex-col items-center justify-center4 md:px-4 py-16">
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-[5rem]">
               ex<span className="text-[hsl(280,100%,70%)]">FPL</span>orer.app
@@ -29,6 +30,9 @@ export default async function Home() {
             </p>
           </div>
           <MainDeadline />
+          <div className="w-full my-16">
+            <WildcardView />
+          </div>
 
           <div className="flex flex-col items-center gap-2">
             <div className="flex flex-col items-center justify-center gap-4">
@@ -53,11 +57,6 @@ export default async function Home() {
                 </Link>
 
               </Button>
-              {session && (
-                <>
-                <ManagerForm className="w-full" session={session} />
-                </>
-              )}
           </div>
           </div>
 

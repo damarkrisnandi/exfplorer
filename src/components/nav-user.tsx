@@ -28,6 +28,7 @@ import {
 
 import { useSession } from "next-auth/react"
 import { navUsers } from "./nav-user-items/nav-user-list"
+import LogoutOption from "./nav-user-items/logout-option"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
@@ -125,9 +126,22 @@ export function NavUser() {
                 )) }
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              {/* <DropdownMenuItem asChild>
-                <LogoutOption />
-              </DropdownMenuItem> */}
+              <DropdownMenuItem asChild>
+                <LogoutOption session={{
+                      user: {
+                        name: session.user.name ?? "",
+                        id: session.user.id ?? "",
+                        manager: {
+                          id: session.user.manager?.id ?? "",
+                          entry_name: session.user.manager?.entry_name ?? "",
+                          managerId: session.user.manager?.managerId ?? "",
+                          userId: session.user.id ?? "",
+                          player_first_name: session.user.manager?.player_first_name ?? "",
+                          player_last_name: session.user.manager?.player_last_name ?? "",
+                        }
+                      }
+                    }} />
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>
