@@ -50,7 +50,7 @@ export default function PickView({
       format: (value: number) => value
     }
     const sumEventPoints = {
-      title: `Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`,
+      title: `Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id : '-'}`,
       value: 0,
       format: (value: number) => value
     }
@@ -70,13 +70,13 @@ export default function PickView({
     if (!data) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
     if (!valid) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
 
-    const { event_transfers, event_transfers_cost } = data.entry_history;
+    const { event_transfers, event_transfers_cost, points } = data.entry_history;
 
     const totalDeltaNumber = data.picks?.reduce((a: number, b: PlayerPicked) => a + ((b.event_points ?? 0) - (b.xp_o5_current ?? 0)), 0);
 
     const sumData = [
       {...sumDataTransfer, value: event_transfers, format: (value: number) => (`${event_transfers} (${event_transfers_cost > 0 ? '-'+event_transfers_cost : event_transfers_cost })`).toString()},
-      sumEventPoints,
+      {...sumEventPoints, value: points, format: (value: number) => value},
       {...sumDeltaXPoints, value: totalDeltaNumber, filter: (value: number) => value >= 0 ? `+${value.toFixed(1)}` : value.toFixed(1)}
     ]
 

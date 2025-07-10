@@ -112,10 +112,27 @@ export function AppLineChart({ session }: AppLineChartProps) {
         return 'red'
       }
     }
+
+    const changes = (data: EventManager, index: number) => {
+      if (index === 0) return 0
+
+      if (!managerHistory) return 0
+      if (!managerHistory.current) return 0
+      // if (!managerHistory.current[index - 1]) return 0
+
+      if (data.overall_rank < (managerHistory.current[index - 1]?.overall_rank ?? 6000000)) {
+        return 1
+      } else if (data.overall_rank > (managerHistory.current[index - 1]?.overall_rank ?? 3000000)) {
+        return -1
+      }
+
+      return 0
+    }
     return {
       chip: chipUsage?.name ?? '',
       rank: data.overall_rank,
-      fill: chipUsage ? `var(--color-${chipUsage.name})` : conditionalFill(data, currIndex)
+      fill: conditionalFill(data, currIndex),
+      change: changes(data, currIndex)
     }
   })
 
@@ -162,7 +179,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Overall Ranks</CardTitle>
-        <CardDescription></CardDescription>
+        <CardDescription>Overall Ranks Changes every Gameweek this season</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -216,7 +233,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 leading-none font-medium">
-          {session.user.manager.entry_name}&apos; Current Rank <TrendingUp className="h-4 w-4" />
+          {session.user.manager.entry_name}&apos;s Overall Rank Changes <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
           Showing OR and chips usage
