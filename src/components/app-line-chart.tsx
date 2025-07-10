@@ -216,7 +216,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 leading-none font-medium">
-          Your Current Rank <TrendingUp className="h-4 w-4" />
+          {session.user.manager.entry_name}&apos; Current Rank <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
           Showing OR and chips usage
