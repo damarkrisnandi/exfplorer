@@ -12,7 +12,7 @@ export default async function Page() {
   console.log(session);
 
   return (
-    <div className={"w-full"}>
+    <div className={"flex flex-col gap-2 w-full"}>
       <StorageContainer />
       {session && (
         <div className={cn(
