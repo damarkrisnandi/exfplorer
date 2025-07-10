@@ -74,11 +74,10 @@ export default function PickView({
 
     const totalDeltaNumber = data.picks?.reduce((a: number, b: PlayerPicked) => a + ((b.event_points ?? 0) - (b.xp_o5_current ?? 0)), 0);
 
-    const totalDelta = totalDeltaNumber >= 0 ? `+${totalDeltaNumber.toFixed(1)}` : totalDeltaNumber.toFixed(1)
     const sumData = [
       {...sumDataTransfer, value: event_transfers, format: (value: number) => (`${event_transfers} (${event_transfers_cost > 0 ? '-'+event_transfers_cost : event_transfers_cost })`).toString()},
       sumEventPoints,
-      {...sumDeltaXPoints, value: totalDeltaNumber, filter: (value: number) => totalDelta}
+      {...sumDeltaXPoints, value: totalDeltaNumber, filter: (value: number) => value >= 0 ? `+${value.toFixed(1)}` : value.toFixed(1)}
     ]
 
     return ( <SquadView data={data} title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumData} /> );
