@@ -47,10 +47,10 @@ export default function WildcardView() {
     ?? 0
   const totalXP = played.reduce((a: number, item: PlayerPicked) => a + (item.xp_o5 ?? 0), 0).toFixed(1);
   return (
-    <Card className="w-full bg-gray-700/10">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-white">Wildcard Draft</CardTitle>
-        <CardDescription className="text-gray-50">Best Choices for hitting wildcard</CardDescription>
+        <CardTitle>Wildcard Draft</CardTitle>
+        <CardDescription>Best Choices for hitting wildcard</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         <div className="flex gap-2 justify-center items-center">
