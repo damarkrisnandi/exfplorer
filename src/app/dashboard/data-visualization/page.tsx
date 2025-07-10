@@ -9,7 +9,7 @@ export default function DataVisualization() {
 
   return (
     <div className="w-full">
-      <h1 className="text-2xl font-bold">Current Event Points vs Expected Points</h1>
+      <h1 className="text-2xl font-bold">Data visualization that you may needed</h1>
 
       <AppScatterPlot dataX={dataXPpg} dataY={dataY} />
     </div>
