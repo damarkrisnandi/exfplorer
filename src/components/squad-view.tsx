@@ -155,7 +155,7 @@ function SumCard({ title, value, format }: SumValue) {
   const formattedValue = format(value);
   return (
     <div className="flex flex-col items-center mt-[1.5em] py-8">
-      <div className="flex justify-center items-center">{title}</div>
+      <p className="flex justify-center items-center text-xs text-gray-50">{title}</p>
       <div className="flex">
         <div className="w-24 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
           <p className="text-2xl font-bold text-white">{formattedValue}</p>
