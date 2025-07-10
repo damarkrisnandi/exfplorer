@@ -1,6 +1,6 @@
 "use client"
 
-import { Ellipsis, TrendingUp, X } from "lucide-react"
+import { ChevronDown, ChevronDownCircle, ChevronUpCircle, Ellipsis, TrendingUp, X } from "lucide-react"
 import { CartesianGrid, LabelList, Line, LineChart, YAxis } from "recharts"
 
 import {
@@ -14,11 +14,15 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
   // ChartTooltip,
   // ChartTooltipContent,
 } from "@/components/ui/chart"
 import { api } from "@/trpc/react"
 import type { ChipUsage, EventManager } from "@/lib/manager-history-type"
+import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 export const description = "A line chart with a custom label"
 
@@ -61,6 +65,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
+const DataFormatter = (number: number) => {
+  if(number > 1000000000){
+    return (number/1000000000).toString() + 'B';
+  }else if(number > 1000000){
+    return (number/1000000).toString() + 'M';
+  }else if(number > 1000){
+    return (number/1000).toString() + 'K';
+  }else{
+    return number.toString();
+  }
+}
+
 type AppLineChartProps = {
   session: {
     user: {
@@ -80,27 +96,68 @@ export function AppLineChart({ session }: AppLineChartProps) {
   if (isError) return <Error />
   if (isLoading) return <Skeleton />
   if (!managerHistory) return <Skeleton />
-  const chartData = managerHistory.current.map((data: EventManager) => {
+  const chartData = managerHistory.current.map((data: EventManager, currIndex: number) => {
     //  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" }
     const chipUsage = managerHistory.chips.find((chip: ChipUsage) => chip.event === data.event)
+    const conditionalFill = (data: EventManager, index: number) => {
+      if (index === 0) return 'var(--color-rank)'
+
+      if (!managerHistory) return 'var(--color-rank)'
+      if (!managerHistory.current) return 'var(--color-rank)'
+      // if (!managerHistory.current[index - 1]) return 'var(--color-rank)'
+
+      if (data.overall_rank <= (managerHistory.current[index - 1]?.overall_rank ?? 6000000)) {
+        return 'green'
+      } else {
+        return 'red'
+      }
+    }
     return {
       chip: chipUsage?.name ?? '',
       rank: data.overall_rank,
-      fill: chipUsage ? `var(--color-${chipUsage.name})` : `var(--color-rank)`
+      fill: chipUsage ? `var(--color-${chipUsage.name})` : conditionalFill(data, currIndex)
     }
   })
 
-  const DataFormatter = (number: number) => {
-  if(number > 1000000000){
-    return (number/1000000000).toString() + 'B';
-  }else if(number > 1000000){
-    return (number/1000000).toString() + 'M';
-  }else if(number > 1000){
-    return (number/1000).toString() + 'K';
-  }else{
-    return number.toString();
+  const CustomizedDot = (props: {cx?: number, payload?: {fill: string},  cy?: number, value?: number}) => {
+    const [rise, setRise] = useState<boolean>(false);
+    const [drop, setDrop] = useState<boolean>(false);
+
+    useEffect(() => {
+      setTimeout(() => {
+        setRise(true);
+        setDrop(true);
+      }, 2000)
+    }, [])
+
+  const { cx, cy, payload } = props;
+
+  if (payload?.fill === 'green') {
+    return (
+      <ChevronUpCircle x={cx ? cx - 5 : 0} y={cy ? cy - 5 : 0} width={10} height={10} className={cn(
+        'transition-all translate-y-20 opacity-0 ease-in-out',
+        rise ? 'translate-y-0 opacity-100' : '',
+        "w-[0.3em] h-[0.3em] text-green-500"
+      )} />
+    );
   }
+
+  if (payload?.fill === 'red') {
+
+    return (
+      <ChevronDownCircle x={cx ? cx - 5 : 0} y={cy ? cy - 5 : 0} width={10} height={10} className={cn(
+        'transition-all -translate-y-20 opacity-0 ease-in-out',
+        drop ? 'translate-y-0 opacity-100': '',
+        "w-[0.3em] h-[0.3em] text-red-500"
+      )} />
+    );
   }
+
+  return (
+      <></>
+  );
+};
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -120,7 +177,7 @@ export function AppLineChart({ session }: AppLineChartProps) {
           >
             <YAxis tickFormatter={DataFormatter} width={20} reversed />
             <CartesianGrid vertical={false} />
-            {/* <ChartTooltip
+            <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
@@ -129,7 +186,84 @@ export function AppLineChart({ session }: AppLineChartProps) {
                   hideLabel
                 />
               }
-            /> */}
+            />
+            <Line
+              dataKey="rank"
+              type="natural"
+              stroke="var(--color-rank)"
+              strokeWidth={2}
+              // dot={{
+              //   fill: "var(--color-rank)",
+              // }}
+              dot={<CustomizedDot />}
+              activeDot={{
+                r: 6,
+              }}
+            >
+              <LabelList
+                position="top"
+                offset={12}
+                className="fill-foreground"
+                fontSize={12}
+                dataKey="chip"
+                // formatter={(value: keyof typeof chartConfig) =>
+                //   chartConfig[value]?.label
+                // }
+              />
+            </Line>
+          </LineChart>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        <div className="flex gap-2 leading-none font-medium">
+          Your Current Rank <TrendingUp className="h-4 w-4" />
+        </div>
+        <div className="text-muted-foreground leading-none">
+          Showing OR and chips usage
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+
+function Skeleton() {
+  const skeletonData = Array.from({ length: 38 }, () => {
+    return {
+      chip: '',
+      rank: 3000000,
+      fill:  `var(--color-rank)`
+    }
+  })
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Overall Ranks</CardTitle>
+        <CardDescription></CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <LineChart
+            accessibilityLayer
+            data={skeletonData}
+            margin={{
+              top: 24,
+              left: 24,
+              right: 24,
+            }}
+          >
+            <YAxis tickFormatter={DataFormatter} width={20} reversed />
+            <CartesianGrid vertical={false} />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  nameKey="rank"
+                  hideLabel
+                />
+              }
+            />
             <Line
               dataKey="rank"
               type="natural"
@@ -165,17 +299,6 @@ export function AppLineChart({ session }: AppLineChartProps) {
         </div>
       </CardFooter>
     </Card>
-  )
-}
-
-
-function Skeleton() {
-  return (
-    <div className="w-full h-52">
-      <div className="flex justify-center items-center">
-        <Ellipsis className="w-10 h-10 animate-pulse" />
-      </div>
-    </div>
   )
 }
 

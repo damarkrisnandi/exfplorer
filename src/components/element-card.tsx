@@ -48,7 +48,7 @@ export default function ElementCard({
   return (
     <div className="flex flex-col gap-1">
       <Card className={cn(
-        'w-12 h-16 md:w-20 md:h-24 py-2 md:py-4 relative',
+        'w-12 h-16 md:w-16 md:h-20 py-2 md:py-4 relative',
         'bg-gray-900/10',
         'transition-all duration-300 -translate-6 opacity-0',
         easeInOutCard ? 'translate-0 opacity-100' : '',

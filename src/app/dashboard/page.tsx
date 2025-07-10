@@ -23,7 +23,7 @@ export default async function Page() {
         </div>
       )}
       {session?.user?.manager && (
-        <div className="my-16 w-full flex justify-center">
+        <div className="w-full flex justify-center">
           <AppLineChart session={{
             user: {
               manager: session.user.manager
@@ -32,10 +32,10 @@ export default async function Page() {
         </div>
 
       )}
-      <div className="my-16 w-full flex justify-center">
-        <div className="w-full md:w-7/12 ">
+      <div className="w-full flex justify-center">
           <WildcardView />
-        </div>
+        {/* <div className="w-full md:w-7/12 ">
+        </div> */}
       </div>
 
       {session?.user?.manager && (
