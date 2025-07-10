@@ -82,8 +82,7 @@ export default function ElementCard({
               <div className="flex flex-col">
                 <p className="text-xs">Pts</p>
                 <span className="flex items-center bg-gray-600 text-white">
-                  {delta_xp >= 0 ? <CheckIcon className="w-[0.6em] h-[0.6em]"/> : <X className="w-[0.6em] h-[0.6em]"/>}
-                  <p className="text-[0.6em] text-white">{xp_current.toFixed(1)}xP</p>
+                  <p className="text-[0.4em] text-white">{xp_current.toFixed(1)}xP</p>
                 </span>
               </div>
           </div>

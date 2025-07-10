@@ -52,7 +52,7 @@ export default function WildcardView() {
         <CardTitle>Wildcard Draft</CardTitle>
         <CardDescription>Best Choices for hitting wildcard</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
+      <CardContent className="flex flex-col gap-2 h-full">
         <div className="flex gap-2 justify-center items-center">
           <Cost cost={totalCost} />
           <ExpectedPoints currentEvent={event} formattedValue={totalXP} />
