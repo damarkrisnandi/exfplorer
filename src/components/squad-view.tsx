@@ -24,11 +24,12 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
 
 
   if (window === undefined) return <>Please wait...</>
+  if (!data) return <>...</>
 
-  const { event } = data!.entry_history;
+  const { event } = data.entry_history;
 
-  const played = data!.picks?.filter((pick: PlayerPicked) => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(pick.position)) ?? [];
-  const benched = data!.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
+  const played = data.picks?.filter((pick: PlayerPicked) => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(pick.position)) ?? [];
+  const benched = data.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
 
   const gkp_played = played.filter((pick: PlayerPicked) => pick.element_type === 1)
   const def_played = played.filter((pick: PlayerPicked) => pick.element_type === 2)

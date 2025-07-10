@@ -58,5 +58,5 @@ export default function WildcardView() {
     {...sumDataXPRef, value: totalXP}
   ]
 
-  return ( <SquadView title="Wildcard Draft" description="Best Choices for hitting wildcard" sumData={sumData} /> );
+  return ( <SquadView data={data} title="Wildcard Draft" description="Best Choices for hitting wildcard" sumData={sumData} /> );
 }

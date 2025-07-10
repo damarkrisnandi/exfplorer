@@ -67,8 +67,8 @@ export default function PickView({
     ]
     if (error) return <div>Error loading picks: {error.message}</div>;
     if (isLoading) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
-    if (!valid) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
     if (!data) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
+    if (!valid) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
 
     const { event_transfers, event_transfers_cost } = data.entry_history;
 
@@ -81,5 +81,5 @@ export default function PickView({
       {...sumDeltaXPoints, value: totalDeltaNumber, filter: (value: number) => totalDelta}
     ]
 
-    return ( <SquadView title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumData} /> );
+    return ( <SquadView data={data} title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumData} /> );
 }
