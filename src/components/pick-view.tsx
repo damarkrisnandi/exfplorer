@@ -29,6 +29,7 @@ export default function PickView({
 
     const [managerId, ] = useState(session?.user?.manager?.managerId ?? "1");
     const [, setCurrentEventId] = useState(bootstrapStore.currentEvent?.id ?? 1);
+    const [valid, setValid] = useState<boolean>(false);
 
     const { data, isLoading, error } = api.pick.getCurrentPickFromAPI.useQuery({ currentEvent: bootstrapStore.currentEvent?.id ?? null, managerId })
 
@@ -36,6 +37,7 @@ export default function PickView({
       if (!bootstrapStore.bootstrap) {
         bootstrapStore.setBootstrap(bootstrap!)
         setCurrentEventId(bootstrapStore.currentEvent?.id ?? 1)
+        setValid(true);
       }
     }, [bootstrap, bootstrapStore, bootstrapStore.currentEvent])
 
@@ -65,10 +67,10 @@ export default function PickView({
     ]
     if (error) return <div>Error loading picks: {error.message}</div>;
     if (isLoading) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
+    if (!valid) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
     if (!data) return (<SquadViewSkeleton title={`${session.user.manager.entry_name}'s Picks`} description={`${session.user.manager.entry_name}'s Squad on Gameweek Gameweek ${bootstrapStore.currentEvent ? bootstrapStore.currentEvent.id + 1 : '-'}`} sumData={sumDataSkeleton} />);
 
     const { event_transfers, event_transfers_cost } = data.entry_history;
-
 
     const totalDeltaNumber = data.picks?.reduce((a: number, b: PlayerPicked) => a + ((b.event_points ?? 0) - (b.xp_o5_current ?? 0)), 0);
 
