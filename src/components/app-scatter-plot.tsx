@@ -43,11 +43,11 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
         <CardTitle>Pts/game vs XP_o5_current</CardTitle>
         <CardDescription>Point per game versus XPoint last 5 games</CardDescription>
       </CardHeader>
-      <CardContent>
-        {/* <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}> */}
+      <CardContent className="h-full min-h-[300px]">
+        <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}>
           <ScatterChart
-            // width={400}
-            //height={400}
+            width={400}
+            height={400}
             margin={{
               top: 20,
               right: 20,
@@ -67,7 +67,7 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
               </Scatter>
             ))}
           </ScatterChart>
-        {/* </ResponsiveContainer> */}
+        </ResponsiveContainer>
 
       </CardContent>
     </Card>
