@@ -98,7 +98,7 @@ export default function ElementCard({
                 priority={true}
               /> */}
             </div>
-            <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold">{web_name}</CardTitle>
+            <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold text-ellipsis text-white">{web_name}</CardTitle>
             <CardDescription className="w-full text-white">
               {/* <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
                 <p className={cn(
