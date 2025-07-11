@@ -52,7 +52,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
 
         </div>
         <div
-          className="bg bg-cover bg-center h-72 md:h-screen w-full flex flex-col justify-center items-between  space-y-2 md:space-y-4"
+          className="bg bg-cover bg-center h-[75vh] md:h-screen w-full flex flex-col justify-center items-between  space-y-2 md:space-y-6"
           style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
         >
           <ul className=" flex gap-2 justify-center">
