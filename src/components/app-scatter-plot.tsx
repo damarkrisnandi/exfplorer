@@ -46,8 +46,8 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
       <CardContent>
         {/* <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}> */}
           <ScatterChart
-            width={400}
-            height={400}
+            // width={400}
+            //height={400}
             margin={{
               top: 20,
               right: 20,
