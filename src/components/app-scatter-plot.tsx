@@ -44,7 +44,7 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
         <CardDescription>Point per game versus XPoint last 5 games</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}>
+        {/* <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}> */}
           <ScatterChart
             width={400}
             height={400}
@@ -67,7 +67,7 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
               </Scatter>
             ))}
           </ScatterChart>
-        </ResponsiveContainer>
+        {/* </ResponsiveContainer> */}
 
       </CardContent>
     </Card>
