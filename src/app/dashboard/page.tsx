@@ -32,21 +32,19 @@ export default async function Page() {
         </div>
 
       )}
-      <div className="w-full flex justify-center">
+      <div className="w-full flex flex-col md:flex-row justify-center gap-2">
           <WildcardView />
-        {/* <div className="w-full md:w-7/12 ">
-        </div> */}
+          {session?.user?.manager && (
+            <>
+              <PickView session={{
+                user: {
+                  manager: session.user.manager
+                }
+              }} />
+            </>
+          )}
       </div>
 
-      {session?.user?.manager && (
-        <>
-          <PickView session={{
-            user: {
-              manager: session.user.manager
-            }
-          }} />
-        </>
-      )}
     </div>
   )
 }
