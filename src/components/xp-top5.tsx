@@ -26,7 +26,7 @@ export default function XPointsTop5Visualization() {
   const { data, isLoading, isError } = api.bootstrap.get.useQuery();
   const baseProps = {
       dataX: { dataKey: 'web_name' },
-      dataY: { dataKey: 'xp' },
+      dataY: { dataKey: 'xp', fill: 'var(--chart-1)' },
       title: 'Top 5 XP',
       description: 'Top 5 Overall Expected Points',
       chartConfig: chartConfig as ChartConfig,

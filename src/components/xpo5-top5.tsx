@@ -25,7 +25,7 @@ const XPtsBarChart = DynamicBarChart<XP[]>
 export default function XPointso5Top5Visualization() {
   const baseProps = {
     dataX: { dataKey: 'web_name' },
-    dataY: { dataKey: 'xp' },
+    dataY: { dataKey: 'xp', fill: 'var(--chart-1)' },
     title: 'Top 5 XP',
     description: 'Top 5 Expected Points based on Last 5 Gameweek',
     chartConfig: chartConfig as ChartConfig,

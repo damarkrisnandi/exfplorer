@@ -9,6 +9,10 @@ const chartConfig = {
     label: "XPoints",
     color: "var(--chart-1)",
   },
+  event_points: {
+    label: "Points",
+    color: "var(--chart-2)",
+  },
 } satisfies ChartConfig
 type XP = {
   web_name: string,
@@ -26,7 +30,7 @@ const XDeltaPtsStackedBarChart = DynamicStackedBarChart<XP[]>
 export default function DeltaXPointsof5Top5Visualization() {
   const baseProps = {
     dataX: { dataKey1: 'web_name' },
-    dataY: { dataKey1: 'xp', dataKey2: 'event_points' },
+    dataY: { dataKey1: 'xp', dataKey2: 'event_points', fill1: 'var(--chart-1)', fill2: 'var(--chart-2)' },
     title: 'Top 5 Delta XP',
     description: 'Top 5 High Diff Gameweek Point vs XPoints (XPo5)',
     chartConfig: chartConfig as ChartConfig,
@@ -38,8 +42,10 @@ export default function DeltaXPointsof5Top5Visualization() {
   if (isError) return <XDeltaPtsStackedBarChart {...baseProps} chartData={chartData} />
   if (!data) return <XDeltaPtsStackedBarChart {...baseProps} chartData={chartData} />
 
-  data.elements.sort((a: Element, b: Element) => ((b.event_points ?? 0) - (b.xp_current ?? 0)) - ((a.xp_o5_current ?? 0) - (a.xp_current ?? 0)))
-  const finalChartData = data.elements.map((el: Element) => {
+  data.elements.sort((a: Element, b: Element) => ((b.event_points ?? 0) - (b.xp_o5_current ?? 0)) - ((a.event_points ?? 0) - (a.xp_o5_current ?? 0)))
+  const finalChartData = data.elements
+  .filter((el) => el.element_type !== 5) // exclude manager
+  .map((el: Element) => {
     return {
       web_name: el.web_name,
       xp: (el.xp_o5_current ?? 0),

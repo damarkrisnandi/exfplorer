@@ -41,12 +41,12 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
 
 
   return (
-    <Card className="w-full h-full">
+    <Card className="w-full !h-fit">
       <CardHeader>
         <CardTitle>Pts/game vs XPo5_current</CardTitle>
         <CardDescription>Point per game versus XPoint last 5 games</CardDescription>
       </CardHeader>
-      <CardContent className="h-full min-h-[300px]">
+      <CardContent className="!h-fit min-h-[300px]">
         <ResponsiveContainer height={isMobile ? "100%" : "40%"} width={isMobile ? "100%" : "40%"} minHeight={300} minWidth={100} aspect={1.0 / 1.0}>
           <ScatterChart
             width={400}

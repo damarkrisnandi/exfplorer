@@ -45,7 +45,8 @@ import {
 type AxisData = {
   dataKey1: string,
   dataKey2?: string,
-  fill?: string
+  fill1?: string,
+  fill2?: string,
 }
 type BarChartProps<T> = {
   title: string,
@@ -65,7 +66,7 @@ export function DynamicStackedBarChart<T>({
   dataY,
 }: BarChartProps<T>) {
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>{ title }</CardTitle>
         <CardDescription>{ description }</CardDescription>
@@ -84,15 +85,15 @@ export function DynamicStackedBarChart<T>({
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar
-              dataKey={dataX.dataKey1}
+              dataKey={dataY.dataKey1}
               stackId="a"
-              fill="var(--color-chart1)"
+              fill={dataY.fill1 ?? 'var(--chart-1)'}
               radius={[0, 0, 4, 4]}
             />
             <Bar
-              dataKey={dataX.dataKey2}
+              dataKey={dataY.dataKey2}
               stackId="a"
-              fill="var(--color-chart2)"
+              fill={dataY.fill2 ?? 'var(--chart-2)'}
               radius={[4, 4, 0, 0]}
             />
           </BarChart>
