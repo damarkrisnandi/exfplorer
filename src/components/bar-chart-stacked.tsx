@@ -14,19 +14,21 @@ import {
 import {
   type ChartConfig,
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-export const description = "A bar chart"
+// export const description = "A stacked bar chart with a legend"
 
 // const chartData = [
-//   { month: "January", desktop: 186 },
-//   { month: "February", desktop: 305 },
-//   { month: "March", desktop: 237 },
-//   { month: "April", desktop: 73 },
-//   { month: "May", desktop: 209 },
-//   { month: "June", desktop: 214 },
+//   { month: "January", desktop: 186, mobile: 80 },
+//   { month: "February", desktop: 305, mobile: 200 },
+//   { month: "March", desktop: 237, mobile: 120 },
+//   { month: "April", desktop: 73, mobile: 190 },
+//   { month: "May", desktop: 209, mobile: 130 },
+//   { month: "June", desktop: 214, mobile: 140 },
 // ]
 
 // const chartConfig = {
@@ -34,10 +36,15 @@ export const description = "A bar chart"
 //     label: "Desktop",
 //     color: "var(--chart-1)",
 //   },
+//   mobile: {
+//     label: "Mobile",
+//     color: "var(--chart-2)",
+//   },
 // } satisfies ChartConfig
 
 type AxisData = {
-  dataKey: string,
+  dataKey1: string,
+  dataKey2?: string,
   fill?: string
 }
 type BarChartProps<T> = {
@@ -49,7 +56,7 @@ type BarChartProps<T> = {
   dataY: AxisData,
 
 }
-export function DynamicBarChart<T>({
+export function DynamicStackedBarChart<T>({
   title,
   description,
   chartConfig,
@@ -58,37 +65,40 @@ export function DynamicBarChart<T>({
   dataY,
 }: BarChartProps<T>) {
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{ title }</CardTitle>
+        <CardDescription>{ description }</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData as T[]}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey={dataX.dataKey}
+              dataKey={dataX.dataKey1}
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              // tickFormatter={(value: T[]) => value.slice(0, 3)}
+              // tickFormatter={(value) => value.slice(0, 3)}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Bar
+              dataKey={dataX.dataKey1}
+              stackId="a"
+              fill="var(--color-chart1)"
+              radius={[0, 0, 4, 4]}
             />
-            <Bar dataKey={dataY.dataKey} fill={dataY.fill} radius={8} />
+            <Bar
+              dataKey={dataX.dataKey2}
+              stackId="a"
+              fill="var(--color-chart2)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        {/* <div className="flex gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last 6 months
-        </div> */}
       </CardFooter>
     </Card>
   )

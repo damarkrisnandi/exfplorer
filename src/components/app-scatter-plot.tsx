@@ -5,6 +5,7 @@ import { api } from "@/trpc/react"
 import { Ellipsis, X } from "lucide-react"
 import { LabelList, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 type AxisData = {
   dataKey: string,
@@ -23,6 +24,7 @@ type AppScatterPlotProps = {
   dataY: AxisData
 }
 function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
+  const isMobile = useIsMobile()
   const dataSeparation = [
     { label: "FWD", filter: (el: Element) => el.element_type == 4 && el.minutes > 90 && Number(el.points_per_game) > 5, fill: '#8884d8' },
     { label: "MID", filter: (el: Element) => el.element_type == 3 && el.minutes > 90 && Number(el.points_per_game) > 5, fill: '#82ca9d' },
@@ -37,14 +39,15 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
   if (!bootstrap.elements) return <Skeleton />
 
 
+
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full">
       <CardHeader>
-        <CardTitle>Pts/game vs XP_o5_current</CardTitle>
+        <CardTitle>Pts/game vs XPo5_current</CardTitle>
         <CardDescription>Point per game versus XPoint last 5 games</CardDescription>
       </CardHeader>
       <CardContent className="h-full min-h-[300px]">
-        <ResponsiveContainer height="100%" width="100%" minHeight={300} minWidth={100} aspect={1.0 / 1.0}>
+        <ResponsiveContainer height={isMobile ? "100%" : "40%"} width={isMobile ? "100%" : "40%"} minHeight={300} minWidth={100} aspect={1.0 / 1.0}>
           <ScatterChart
             width={400}
             height={400}
