@@ -38,7 +38,13 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
   if (!bootstrap) return <Skeleton />
   if (!bootstrap.elements) return <Skeleton />
 
+  const PpGs = bootstrap.elements.map((el: Element) => Number(el.points_per_game))
+  const xpo5s =  bootstrap.elements.map((el: Element) => (el.xp_o5_current ?? 0));
 
+  const maxPpG = Math.max(...PpGs)
+  const maxXpo5 = Math.max(...xpo5s)
+
+  const bound = Math.max(maxPpG, maxXpo5) + 0.2;
 
   return (
     <Card className="w-full !h-fit">
@@ -59,8 +65,8 @@ function AppScatterPlot({ className, dataX, dataY }: AppScatterPlotProps) {
             }}
           >
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
-            <XAxis {...dataX} domain={[0, 12]} />
-            <YAxis {...dataY} width={20} domain={[0, 12]} />
+            <XAxis {...dataX} domain={[0, bound]} />
+            <YAxis {...dataY} width={20} domain={[0, bound]} />
 
             {/* <Tooltip cursor={{ strokeDasharray: "3 3" }} /> */}
             <Legend />
