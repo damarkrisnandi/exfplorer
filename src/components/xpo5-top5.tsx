@@ -15,11 +15,11 @@ type XP = {
   xp: number
 }
 const chartData: XP[] = [
-  { web_name: "-", xp: 0 },
-  { web_name: "-", xp: 0 },
-  { web_name: "-", xp: 0 },
-  { web_name: "-", xp: 0 },
-  { web_name: "-", xp: 0 },
+  { web_name: "-", xp: 3 },
+  { web_name: "-", xp: 3 },
+  { web_name: "-", xp: 3 },
+  { web_name: "-", xp: 3 },
+  { web_name: "-", xp: 3 },
 ]
 const XPtsBarChart = DynamicBarChart<XP[]>
 export default function XPointso5Top5Visualization() {
