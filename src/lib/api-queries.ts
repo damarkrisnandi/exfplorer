@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Bootstrap } from "./bootstrap-type";
-import { ARCHIVED_API_URL, currentSeason, previousSeason } from "./utils";
+import { ARCHIVED_API_URL, BASE_API_URL, currentSeason, previousSeason } from "./utils";
 import type { Fixture } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
 // bootstrap-static
