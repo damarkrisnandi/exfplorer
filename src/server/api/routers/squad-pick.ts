@@ -97,7 +97,7 @@ export const pickRouter = createTRPCRouter({
         ...picksData,
         picks: picksData.picks.map((pick: PlayerPicked) => {
           const foundElement = elements.find((data: { id: number }) => data.id === pick.element);
-          const foundElementHistory = elementsHistory.find((data: { id: number }) => data.id === pick.element);
+          const foundElementHistory = elementsHistory.find((data: { code: number }) => foundElement && data.code === foundElement.code);
           const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
           const xpRef = {
@@ -167,7 +167,7 @@ export const pickRouter = createTRPCRouter({
         ...picksData,
         picks: picksData.picks.map((pick: PlayerPicked) => {
           const foundElement = bootstrap.elements.find((data: { id: number }) => data.id === pick.element);
-          const foundElementHistory = bootstrapHistory.elements.find((data: { id: number }) => data.id === pick.element);
+          const foundElementHistory = bootstrapHistory.elements.find((data: { code: number }) => foundElement && data.code === foundElement.code);
           const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
 
           const xpRef = {
