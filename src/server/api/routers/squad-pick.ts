@@ -140,17 +140,18 @@ export const pickRouter = createTRPCRouter({
     }))
     .query(async ({ input }) => {
       const { currentEvent } = input;
-      if (!currentEvent) {
-        return null
-      }
+
 
       const [
         bootstrap,
         bootstrapHistory,
         fixtures,
-        ...last5
-      ] = await Promise.all([bootstrapQuery, bootstrapHistoryQuery, fixturesQuery, ...last5Queries(currentEvent)])
+      ] = await Promise.all([bootstrapQuery, bootstrapHistoryQuery, fixturesQuery])
 
+      let last5: LiveEvent[] | undefined = undefined;
+      if (currentEvent) {
+        last5 = await Promise.all(last5Queries(currentEvent));
+      }
       const reference = {
         bootstrap,
         bootstrapHistory,
@@ -170,7 +171,7 @@ export const pickRouter = createTRPCRouter({
           const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
 
           const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
             element: foundElement!,
             game_config: bootstrap.game_config,
             teams: bootstrap.teams,
