@@ -134,7 +134,7 @@ export default function ElementCard({
                 <p
                   className={cn(
                     "text-[0.5em] md:text-[0.7rem] font-semibold",
-                    "text-white p-2",
+                    "text-white px-1",
                     fixture?.difficulty === 5
                       ? "bg-red-900"
                       : fixture?.difficulty === 4
