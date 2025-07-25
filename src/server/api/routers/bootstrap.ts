@@ -19,7 +19,7 @@ export const bootstrapRouter = createTRPCRouter({
 
       const [
         ...last5
-      ] = await Promise.all(last5Queries(currentEvent?.id ?? 1))
+      ] = currentEvent ? await Promise.all(last5Queries(currentEvent?.id ?? 1)) : [];
 
       const newBootstrap: Bootstrap = {
         ...bootstrap,
@@ -28,7 +28,7 @@ export const bootstrapRouter = createTRPCRouter({
           const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
 
           const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
             element,
             game_config: bootstrap.game_config,
             teams: bootstrap.teams,

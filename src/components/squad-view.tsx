@@ -23,7 +23,7 @@ type SquadViewProps = {
 export default function SquadView({ data, title, description, sumData }: SquadViewProps) {
 
 
-  if (window === undefined) return <>Please wait...</>
+  // if (window === undefined) return <>Please wait...</>
   if (!data) return <>...</>
 
   const { event } = data.entry_history;

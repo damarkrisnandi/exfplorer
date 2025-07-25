@@ -15,8 +15,14 @@ type ElementCardProps = {
   multiplier: number
 
   xp?: number,
-  xp_current?:number,
+  xp_current?: number,
   delta_xp?: number,
+  nextFixtures?: {
+    team: string;
+    event: number;
+    difficulty: number;
+    teamId: number;
+  }[],
 }
 export default function ElementCard({
   className,
@@ -24,13 +30,14 @@ export default function ElementCard({
   photo,
   web_name,
   event_points,
-  is_captain=false,
-  is_vice_captain=false,
-  multiplier=0,
-  xp=0,
-  delta_xp=0,
-  xp_current=0,
-}:  ElementCardProps) {
+  is_captain = false,
+  is_vice_captain = false,
+  multiplier = 0,
+  xp = 0,
+  delta_xp = 0,
+  xp_current = 0,
+  nextFixtures
+}: ElementCardProps) {
   const [easeInOutCard, setEaseInOutCard] = useState<boolean>(false);
   const [easeInOutBadge, setEaseInOutBadge] = useState<boolean>(false);
 
@@ -55,37 +62,37 @@ export default function ElementCard({
         className
       )}>
         {is_captain &&
-        <div className={cn(
-          "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
-          'transition-all duration-300 scale-0 opacity-0',
-          easeInOutBadge ? 'scale-100 opacity-100' : '',
+          <div className={cn(
+            "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
+            'transition-all duration-300 scale-0 opacity-0',
+            easeInOutBadge ? 'scale-100 opacity-100' : '',
           )}>C</div>}
         {is_vice_captain &&
-        <div className={cn(
-          "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
-          'transition-all duration-300 scale-0 opacity-0',
-          easeInOutBadge ? 'scale-100 opacity-100' : '',
+          <div className={cn(
+            "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
+            'transition-all duration-300 scale-0 opacity-0',
+            easeInOutBadge ? 'scale-100 opacity-100' : '',
           )}>V</div>}
 
-          <div className={cn(
-            "absolute inline-flex items-end justify-center text-white rounded-lg top-1 start-1 dark:border-gray-900",
-            'transition-all duration-300 opacity-0',
-            easeInOutBadge ? 'opacity-100' : '',
-          )} >
-            <div className="flex items-center">
-              <p className={cn(
-                "font-bold",
-                delta_xp >= 0 ? "text-green-700" : "text-red-700",
-              )}>|</p>
-              <p className="text-lg md:text-3xl font-bold">{!is_captain ?  event_points : event_points * multiplier }</p>
-            </div>
-              <div className="flex flex-col">
-                <p className="text-xs">Pts</p>
-                <span className="flex items-center bg-gray-600 text-white">
-                  <p className="text-[0.4em] text-white">{xp_current.toFixed(1)}xP</p>
-                </span>
-              </div>
+        <div className={cn(
+          "absolute inline-flex items-end justify-center text-white rounded-lg top-1 start-1 dark:border-gray-900",
+          'transition-all duration-300 opacity-0',
+          easeInOutBadge ? 'opacity-100' : '',
+        )} >
+          <div className="flex items-center">
+            <p className={cn(
+              "font-bold",
+              delta_xp >= 0 ? "text-green-700" : "text-red-700",
+            )}>|</p>
+            <p className="text-lg md:text-3xl font-bold">{!is_captain ? event_points : event_points * multiplier}</p>
           </div>
+          <div className="flex flex-col">
+            <p className="text-xs">Pts</p>
+            <span className="flex items-center bg-gray-600 text-white">
+              <p className="text-[0.4em] text-white">{xp_current.toFixed(1)}xP</p>
+            </span>
+          </div>
+        </div>
         <CardHeader className="p-0">
           <div className="w-full flex flex-col justify-center items-center">
             <div className="relative w-8 h-8 md:w-12 md:h-12">
@@ -115,14 +122,29 @@ export default function ElementCard({
 
         </CardHeader>
       </Card>
-      <div className="px-[0.3rem] md:px-2 py-full flex justify-center" style={{ zIndex: 10 }}>
+      <div className="px-[0.3rem] md:px-2 py-full flex flex-col justify-center" style={{ zIndex: 10 }}>
         <p className={cn(
           "text-[0.5em] md:text-[0.7rem]",
-          )}>Next</p>
+        )}>Next</p>
+        {/* next fixture and difficulty */}
+        <ul className="flex gap-1">
+          {!!nextFixtures ? nextFixtures?.map((fixture: { team?: string; difficulty?: number; event?: number; teamId?: number }, index: number) => (
+            <li key={index} className="flex items-center gap-1">
+              <p className={cn(
+                "text-[0.5em] md:text-[0.7rem] font-semibold",
+                fixture?.difficulty && fixture?.difficulty <= 2 ? "text-green-700" : fixture?.difficulty && fixture?.difficulty <= 4 ? "text-yellow-500" : "text-red-700",
+              )}>{fixture?.team}</p>
+              <span className={cn(
+                "w-2 h-2 rounded-full",
+                fixture?.difficulty && fixture?.difficulty <= 2 ? "bg-green-700" : fixture?.difficulty &&  fixture?.difficulty <= 4 ? "bg-yellow-500" : "bg-red-700",
+              )}></span>
+            </li>
+          )) : null}
+        </ul>
         <p className={cn(
           "text-[0.5em] md:text-[0.7rem] bg-gray-700 text-white",
 
-          )}>{ (!is_captain ?  xp : xp * multiplier).toFixed(1) }xP</p>
+        )}>{(!is_captain ? xp : xp * multiplier).toFixed(1)}xP</p>
       </div>
 
     </div>

@@ -20,13 +20,13 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
     starts,
     own_goals
   } = element;
-  
+
   const expected_goals_per_90 = Number(element.expected_goals_per_90);
   const expected_assists_per_90 = Number(element.expected_assists_per_90);
   const starts_per_90 = Number(element.starts_per_90);
-  const clean_sheets_per_90 = Number(element.clean_sheets_per_90);  
+  const clean_sheets_per_90 = Number(element.clean_sheets_per_90);
   const expected_goals_conceded_per_90 = Number(element.expected_goals_conceded_per_90);
-  
+
   const indexPer90 = minutes > 0 ? (90 / minutes) : 0;
   const xYC = (yellow_cards * indexPer90) * game_config.scoring.yellow_cards;
   const xRC = (red_cards * indexPer90) * game_config.scoring.red_cards;
@@ -69,8 +69,8 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
 
   xP = pMP + xOG + xYC + xRC + xPG + xPA + xGC + xSaves + xCS + xBonus;
 
-  const xMin = (minutes / (90 * fixtures.length))
-  xP *= (xMin > 0.5) ? 1 : xMin;
+  // const xMin = fixtures.length > 0 ? (minutes / (90 * fixtures.length)) : 0.0;
+  // xP *= (xMin > 0.5) ? 1 : xMin;
   return xP;
 };
 
@@ -212,7 +212,7 @@ export function getExpectedPoints({
       fix.event <= gameWeek - 1,
   );
 
-  if (last5) {
+  if (last5 && last5?.length > 0) {
     xP = calculateBaseExpectedLastMatches(element, game_config, last5, filteredFixtures.filter((f: Fixture) => f.event >= currentGameWeek - last5.length));
   } else {
     xP = calculateBaseExpected(element, game_config, filteredFixtures);
@@ -225,7 +225,7 @@ export function getExpectedPoints({
   }
 
   if (elementHistory) {
-    if (gameWeek == 0) {
+    if (gameWeek == 1) {
       xP = xPHistory;
     } else {
       xP = (0.85 * xP) + (0.15 * xPHistory);
@@ -403,7 +403,7 @@ function averageRank(element: Element, fixtures: Fixture[]) {
   }
 
   if (ranksBPS.length === 0) return null;
-  return ranksBPS.reduce((a, b) => a + b, 0) / ranksBPS.length;
+  return ranksBPS.reduce((a, b) => a + (b ?? 0), 0) / ranksBPS.length;
 }
 
 
@@ -687,7 +687,7 @@ const createVariables = ({
         const xpDatas = [1, 2, 3].map((n: number) => [
           `xp_next_${n}`, getExpectedPoints({
             element: e, currentGameWeek:
-              foundCurrentEvent ? foundCurrentEvent.id : 1,
+              foundCurrentEvent ? foundCurrentEvent.id : 0,
             deltaEvent: n,
             fixtures,
             teams: bootstrap.teams,
@@ -699,7 +699,7 @@ const createVariables = ({
 
         const sigmaXpDatas = [1, 2, 3].map((n: number) => getExpectedPoints({
           element: e, currentGameWeek:
-            foundCurrentEvent ? foundCurrentEvent.id : 1,
+            foundCurrentEvent ? foundCurrentEvent.id : 0,
           deltaEvent: n,
           fixtures,
           teams: bootstrap.teams,
@@ -799,7 +799,7 @@ export function optimizationProcess({
           teams: bootstrap.teams,
           fixturesHistory: fixtures,
           element: el,
-          currentGameWeek: currentEvent ? currentEvent.id : 1,
+          currentGameWeek: currentEvent ? currentEvent.id : 0,
           elementHistory: foundElementHistory!
         }
 
@@ -836,7 +836,7 @@ export function optimizationProcess({
         automatic_subs: [],
         entry_history: {
           percentile_rank: 1,
-          event: currentEvent ? currentEvent.id : 1,
+          event: currentEvent ? currentEvent.id : 0,
           points: 0,
           total_points: 0,
           rank: 0,
@@ -915,7 +915,7 @@ export function optimizationProcess({
       automatic_subs: [],
       entry_history: {
         percentile_rank: 1,
-        event: currentEvent ? currentEvent.id : 1,
+        event: currentEvent ? currentEvent.id : 0,
         points: 0,
         total_points: 0,
         rank: 0,

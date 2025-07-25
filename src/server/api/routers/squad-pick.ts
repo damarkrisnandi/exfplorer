@@ -44,7 +44,13 @@ export type PlayerPicked = {
 
   web_name?: string,
   photo?: string,
-  event_points?: number
+  event_points?: number,
+  nextFixtures?: {
+    team: string;
+    event: number;
+    difficulty: number;
+    teamId: number;
+  }[],
 } & XPoint
 
 
@@ -61,6 +67,7 @@ export const pickRouter = createTRPCRouter({
       if (!currentEvent) {
         return null;
       }
+
       const picksQuery = axios.get(BASE_API_URL + `/picks/${managerId}/${currentEvent}`, {
         headers: {}
       })
@@ -84,9 +91,9 @@ export const pickRouter = createTRPCRouter({
           elements: elementsHistory
         },
         fixtures,
-        ...last5
-      ] = await Promise.all([picksQuery, bootstrapQuery, bootstrapHistoryQuery, fixturesQuery, ...last5Queries(currentEvent)])
+      ] = await Promise.all([picksQuery, bootstrapQuery, bootstrapHistoryQuery, fixturesQuery,])
 
+      const [...last5] = currentEvent ? await Promise.all(last5Queries(currentEvent)) : [];
       // const {
       //   elements: responseElements,
       //   game_config,
@@ -101,7 +108,7 @@ export const pickRouter = createTRPCRouter({
           const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
           const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 1,
+            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
             element: foundElement!,
             game_config,
             teams,
@@ -142,11 +149,25 @@ export const pickRouter = createTRPCRouter({
       const { currentEvent } = input;
 
 
+
+
       const [
         bootstrap,
         bootstrapHistory,
         fixtures,
       ] = await Promise.all([bootstrapQuery, bootstrapHistoryQuery, fixturesQuery])
+
+      const viewNextFixtures = fixtures
+        .filter((f: Fixture) => f.event === (currentEvent ?? 0) + 1)
+        .map((f: Fixture) => {
+          const homeTeam = bootstrap.teams.find((t) => t.id === f.team_a);
+          const awayTeam = bootstrap.teams.find((t) => t.id === f.team_h);
+          return {
+            ...f,
+            homeTeam: homeTeam?.name ?? "Unknown",
+            awayTeam: awayTeam?.name ?? "Unknown"
+          };
+        })
 
       let last5: LiveEvent[] | undefined = undefined;
       if (currentEvent) {
@@ -195,7 +216,36 @@ export const pickRouter = createTRPCRouter({
             xp_current,
             xp_o5,
             xp_o5_current,
-            delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current
+            delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current,
+
+            nextFixtures: viewNextFixtures
+              .filter((f: Fixture) => f.team_a === foundElement?.team || f.team_h === foundElement?.team)
+              .map((f: Fixture) => {
+                const elementTeam = bootstrap.teams.find((t) => t.id === f.team_a || t.id === f.team_h);
+                const team = bootstrap.teams.find((t) => t.id === f.team_a || t.id === f.team_h)?.short_name ?? "NONE";
+
+                if (f.team_a === foundElement?.team) {
+                  const opposite = bootstrap.teams.find((t) => t.id === f.team_h)?.short_name ?? "NONE";
+                  return {
+                    team: opposite,
+                    event: f.event,
+                    difficulty: f.team_a_difficulty,
+                    teamId: f.team_a
+                  }
+                } else if (f.team_h === foundElement?.team) {
+                  const opposite = bootstrap.teams.find((t) => t.id === f.team_a)?.short_name ?? "NONE";
+                  return {
+                    team: opposite,
+                    event: f.event,
+                    difficulty: f.team_h_difficulty,
+                    teamId: f.team_h
+                  }
+                } else {
+                  // If the element's team is not in the fixture, return null
+                  return null;
+                }
+              })
+              .filter((fixture): fixture is { team: string; event: number; difficulty: number; teamId: number } => fixture !== null)
           };
         })
       }

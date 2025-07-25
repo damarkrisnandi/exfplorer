@@ -61,7 +61,7 @@ import type { Reference } from "@/lib/reference-type";
         ])
         const foundCurrentEvent = bootstrap.events.find((event: Event) => event.is_current);
 
-        const liveEvents = await Promise.all(last5Queries(foundCurrentEvent ? foundCurrentEvent.id : 1))
+        const liveEvents = await Promise.all(last5Queries(foundCurrentEvent ? foundCurrentEvent.id : 0))
         const reference: Reference = {
           bootstrap,
           bootstrapHistory,
