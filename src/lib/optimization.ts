@@ -21,8 +21,8 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
     own_goals
   } = element;
   
-  const expected_goals_per_90: Number(element.expected_goals_per_90);
-  const expected_assists_per_90: Number(element.expected_assists_per_90);
+  const expected_goals_per_90 = Number(element.expected_goals_per_90);
+  const expected_assists_per_90 = Number(element.expected_assists_per_90);
   const starts_per_90 = Number(element.starts_per_90);
   const clean_sheets_per_90 = Number(element.clean_sheets_per_90);  
   const expected_goals_conceded_per_90 = Number(element.expected_goals_conceded_per_90),
