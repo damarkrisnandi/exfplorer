@@ -122,25 +122,27 @@ export default function ElementCard({
 
         </CardHeader>
       </Card>
-      <div className="px-[0.3rem] md:px-2 py-full flex flex-col justify-center" style={{ zIndex: 10 }}>
-        <p className={cn(
-          "text-[0.5em] md:text-[0.7rem]",
-        )}>Next</p>
-        {/* next fixture and difficulty */}
-        <ul className="flex gap-1">
-          {!!nextFixtures ? nextFixtures?.map((fixture: { team?: string; difficulty?: number; event?: number; teamId?: number }, index: number) => (
-            <li key={index} className="flex items-center gap-1">
-              <p className={cn(
-                "text-[0.5em] md:text-[0.7rem] font-semibold",
-                fixture?.difficulty && fixture?.difficulty <= 2 ? "text-green-700" : fixture?.difficulty && fixture?.difficulty <= 4 ? "text-yellow-500" : "text-red-700",
-              )}>{fixture?.team}</p>
-              <span className={cn(
-                "w-2 h-2 rounded-full",
-                fixture?.difficulty && fixture?.difficulty <= 2 ? "bg-green-700" : fixture?.difficulty &&  fixture?.difficulty <= 4 ? "bg-yellow-500" : "bg-red-700",
-              )}></span>
-            </li>
-          )) : null}
-        </ul>
+      <div className="px-[0.3rem]  md:px-2 flex flex-col" style={{ zIndex: 10 }}>
+        <div className="flex justify-between items-center">
+          <p className={cn(
+            "text-[0.5em] md:text-[0.7rem]",
+          )}>Next</p>
+          {/* next fixture and difficulty */}
+          <ul className="flex">
+            {!!nextFixtures ? nextFixtures?.map((fixture: { team?: string; difficulty?: number; event?: number; teamId?: number }, index: number) => (
+              <li key={index} className="flex items-center">
+                <p className={cn(
+                  "text-[0.5em] md:text-[0.7rem] font-semibold",
+                  fixture?.difficulty && fixture?.difficulty <= 2 ? "text-green-700" : fixture?.difficulty && fixture?.difficulty <= 4 ? "text-yellow-500" : "text-red-700",
+                )}>{fixture?.team}</p>
+                {/* <span className={cn(
+                  "w-2 h-2 rounded-full",
+                  fixture?.difficulty && fixture?.difficulty <= 2 ? "bg-green-700" : fixture?.difficulty &&  fixture?.difficulty <= 4 ? "bg-yellow-500" : "bg-red-700",
+                )}></span> */}
+              </li>
+            )) : null}
+          </ul>
+        </div>
         <p className={cn(
           "text-[0.5em] md:text-[0.7rem] bg-gray-700 text-white",
 
