@@ -25,7 +25,7 @@ const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtur
   const expected_assists_per_90 = Number(element.expected_assists_per_90);
   const starts_per_90 = Number(element.starts_per_90);
   const clean_sheets_per_90 = Number(element.clean_sheets_per_90);  
-  const expected_goals_conceded_per_90 = Number(element.expected_goals_conceded_per_90),
+  const expected_goals_conceded_per_90 = Number(element.expected_goals_conceded_per_90);
   
   const indexPer90 = minutes > 0 ? (90 / minutes) : 0;
   const xYC = (yellow_cards * indexPer90) * game_config.scoring.yellow_cards;
