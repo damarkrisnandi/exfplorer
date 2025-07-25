@@ -51,7 +51,7 @@ export default function WildcardView() {
     .filter((el) => played.map((p: PlayerPicked) => p.element).includes(el.id))
     .reduce((a: number, item: Element) => a + item.now_cost, 0)
     ?? 0
-  const totalXP = played.reduce((a: number, item: PlayerPicked) => a + (item.xp_o5 ?? 0), 0);
+  const totalXP = played.reduce((a: number, item: PlayerPicked) => a + ((item.xp_o5 ?? 0)  * item.multiplier), 0);
 
   const sumData = [
     {...sumDataCostRef, value: totalCost},

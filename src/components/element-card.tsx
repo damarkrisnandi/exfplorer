@@ -131,10 +131,25 @@ export default function ElementCard({
           <ul className="flex">
             {!!nextFixtures ? nextFixtures?.map((fixture: { team?: string; difficulty?: number; event?: number; teamId?: number }, index: number) => (
               <li key={index} className="flex items-center">
-                <p className={cn(
-                  "text-[0.5em] md:text-[0.7rem] font-semibold",
-                  fixture?.difficulty && fixture?.difficulty <= 2 ? "text-green-700" : fixture?.difficulty && fixture?.difficulty <= 4 ? "text-yellow-500" : "text-red-700",
-                )}>{fixture?.team}</p>
+                <p
+                  className={cn(
+                    "text-[0.5em] md:text-[0.7rem] font-semibold",
+                    "text-white p-2",
+                    fixture?.difficulty === 5
+                      ? "bg-red-900"
+                      : fixture?.difficulty === 4
+                      ? "bg-red-700"
+                      : fixture?.difficulty === 3
+                      ? "bg-gray-500"
+                      : fixture?.difficulty === 2
+                      ? "bg-green-600"
+                      : fixture?.difficulty === 1
+                      ? "bg-green-900"
+                      : ""
+                  )}
+                >
+                  {fixture?.team}
+                </p>
                 {/* <span className={cn(
                   "w-2 h-2 rounded-full",
                   fixture?.difficulty && fixture?.difficulty <= 2 ? "bg-green-700" : fixture?.difficulty &&  fixture?.difficulty <= 4 ? "bg-yellow-500" : "bg-red-700",
