@@ -425,7 +425,7 @@ export function wildcardOptimizationModel({
   bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
 
   bootstrap.elements.sort((a: Element, b: Element) => {
-    return (b.xp_o5_current ?? 0) - (a.xp_o5_current ?? 0);
+    return (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0);
   });
 
   // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
@@ -691,7 +691,7 @@ const createVariables = ({
             deltaEvent: n,
             fixtures,
             teams: bootstrap.teams,
-            last5,
+            last5 && last5.length > 0 ? last5 : null,
             elementHistory: elementHist,
             fixturesHistory: fixturesHistory,
             game_config: bootstrap.game_config
@@ -703,7 +703,7 @@ const createVariables = ({
           deltaEvent: n,
           fixtures,
           teams: bootstrap.teams,
-          last5,
+          last5 && last5.length > 0 ? last5 : null,
           elementHistory: elementHist,
           fixturesHistory: fixturesHistory,
           game_config: bootstrap.game_config
