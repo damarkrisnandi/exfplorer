@@ -691,7 +691,7 @@ const createVariables = ({
             deltaEvent: n,
             fixtures,
             teams: bootstrap.teams,
-            last5 ?? [],
+            last5: last5 ?? [],
             elementHistory: elementHist,
             fixturesHistory: fixturesHistory,
             game_config: bootstrap.game_config
@@ -703,7 +703,7 @@ const createVariables = ({
           deltaEvent: n,
           fixtures,
           teams: bootstrap.teams,
-          last5 ?? [],
+          last5: last5 ?? [],
           elementHistory: elementHist,
           fixturesHistory: fixturesHistory,
           game_config: bootstrap.game_config
