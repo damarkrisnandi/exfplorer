@@ -905,7 +905,8 @@ export function optimizationProcess({
         .map((pick: PlayerPicked, i: number) => {
           return {
             ...pick,
-            position: i + 12
+            position: i + 12,
+            mulyiplier: 0,
           }
         })
       benched.push(...benchPicks)
@@ -934,7 +935,7 @@ export function optimizationProcess({
           const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
           let multiplier = 1;
           const foundElement = bootstrap.elements.find((el: Element) => el.id === element);
-          if (element === captainElement) {
+          if (index === choosenCaptIndex) {
             multiplier = 2;
           }
           
