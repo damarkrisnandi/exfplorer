@@ -948,7 +948,7 @@ export function optimizationProcess({
             element,
             web_name: foundElement ? foundElement.web_name : 'Player',
             multiplier,
-            is_captain: index === choosenCaptainIndex,
+            is_captain: index === choosenCaptIndex,
             is_vice_captain: false,
             position: index + 1,
 
