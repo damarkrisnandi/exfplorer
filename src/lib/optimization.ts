@@ -936,6 +936,7 @@ export function optimizationProcess({
           if (element === captainElement) {
             multiplier = 2;
           }
+          
           if (index > 10) {
             multiplier = 0;
           }
@@ -946,7 +947,7 @@ export function optimizationProcess({
             element,
             web_name: foundElement ? foundElement.web_name : 'Player',
             multiplier,
-            is_captain: captainElement === element,
+            is_captain: captainElement === element && index <=10,
             is_vice_captain: false,
             position: index + 1,
 
