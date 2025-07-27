@@ -895,6 +895,7 @@ export function optimizationProcess({
 
     const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value))
     const choosenCapt = solution.variables.find(([, value]: [string, number]) => value === max)
+    const choosenCaptIndex = solution.variables.findIndex(([, value]: [string, number]) => value === max)
     const benched = [];
     if (!isWildcard && solution.variables.length === 11) {
       const benchPicks: PlayerPicked[] = picksData1.picks
@@ -947,7 +948,7 @@ export function optimizationProcess({
             element,
             web_name: foundElement ? foundElement.web_name : 'Player',
             multiplier,
-            is_captain: captainElement === element && index <=10,
+            is_captain: index === choosenCaptainIndex,
             is_vice_captain: false,
             position: index + 1,
 
