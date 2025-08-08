@@ -27,12 +27,12 @@ export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname()
-
   const titleMapping = new Map<string, string>();
   titleMapping.set('', 'Home');
   titleMapping.set('/data-visualization', 'Data Visualization');
   titleMapping.set('/live-event', 'Live Event');
   titleMapping.set('/my-team', 'My Team');
+  titleMapping.set('/player-stats', 'Player Statistics');
   // const refData = getStorage('reference') as Reference | undefined;
 
   // const reference = useReference(refData);

@@ -6,6 +6,7 @@ import {
   Home,
   Radio,
   ShieldHalfIcon,
+  UserRound
 } from "lucide-react"
 
 import { NavUser } from "@/components/nav-user"
@@ -42,6 +43,11 @@ const mainMenu = [
         name: "My Team",
         url: "my-team",
         icon: ShieldHalfIcon
+      },
+      {
+        name: "Player Stats",
+        url: "player-stats",
+        icon: UserRound
       },
     ]
 

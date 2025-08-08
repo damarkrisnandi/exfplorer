@@ -7,7 +7,7 @@ import { CheckIcon, X, type Check } from "lucide-react"
 
 type ElementCardProps = {
   className?: string,
-  photo: string,
+  photo?: string,
   web_name?: string,
   event_points: number,
   is_captain: boolean,
@@ -27,7 +27,7 @@ type ElementCardProps = {
 export default function ElementCard({
   className,
 
-  photo,
+  photo = "/pl-main-logo.png",
   web_name,
   event_points,
   is_captain = false,

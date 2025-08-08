@@ -1,5 +1,13 @@
-export default function LiveEvent() {
+import { HydrateClient } from "@/trpc/server"
+import LiveEventClient from "./client-component"
+import { Suspense } from "react"
+
+export default function LiveEventPage() {
   return (
-    <>work in progress</>
+    <HydrateClient>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LiveEventClient />
+      </Suspense>
+    </HydrateClient>
   )
 }
