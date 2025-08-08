@@ -164,12 +164,7 @@ export default function PlayerStatsClient() {
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">Gameweek {bootstrapStore.nextEvent.id} Deadline</h2>
             <p className="text-sm mb-4">{new Date(bootstrapStore.nextEvent.deadline_time).toLocaleString()}</p>
-            <CountdownTimer
-              initialDays={countdown.days}
-              initialHours={countdown.hours}
-              initialMinutes={countdown.minutes}
-              initialSeconds={countdown.seconds}
-            />
+            
           </div>
         )}
       </div>
