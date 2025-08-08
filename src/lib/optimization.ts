@@ -425,7 +425,7 @@ export function wildcardOptimizationModel({
   bootstrap.elements.sort((a: Element, b: Element) => a.element_type - b.element_type);
 
   bootstrap.elements.sort((a: Element, b: Element) => {
-    return (b.xp_o5_current ?? 0) - (a.xp_o5_current ?? 0);
+    return (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0);
   });
 
   // const playerConstraints = Object.fromEntries(mandatoryPlayer.map(p => [p, {"equal": 1}]))
@@ -691,7 +691,7 @@ const createVariables = ({
             deltaEvent: n,
             fixtures,
             teams: bootstrap.teams,
-            last5,
+            last5: last5 ?? [],
             elementHistory: elementHist,
             fixturesHistory: fixturesHistory,
             game_config: bootstrap.game_config
@@ -703,7 +703,7 @@ const createVariables = ({
           deltaEvent: n,
           fixtures,
           teams: bootstrap.teams,
-          last5,
+          last5: last5 ?? [],
           elementHistory: elementHist,
           fixturesHistory: fixturesHistory,
           game_config: bootstrap.game_config
@@ -895,6 +895,7 @@ export function optimizationProcess({
 
     const max = Math.max(...solution.variables.map(([, value]: [string, number]) => value))
     const choosenCapt = solution.variables.find(([, value]: [string, number]) => value === max)
+    const choosenCaptIndex = solution.variables.findIndex(([, value]: [string, number]) => value === max)
     const benched = [];
     if (!isWildcard && solution.variables.length === 11) {
       const benchPicks: PlayerPicked[] = picksData1.picks
@@ -904,7 +905,8 @@ export function optimizationProcess({
         .map((pick: PlayerPicked, i: number) => {
           return {
             ...pick,
-            position: i + 12
+            position: i + 12,
+            mulyiplier: 0,
           }
         })
       benched.push(...benchPicks)
@@ -933,9 +935,10 @@ export function optimizationProcess({
           const captainElement = choosenCapt ? Number(choosenCapt[0].split('_')[1]) : null;
           let multiplier = 1;
           const foundElement = bootstrap.elements.find((el: Element) => el.id === element);
-          if (element === captainElement) {
+          if (index === choosenCaptIndex) {
             multiplier = 2;
           }
+          
           if (index > 10) {
             multiplier = 0;
           }
@@ -946,7 +949,7 @@ export function optimizationProcess({
             element,
             web_name: foundElement ? foundElement.web_name : 'Player',
             multiplier,
-            is_captain: captainElement === element,
+            is_captain: index === choosenCaptIndex,
             is_vice_captain: false,
             position: index + 1,
 
