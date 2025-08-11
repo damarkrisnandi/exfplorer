@@ -17,9 +17,18 @@ type UpcomingFixture = {
   kickoffDate: Date
 }
 
+type TimeRemaining = {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+  total: number
+}
+
 export default function UpcomingFixturesClient() {
   const [isClient, setIsClient] = useState(false)
   const bootstrapStore = useBootstrapStore()
+  const [countdown, setCountdown] = useState<TimeRemaining>({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 })
 
   // Fetch bootstrap data
   const { data: bootstrap, isLoading: bootstrapLoading } = api.bootstrap.get.useQuery()
@@ -82,7 +91,7 @@ export default function UpcomingFixturesClient() {
       day: 'numeric'
     })
   }
-  
+
   // Format the time part only
   function formatTimeOnly(date: Date): string {
     return date.toLocaleTimeString(undefined, {
