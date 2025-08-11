@@ -59,8 +59,8 @@ export default function DeadlineCountdown({ deadlineTime, className }: DeadlineC
 
   return (
     <div className="mt-2">
-      <div className="text-sm text-gray-600 mb-1">Next deadline:</div>
-      <div className="flex items-center justify-between">
+      {/* <div className="text-sm text-gray-600 mb-1">Next deadline:</div> */}
+      <div className="">
         <div
           className={cn(
             "px-4 py-2 rounded-md bg-white shadow-md inline-flex gap-2 justify-center items-center",
@@ -89,9 +89,9 @@ export default function DeadlineCountdown({ deadlineTime, className }: DeadlineC
             <span className="text-xs block">secs</span>
           </div>
         </div>
-        <div className="text-xs text-gray-500">
+        {/* <div className="text-xs text-gray-500">
           {new Date(deadlineTime).toLocaleString()}
-        </div>
+        </div> */}
       </div>
     </div>
   )

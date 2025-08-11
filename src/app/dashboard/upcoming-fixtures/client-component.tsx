@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { Loader2 } from "lucide-react"
 import type { Fixture } from "@/lib/fixture-type"
 import type { Team } from "@/lib/bootstrap-type"
+import DeadlineCountdown from '@/components/deadline-countdown'
 
 type UpcomingFixture = {
   fixture: Fixture
@@ -119,9 +120,12 @@ export default function UpcomingFixturesClient() {
         <CardTitle className="flex justify-between items-center">
           <span>Upcoming Fixtures</span>
           {bootstrapStore.nextEvent && (
-            <Badge variant="outline">
-              Gameweek {bootstrapStore.nextEvent.id}
-            </Badge>
+            <div className="flex gap-2 items-center">
+              <Badge variant="outline">
+                Gameweek {bootstrapStore.nextEvent.id}
+              </Badge>
+              <DeadlineCountdown deadlineTime={bootstrapStore.nextEvent.deadline_time}/>
+            </div>
           )}
         </CardTitle>
       </CardHeader>
@@ -139,9 +143,7 @@ export default function UpcomingFixturesClient() {
             {Object.entries(
               upcomingFixtures.reduce<Record<string, UpcomingFixture[]>>((groups, match) => {
                 const dateKey = formatDateForGrouping(match.kickoffDate);
-                if (!groups[dateKey]) {
-                  groups[dateKey] = [];
-                }
+                groups[dateKey] ??= [];
                 groups[dateKey].push(match);
                 return groups;
               }, {})
@@ -156,11 +158,11 @@ export default function UpcomingFixturesClient() {
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex-1 text-right font-medium truncate">
-                          {match.homeTeam?.short_name || 'TBD'}
+                          {match.homeTeam?.short_name ?? 'TBD'}
                         </div>
                         <div className="mx-2 text-lg font-bold">vs</div>
                         <div className="flex-1 font-medium truncate">
-                          {match.awayTeam?.short_name || 'TBD'}
+                          {match.awayTeam?.short_name ?? 'TBD'}
                         </div>
                       </div>
                       <div className="text-center text-sm text-gray-500 mt-1">
