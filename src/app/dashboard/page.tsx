@@ -6,6 +6,7 @@ import { cn, themeGradient } from "@/lib/utils";
 import WildcardView from "@/components/wildcard-view";
 import { StorageContainer } from "@/components/storage-container";
 import { AppLineChart } from "@/components/app-line-chart";
+import UpcomingFixturesPage from "./upcoming-fixtures/page";
 
 export default async function Page() {
   const session = await auth();
@@ -30,8 +31,12 @@ export default async function Page() {
             }
           }} />
         </div>
-
       )}
+
+      <div className="w-full">
+        <UpcomingFixturesPage />
+      </div>
+
       <div className="w-full flex flex-col md:flex-row justify-center gap-2">
           <WildcardView />
           {session?.user?.manager && (
