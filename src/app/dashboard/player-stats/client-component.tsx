@@ -99,8 +99,8 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
           valueB = parseFloat(b.selected_by_percent)
           break
         case 'xp':
-          valueA = a.xp ?? 0
-          valueB = b.xp ?? 0
+          valueA = a.xp_o5 ?? 0
+          valueB = b.xp_o5 ?? 0
           break
         case 'form':
           valueA = parseFloat(a.form)
@@ -367,7 +367,7 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
                       </div>
                       <div>
                         <p className="text-gray-500">xP</p>
-                        <p className="font-medium">{player.xp?.toFixed(1) ?? '-'}</p>
+                        <p className="font-medium">{player.xp_o5?.toFixed(1) ?? '-'}</p>
                       </div>
                       <div>
                         <p className="text-gray-500">Selected</p>
@@ -479,7 +479,7 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
                       <td className="px-4 py-3 text-sm text-center">£{(player.now_cost / 10).toFixed(1)}m</td>
                       <td className="px-4 py-3 text-sm font-bold text-center">{player.total_points}</td>
                       <td className="px-4 py-3 text-sm text-center">{player.form}</td>
-                      <td className="px-4 py-3 text-sm text-center">{player.xp?.toFixed(1) ?? '-'}</td>
+                      <td className="px-4 py-3 text-sm text-center">{player.xp_o5?.toFixed(1) ?? '-'}</td>
                       <td className="px-4 py-3 text-sm text-center">{player.selected_by_percent}%</td>
                       <td className="px-4 py-3 text-sm text-center">{player.goals_scored}</td>
                       <td className="px-4 py-3 text-sm text-center">{player.assists}</td>
