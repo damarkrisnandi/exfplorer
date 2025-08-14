@@ -124,7 +124,7 @@ export default function UpcomingFixturesClient() {
               <Badge variant="outline">
                 Gameweek {bootstrapStore.nextEvent.id}
               </Badge>
-              <DeadlineCountdown deadlineTime={bootstrapStore.nextEvent.deadline_time}/>
+
             </div>
           )}
         </CardTitle>
@@ -139,41 +139,45 @@ export default function UpcomingFixturesClient() {
           <div className="text-center p-4 bg-gray-100 rounded-lg">
             <p>No upcoming fixtures available.</p>
           </div>
-        ) : (          <div className="grid grid-cols-1 gap-4">
-            {Object.entries(
-              upcomingFixtures.reduce<Record<string, UpcomingFixture[]>>((groups, match) => {
-                const dateKey = formatDateForGrouping(match.kickoffDate);
-                groups[dateKey] ??= [];
-                groups[dateKey].push(match);
-                return groups;
-              }, {})
-            ).map(([dateKey, matches]) => (
-              <div key={dateKey} className="space-y-2">
-                <h3 className="font-medium text-gray-800 border-b pb-1">{dateKey}</h3>
-                <div className="space-y-2">
-                  {matches.map((match) => (
-                    <div
-                      key={match.fixture.id}
-                      className="p-2 border rounded-md hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1 text-right font-medium truncate">
-                          {match.homeTeam?.short_name ?? 'TBD'}
+        ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {bootstrapStore.nextEvent && (
+                <DeadlineCountdown className='space-y-2' deadlineTime={bootstrapStore.nextEvent.deadline_time} />
+              )}
+              {Object.entries(
+                upcomingFixtures.reduce<Record<string, UpcomingFixture[]>>((groups, match) => {
+                  const dateKey = formatDateForGrouping(match.kickoffDate);
+                  groups[dateKey] ??= [];
+                  groups[dateKey].push(match);
+                  return groups;
+                }, {})
+              ).map(([dateKey, matches]) => (
+                <div key={dateKey} className="space-y-2">
+                  <h3 className="font-medium text-gray-800 border-b pb-1">{dateKey}</h3>
+                  <div className="space-y-2">
+                    {matches.map((match) => (
+                      <div
+                        key={match.fixture.id}
+                        className="p-2 border rounded-md hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex-1 text-right font-medium truncate">
+                            {match.homeTeam?.short_name ?? 'TBD'}
+                          </div>
+                          <div className="mx-2 text-lg font-bold">vs</div>
+                          <div className="flex-1 font-medium truncate">
+                            {match.awayTeam?.short_name ?? 'TBD'}
+                          </div>
                         </div>
-                        <div className="mx-2 text-lg font-bold">vs</div>
-                        <div className="flex-1 font-medium truncate">
-                          {match.awayTeam?.short_name ?? 'TBD'}
+                        <div className="text-center text-sm text-gray-500 mt-1">
+                          {formatTimeOnly(match.kickoffDate)}
                         </div>
                       </div>
-                      <div className="text-center text-sm text-gray-500 mt-1">
-                        {formatTimeOnly(match.kickoffDate)}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
         )}
       </CardContent>
     </Card>
