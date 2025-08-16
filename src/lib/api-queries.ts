@@ -41,7 +41,7 @@ export const last5Queries = (currentEvent: number) => [1, 2, 3, 4, 5]
   .filter((n: number) => n <= currentEvent)
   .map((n: number) => {
     return axios.get(BASE_API_URL + `/live-event/${currentEvent - (n - 1)}`, {
-      headers: {}
+      headers: {},
     })
     //return axios.get(ARCHIVED_API_URL + `/${currentSeason}/live-event/${currentEvent - n - 1}.json`, {
       //headers: {}
