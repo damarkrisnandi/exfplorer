@@ -140,7 +140,7 @@ export default function UpcomingFixturesClient() {
   }
 
   // Helper function to render fixtures list
-  const renderFixtures = (fixtures: UpcomingFixture[], showDeadline: boolean = false) => {
+  const renderFixtures = (fixtures: UpcomingFixture[], showDeadline: boolean) => {
     if (fixtures.length === 0) {
       return (
         <div className="text-center p-4 bg-gray-100 rounded-lg">
@@ -192,7 +192,7 @@ export default function UpcomingFixturesClient() {
                             {match.fixture.team_h_score} - {match.fixture.team_a_score}
                           </div>
                           <div className="text-green-600 font-medium">
-                            {match.fixture.minutes}'
+                            {match.fixture.minutes}&apos;
                           </div>
                         </div>
                       ) : (
