@@ -19,18 +19,9 @@ type UpcomingFixture = {
   kickoffDate: Date
 }
 
-type TimeRemaining = {
-  days: number
-  hours: number
-  minutes: number
-  seconds: number
-  total: number
-}
-
 export default function UpcomingFixturesClient() {
   const [isClient, setIsClient] = useState(false)
   const bootstrapStore = useBootstrapStore()
-  const [countdown, setCountdown] = useState<TimeRemaining>({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 })
 
   // Fetch bootstrap data
   const { data: bootstrap, isLoading: bootstrapLoading } = api.bootstrap.get.useQuery()
@@ -61,7 +52,7 @@ export default function UpcomingFixturesClient() {
       const fixturesArray = Array.isArray(fixtures) ? fixtures : [fixtures]
 
       // Process current gameweek fixtures (current event or next event if no current)
-      const targetCurrentEvent = currentEvent || nextEvent
+      const targetCurrentEvent = currentEvent ?? nextEvent
       if (targetCurrentEvent) {
         const currentEventFixtures = fixturesArray.filter((f: Fixture) =>
           f.event === targetCurrentEvent.id
@@ -143,17 +134,6 @@ export default function UpcomingFixturesClient() {
   // Format the time part only
   function formatTimeOnly(date: Date): string {
     return date.toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  // Format the date to display day, date and time in local timezone
-  function formatKickoffTime(date: Date): string {
-    return date.toLocaleString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -247,7 +227,7 @@ export default function UpcomingFixturesClient() {
 
   const currentEvent = bootstrap?.events.find((e) => e.is_current)
   const nextEvent = bootstrap?.events.find((e) => e.is_next)
-  const targetCurrentEvent = currentEvent || nextEvent
+  const targetCurrentEvent = currentEvent ?? nextEvent
 
   return (
     <Card className="w-full">
