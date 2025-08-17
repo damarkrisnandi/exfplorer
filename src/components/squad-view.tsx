@@ -154,7 +154,7 @@ export function SquadViewSkeleton({ title, description, sumData }: SquadViewProp
 function SumCard({ title, value, format }: SumValue) {
   const formattedValue = format(value);
   return (
-    <div className="flex flex-col items-center mt-[1.5em] py-8">
+    <div className="flex flex-col items-center mt-2 py-8">
       <p className="flex justify-center items-center text-xs">{title}</p>
       <div className="flex">
         <div className="w-24 h-20 bg-gradient-to-b from-[#2e026d] to-[#0f0f1a] text-white flex justify-center items-center rounded-lg">
