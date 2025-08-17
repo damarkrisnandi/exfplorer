@@ -205,6 +205,7 @@ export default function LiveEventClient() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                       {group.homePlayers
                         .sort((a, b) => (b.event_points || 0) - (a.event_points || 0))
+                        .filter((player) => player.minutes > 0)
                         .map((player) => (
                           <ElementCard
                             key={player.id}
@@ -229,6 +230,7 @@ export default function LiveEventClient() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                       {group.awayPlayers
                         .sort((a, b) => (b.event_points || 0) - (a.event_points || 0))
+                        .filter((player) => player.minutes > 0)
                         .map((player) => (
                           <ElementCard
                             key={player.id}
