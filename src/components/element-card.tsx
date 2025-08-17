@@ -103,8 +103,8 @@ export default function ElementCard({
                 sizes="20"
                 alt={`pl-logo`}
                 priority={true}
-              />
-            </div> */}
+              /> */}
+            </div> 
             <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold text-ellipsis text-white">{web_name}</CardTitle>
             <CardDescription className="w-full text-white">
               {/* <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
