@@ -431,7 +431,7 @@ export default function LiveEventClient() {
                         </th>
                       </tr>
                     </thead>                    <tbody>                      {sortPlayers([...group.homePlayers.map(p => ({...p, isHome: true})), ...group.awayPlayers.map(p => ({...p, isHome: false}))])
-                        .filter((player) => player.minutes >= 0) // Show all players, including those with 0 minutes
+                        .filter((player) => player.minutes > 0) // Show all players, including those with 0 minutes
                         .map((player, index) => (<tr key={player.id} className={cn(
                             "border-b hover:bg-gray-50 transition-colors",
                             index % 2 === 0 ? "bg-white" : "bg-gray-50/50",                            // Highlight top performers
@@ -560,7 +560,7 @@ export default function LiveEventClient() {
                             </td>
                           </tr>
                       ))}
-                      {[...group.homePlayers, ...group.awayPlayers].filter((player) => player.minutes >= 0).length === 0 && (
+                      {[...group.homePlayers, ...group.awayPlayers].filter((player) => player.minutes > 0).length === 0 && (
                         <tr>
                           <td colSpan={12} className="px-4 py-8 text-center text-gray-500">
                             No player data available for this fixture yet.
