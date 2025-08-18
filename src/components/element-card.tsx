@@ -1,6 +1,6 @@
 'use client'
 import { cn } from "@/lib/utils"
-import { Card, CardContent } from "./ui/card"
+import { Card, CardContent, CardFooter } from "./ui/card"
 import { Badge } from "./ui/badge"
 import Image from "next/image"
 import { useEffect, useState } from "react"
@@ -23,6 +23,9 @@ type ElementCardProps = {
     difficulty: number;
     teamId: number;
   }[],
+
+  showNext?: boolean
+  showCurrent?: boolean
 }
 
 export default function ElementCard({
@@ -36,7 +39,9 @@ export default function ElementCard({
   xp = 0,
   delta_xp = 0,
   xp_current = 0,
-  nextFixtures
+  nextFixtures,
+  showNext = true,
+  showCurrent = true
 }: ElementCardProps) {
   const [easeInOutCard, setEaseInOutCard] = useState<boolean>(false);
   const [easeInOutBadge, setEaseInOutBadge] = useState<boolean>(false);
@@ -115,97 +120,77 @@ export default function ElementCard({
         </div>
 
         <CardContent className="p-1.5 md:p-2 h-full flex flex-col">
-          {/* Player Image */}
-          <div className="relative w-8 h-8 md:w-12 md:h-12 mx-auto mb-1 md:mb-2 overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200 group-hover:ring-blue-300 transition-all duration-300">
-            <Image
-              src={photo}
-              fill={true}
-              className="object-cover transition-transform duration-300 group-hover:scale-110"
-              sizes="32"
-              alt={`${web_name} photo`}
-              priority={false}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.src = "/pl-main-logo.png"
-              }}
-            />
-            {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </div>
 
           {/* Player Name */}
-          <div className="text-center mb-1 md:mb-2">
-            <h3 className="text-xs md:text-sm font-semibold text-gray-800 truncate leading-tight">
+          <div className="text-center">
+            <h3 className="text-[0.6em] md:text-sm md:font-semibold text-gray-800 truncate leading-tight">
               {web_name}
             </h3>
           </div>
 
           {/* Points Display - Large and prominent */}
-          <div className="flex-1 flex flex-col items-center justify-center">
+          <div className="flex-1 flex items-center justify-center mb-1">
             <div className="text-center">
               <div className="text-sm md:text-2xl font-bold text-gray-900 leading-none">
                 {actualPoints}
               </div>
-              <div className="text-xs text-gray-500 font-medium hidden md:block">
+              {/* <div className="text-xs text-gray-500 font-medium hidden md:block">
                 {actualPoints === 1 ? 'pt' : 'pts'}
+                </div> */}
+            </div>
+                <div className="text-center mt-0.5 md:mt-1">
+                  <div className="text-[0.5em] text-gray-600 bg-gray-100 rounded-full px-1.5 md:px-2 py-0.5 md:py-1">
+                    {actualXpCurrent.toFixed(1)}xP
+                  </div>
+                </div>
+          </div>
+
+            {/* Next Fixtures & Additional Info */}
+            <div className="px-0.5 md:px-1 space-y-0.5 md:space-y-1">
+              {/* Expected Points for upcoming games */}
+              <div className="text-center">
+                <div className="text-[0.5em] flex items-center gap-2">
+                  {actualXp.toFixed(1)}xP
+                  {nextFixtures && nextFixtures.length > 0 && (
+                    <div>
+                      <div className="flex gap-0.5 md:gap-1 flex-wrap justify-center">
+                        {nextFixtures.slice(0, 2).map((fixture, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className={cn(
+                              "text-[0.5em] px-1 md:px-2 py-0.5 border font-medium",
+                              fixture?.difficulty === 5
+                                ? "bg-red-100 border-red-300 text-red-800"
+                                : fixture?.difficulty === 4
+                                ? "bg-orange-100 border-orange-300 text-orange-800"
+                                : fixture?.difficulty === 3
+                                ? "bg-yellow-100 border-yellow-300 text-yellow-800"
+                                : fixture?.difficulty === 2
+                                ? "bg-green-100 border-green-300 text-green-800"
+                                : fixture?.difficulty === 1
+                                ? "bg-emerald-100 border-emerald-300 text-emerald-800"
+                                : "bg-gray-100 border-gray-300 text-gray-800"
+                            )}
+                          >
+                            {fixture?.team}
+                          </Badge>
+                        ))}
+                        {nextFixtures.length > 2 && (
+                          <Badge variant="outline" className="text-xs px-1 md:px-2 py-0.5 bg-gray-100 text-gray-600">
+                            +{nextFixtures.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Expected Points (xP) */}
-          <div className="text-center mt-0.5 md:mt-1">
-            <div className="text-xs text-gray-600 bg-gray-100 rounded-full px-1.5 md:px-2 py-0.5 md:py-1">
-              {actualXpCurrent.toFixed(1)}xP
-            </div>
-          </div>
+            {/* Expected Points (xP) */}
         </CardContent>
-      </Card>      {/* Next Fixtures & Additional Info */}
-      <div className="px-0.5 md:px-1 space-y-0.5 md:space-y-1">
-        {/* Next Fixtures */}
-        {nextFixtures && nextFixtures.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-0.5 md:mb-1">
-              <span className="text-xs text-gray-500 font-medium hidden md:inline">Next</span>
-            </div>
-            <div className="flex gap-0.5 md:gap-1 flex-wrap justify-center">
-              {nextFixtures.slice(0, 2).map((fixture, index) => (
-                <Badge
-                  key={index}
-                  variant="outline"
-                  className={cn(
-                    "text-xs px-1 md:px-2 py-0.5 border font-medium",
-                    fixture?.difficulty === 5
-                      ? "bg-red-100 border-red-300 text-red-800"
-                      : fixture?.difficulty === 4
-                      ? "bg-orange-100 border-orange-300 text-orange-800"
-                      : fixture?.difficulty === 3
-                      ? "bg-yellow-100 border-yellow-300 text-yellow-800"
-                      : fixture?.difficulty === 2
-                      ? "bg-green-100 border-green-300 text-green-800"
-                      : fixture?.difficulty === 1
-                      ? "bg-emerald-100 border-emerald-300 text-emerald-800"
-                      : "bg-gray-100 border-gray-300 text-gray-800"
-                  )}
-                >
-                  {fixture?.team}
-                </Badge>
-              ))}
-              {nextFixtures.length > 2 && (
-                <Badge variant="outline" className="text-xs px-1 md:px-2 py-0.5 bg-gray-100 text-gray-600">
-                  +{nextFixtures.length - 2}
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
 
-        {/* Expected Points for upcoming games */}
-        <div className="text-center">
-          <div className="text-xs bg-blue-50 text-blue-700 rounded-md px-1.5 md:px-2 py-0.5 md:py-1 font-medium">
-            {actualXp.toFixed(1)}xP next
-          </div>
-        </div>
-      </div>
+      </Card>
     </div>
   )
 }
