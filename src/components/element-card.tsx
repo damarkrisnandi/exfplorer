@@ -1,9 +1,10 @@
 'use client'
 import { cn } from "@/lib/utils"
-import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Badge } from "./ui/badge"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { CheckIcon, X, type Check } from "lucide-react"
+import { Star, TrendingUp, TrendingDown, Minus } from "lucide-react"
 
 type ElementCardProps = {
   className?: string,
@@ -13,7 +14,6 @@ type ElementCardProps = {
   is_captain: boolean,
   is_vice_captain: boolean,
   multiplier: number
-
   xp?: number,
   xp_current?: number,
   delta_xp?: number,
@@ -24,9 +24,9 @@ type ElementCardProps = {
     teamId: number;
   }[],
 }
+
 export default function ElementCard({
   className,
-
   photo = "/pl-main-logo.png",
   web_name,
   event_points,
@@ -42,128 +42,178 @@ export default function ElementCard({
   const [easeInOutBadge, setEaseInOutBadge] = useState<boolean>(false);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setEaseInOutCard(true);
     }, Math.random() * 100);
-  })
+
+    return () => clearTimeout(timer);
+  }, [])
 
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setEaseInOutBadge(true);
     }, 700);
-  })
+
+    return () => clearTimeout(timer);
+  }, [])
+
+  const actualPoints = !is_captain ? event_points : event_points * multiplier;
+  const actualXp = !is_captain ? xp : xp * multiplier;
+  const actualXpCurrent = !is_captain ? xp_current : xp_current * multiplier;
+
+  // Determine performance trend icon and color
+  const getTrendIcon = () => {
+    if (delta_xp > 0) return <TrendingUp className="w-3 h-3" />;
+    if (delta_xp < 0) return <TrendingDown className="w-3 h-3" />;
+    return <Minus className="w-3 h-3" />;
+  };
+
+  const getTrendColor = () => {
+    if (delta_xp > 0) return "text-green-600 bg-green-50";
+    if (delta_xp < 0) return "text-red-600 bg-red-50";
+    return "text-gray-600 bg-gray-50";
+  };
+
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <Card className={cn(
-        'w-12 h-16 md:w-16 md:h-20 py-2 md:py-4 relative',
-        'bg-gray-900/10',
-        'transition-all duration-300 -translate-6 opacity-0',
-        easeInOutCard ? 'translate-0 opacity-100' : '',
+        'w-16 h-24 md:w-20 md:h-28 relative overflow-hidden',
+        'bg-gradient-to-b from-white to-gray-50',
+        'border-2 border-gray-200 hover:border-blue-300',
+        'transition-all duration-500 ease-out',
+        'hover:shadow-lg hover:-translate-y-1',
+        'group cursor-pointer',
+        !easeInOutCard && 'translate-y-4 opacity-0',
+        easeInOutCard && 'translate-y-0 opacity-100',
+        // Add special styling for captain/vice captain
+        is_captain && 'ring-2 ring-yellow-400 border-yellow-400',
+        is_vice_captain && 'ring-2 ring-blue-400 border-blue-400',
         className
       )}>
-        {is_captain &&
+        {/* Captain/Vice Captain Badge */}
+        {(is_captain || is_vice_captain) && (
           <div className={cn(
-            "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
-            'transition-all duration-300 scale-0 opacity-0',
-            easeInOutBadge ? 'scale-100 opacity-100' : '',
-          )}>C</div>}
-        {is_vice_captain &&
-          <div className={cn(
-            "absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-black border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900",
-            'transition-all duration-300 scale-0 opacity-0',
-            easeInOutBadge ? 'scale-100 opacity-100' : '',
-          )}>V</div>}
+            "absolute -top-2 -right-2 z-10",
+            "w-6 h-6 rounded-full border-2 border-white",
+            "flex items-center justify-center text-xs font-bold text-white",
+            "transition-all duration-500",
+            !easeInOutBadge && 'scale-0 opacity-0',
+            easeInOutBadge && 'scale-100 opacity-100',
+            is_captain && "bg-yellow-500 shadow-yellow-200",
+            is_vice_captain && "bg-blue-500 shadow-blue-200",
+          )}>
+            {is_captain ? 'C' : 'V'}
+            <div className="absolute inset-0 rounded-full animate-pulse bg-current opacity-20" />
+          </div>
+        )}
 
+        {/* Performance Trend Indicator */}
         <div className={cn(
-          "absolute inline-flex items-end justify-center text-white rounded-lg top-1 start-1 dark:border-gray-900",
-          'transition-all duration-300 opacity-0',
-          easeInOutBadge ? 'opacity-100' : '',
-        )} >
-          <div className="flex items-center">
-            <p className={cn(
-              "font-bold",
-              delta_xp >= 0 ? "text-green-700" : "text-red-700",
-            )}>|</p>
-            <p className="text-lg md:text-3xl font-bold">{!is_captain ? event_points : event_points * multiplier}</p>
-          </div>
-          <div className="flex flex-col">
-            <p className="text-xs">Pts</p>
-            <span className="flex items-center bg-gray-600 text-white">
-              <p className="text-[0.4em] text-white">{xp_current.toFixed(1)}xP</p>
-            </span>
-          </div>
+          "absolute top-1 left-1 z-10",
+          "px-1.5 py-0.5 rounded-full text-xs font-medium",
+          "flex items-center gap-1",
+          "transition-all duration-500",
+          !easeInOutBadge && 'scale-0 opacity-0',
+          easeInOutBadge && 'scale-100 opacity-100',
+          getTrendColor()
+        )}>
+          {getTrendIcon()}
         </div>
-        <CardHeader className="p-0">
-          <div className="w-full flex flex-col justify-center items-center">
-            <div className="relative w-8 h-8 md:w-12 md:h-12">
-              {/* <Image
-                src={photo}
-                fill={true}
-                className="w-8 h-8 md:w-12 md:h-12"
-                sizes="20"
-                alt={`pl-logo`}
-                priority={true}
-              /> */}
-            </div> 
-            <CardTitle className="text-[0.5em] md:text-[0.7rem] md:font-semibold text-ellipsis text-white">{web_name}</CardTitle>
-            <CardDescription className="w-full text-white">
-              {/* <div className="px-[0.3rem] md:px-2 py-full flex justify-center">
-                <p className={cn(
-                  "text-[0.5em] md:text-[0.7rem] font-semibold",
-                  delta_xp >= 0 ? "bg-green-700" : "bg-red-700",
-                  )}>{!is_captain ?  event_points : event_points * multiplier }Pts</p>
-                <p className={cn(
-                  "text-[0.5em] md:text-[0.7rem] bg-gray-700",
 
-                  )}>{ (!is_captain ?  xp_current : xp_current * multiplier).toFixed(1) }xP</p>
-              </div> */}
-            </CardDescription>
+        <CardContent className="p-2 h-full flex flex-col">
+          {/* Player Image */}
+          <div className="relative w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 overflow-hidden rounded-full bg-gray-100 ring-2 ring-gray-200 group-hover:ring-blue-300 transition-all duration-300">
+            <Image
+              src={photo}
+              fill={true}
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+              sizes="48"
+              alt={`${web_name} photo`}
+              priority={false}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = "/pl-main-logo.png"
+              }}
+            />
+            {/* Gradient overlay for better text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
 
-        </CardHeader>
+          {/* Player Name */}
+          <div className="text-center mb-2">
+            <h3 className="text-xs md:text-sm font-semibold text-gray-800 truncate leading-tight">
+              {web_name}
+            </h3>
+          </div>
+
+          {/* Points Display - Large and prominent */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="text-center">
+              <div className="text-lg md:text-2xl font-bold text-gray-900 leading-none">
+                {actualPoints}
+              </div>
+              <div className="text-xs text-gray-500 font-medium">
+                {actualPoints === 1 ? 'pt' : 'pts'}
+              </div>
+            </div>
+          </div>
+
+          {/* Expected Points (xP) */}
+          <div className="text-center mt-1">
+            <div className="text-xs text-gray-600 bg-gray-100 rounded-full px-2 py-1">
+              {actualXpCurrent.toFixed(1)}xP
+            </div>
+          </div>
+        </CardContent>
       </Card>
-      <div className="px-[0.3rem]  md:px-2 flex flex-col" style={{ zIndex: 10 }}>
-        <div className="flex justify-between items-center">
-          <p className={cn(
-            "text-[0.5em] md:text-[0.7rem]",
-          )}>Next</p>
-          {/* next fixture and difficulty */}
-          <ul className="flex">
-            {!!nextFixtures ? nextFixtures?.map((fixture: { team?: string; difficulty?: number; event?: number; teamId?: number }, index: number) => (
-              <li key={index} className="flex items-center">
-                <p
+
+      {/* Next Fixtures & Additional Info */}
+      <div className="px-1 space-y-1">
+        {/* Next Fixtures */}
+        {nextFixtures && nextFixtures.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-500 font-medium">Next</span>
+            </div>
+            <div className="flex gap-1 flex-wrap justify-center">
+              {nextFixtures.slice(0, 3).map((fixture, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
                   className={cn(
-                    "text-[0.5em] md:text-[0.7rem] font-semibold",
-                    "text-white px-1",
+                    "text-xs px-2 py-0.5 border font-medium",
                     fixture?.difficulty === 5
-                      ? "bg-red-900"
+                      ? "bg-red-100 border-red-300 text-red-800"
                       : fixture?.difficulty === 4
-                      ? "bg-red-700"
+                      ? "bg-orange-100 border-orange-300 text-orange-800"
                       : fixture?.difficulty === 3
-                      ? "bg-gray-500"
+                      ? "bg-yellow-100 border-yellow-300 text-yellow-800"
                       : fixture?.difficulty === 2
-                      ? "bg-green-600"
+                      ? "bg-green-100 border-green-300 text-green-800"
                       : fixture?.difficulty === 1
-                      ? "bg-green-900"
-                      : ""
+                      ? "bg-emerald-100 border-emerald-300 text-emerald-800"
+                      : "bg-gray-100 border-gray-300 text-gray-800"
                   )}
                 >
                   {fixture?.team}
-                </p>
-                {/* <span className={cn(
-                  "w-2 h-2 rounded-full",
-                  fixture?.difficulty && fixture?.difficulty <= 2 ? "bg-green-700" : fixture?.difficulty &&  fixture?.difficulty <= 4 ? "bg-yellow-500" : "bg-red-700",
-                )}></span> */}
-              </li>
-            )) : null}
-          </ul>
+                </Badge>
+              ))}
+              {nextFixtures.length > 3 && (
+                <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600">
+                  +{nextFixtures.length - 3}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Expected Points for upcoming games */}
+        <div className="text-center">
+          <div className="text-xs bg-blue-50 text-blue-700 rounded-md px-2 py-1 font-medium">
+            {actualXp.toFixed(1)}xP next
+          </div>
         </div>
-        <p className={cn(
-          "text-[0.5em] md:text-[0.7rem] bg-gray-700 text-white",
-
-        )}>{(!is_captain ? xp : xp * multiplier).toFixed(1)}xP</p>
       </div>
-
     </div>
   )
 }
