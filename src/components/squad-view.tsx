@@ -1,11 +1,8 @@
 "use client"
 import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick";
-import { api } from "@/trpc/react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import ElementCard from "./element-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import useBootstrapStore from "@/stores/bootstrap";
-import type { Element } from "@/lib/bootstrap-type";
 
 type SumValue = {
   title: string,
@@ -25,8 +22,6 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
 
   // if (window === undefined) return <>Please wait...</>
   if (!data) return <>...</>
-
-  const { event } = data.entry_history;
 
   const played = data.picks?.filter((pick: PlayerPicked) => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(pick.position)) ?? [];
   const benched = data.picks?.filter((pick: PlayerPicked) => [12, 13, 14, 15].includes(pick.position)) ?? [];
@@ -50,12 +45,11 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
             </div>
           )) }
 
-        </div>
-        <div
-          className="bg bg-cover bg-center h-[45vh] md:h-screen w-full flex flex-col justify-center items-between  space-y-2 md:space-y-6"
+        </div>        <div
+          className="bg bg-cover bg-center h-[45vh] md:h-screen w-full flex flex-col justify-center items-between space-y-1 md:space-y-6"
           style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
         >
-          <ul className=" flex gap-2 justify-center">
+          <ul className="flex gap-1 md:gap-2 justify-center">
             {gkp_played.length > 0 && (
               gkp_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
@@ -65,7 +59,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
             )}
           </ul>
 
-          <ul className=" flex gap-2 justify-evenly items-center">
+          <ul className="flex gap-1 md:gap-2 justify-evenly items-center">
             {def_played.length > 0 && (
               def_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
@@ -75,7 +69,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
             )}
           </ul>
 
-          <ul className=" flex gap-2 justify-evenly items-center">
+          <ul className="flex gap-1 md:gap-2 justify-evenly items-center">
             {mid_played.length > 0 && (
               mid_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
@@ -85,7 +79,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
             )}
           </ul>
 
-          <ul className=" flex gap-2 justify-evenly items-center">
+          <ul className="flex gap-1 md:gap-2 justify-evenly items-center">
             {fwd_played.length > 0 && (
               fwd_played.map((pick: PlayerPicked) => (
                 <li key={pick.element}>
@@ -98,8 +92,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
         <div className="w-full flex flex-col justify-center items-center space-y-2">
           <Card className="p-0 w-full bg-green-400">
             <CardHeader className="p-2">
-              <CardTitle className="flex justify-center">Bench</CardTitle>
-              <ul className="flex gap-2 justify-evenly items-center">
+              <CardTitle className="flex justify-center">Bench</CardTitle>              <ul className="flex gap-1 md:gap-2 justify-evenly items-center">
                 {benched.length > 0 && (
                   benched.map((pick: PlayerPicked) => (
                     <li key={pick.element}>
