@@ -46,7 +46,7 @@ export default function SquadView({ data, title, description, sumData }: SquadVi
           )) }
 
         </div>        <div
-          className="bg bg-cover bg-center h-[35vh] md:h-screen w-full flex flex-col justify-center items-between space-y-1 md:space-y-6"
+          className="bg bg-cover bg-center h-[40vh] md:h-screen w-full flex flex-col justify-center items-between space-y-1 md:space-y-6"
           style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
         >
           <ul className="flex gap-1 md:gap-2 justify-center">
@@ -128,7 +128,7 @@ export function SquadViewSkeleton({ title, description, sumData }: SquadViewProp
             )) }
           </div>
           <div
-            className="bg bg-cover bg-center h-[35vh] md:h-screen w-full flex flex-col justify-center space-y-8"
+            className="bg bg-cover bg-center h-[40vh] md:h-screen w-full flex flex-col justify-center space-y-8"
             style={{ backgroundImage: `url('${window.location.origin}/pitch-default.svg')` }}
           >
           </div>
