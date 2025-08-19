@@ -79,7 +79,7 @@ export default function ElementCard({
   };
   return (
     <div className="flex flex-col gap-1">      <Card className={cn(
-        'w-16 h-20 md:w-20 md:h-28 relative overflow-hidden',
+        'w-[3.7rem] h-20 md:w-20 md:h-28 relative overflow-hidden',
         'bg-gradient-to-b from-white to-gray-50',
         'border border-gray-200 hover:border-blue-300',
         'transition-all duration-500 ease-out',
