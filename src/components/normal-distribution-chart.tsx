@@ -40,16 +40,16 @@ function generateHistogramData(elements: Element[]): DistributionPoint[] {
   // Group points by position, filtering only players who actually played (minutes > 0)
   const gkpPoints = elements
     .filter(el => el.element_type === 1 && el.minutes > 0)
-    .map(el => el.event_points ?? 0)
+    .map(el => Number(el.points_per_game) ?? 0)
   const defPoints = elements
     .filter(el => el.element_type === 2 && el.minutes > 0)
-    .map(el => el.event_points ?? 0)
+    .map(el => Number(el.points_per_game) ?? 0)
   const midPoints = elements
     .filter(el => el.element_type === 3 && el.minutes > 0)
-    .map(el => el.event_points ?? 0)
+    .map(el => Number(el.points_per_game) ?? 0)
   const fwdPoints = elements
     .filter(el => el.element_type === 4 && el.minutes > 0)
-    .map(el => el.event_points ?? 0)
+    .map(el => Number(el.points_per_game) ?? 0)
 
   console.log('Point distributions (players with minutes > 0):', {
     gkpPoints: gkpPoints.length,
