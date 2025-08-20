@@ -10,63 +10,88 @@ import { useIsMobile } from "@/hooks/use-mobile"
 // Chart configuration with colors for each position
 const chartConfig = {
   gkp_points: {
-    label: "Event Points",
+    label: "GKP (%)",
     color: "#8884d8",
   },
   def_points: {
-    label: "Event Points",
+    label: "DEF (%)",
     color: "#82ca9d",
   },
   mid_points: {
-    label: "Event Points",
+    label: "MID (%)",
     color: "#ffc658",
   },
   fwd_points: {
-    label: "Event Points",
+    label: "FWD (%)",
     color: "#ff7300",
   },
 } satisfies ChartConfig
 
 type DistributionPoint = {
-  x: number
+  x: string  // Changed from number to string for categories
   gkp_points?: number
   def_points?: number
   mid_points?: number
   fwd_points?: number
 }
 
-// Simple histogram approach instead of normal distribution
+// Simple histogram approach with categorized point ranges
 function generateHistogramData(elements: Element[]): DistributionPoint[] {
-  // Group points by position
-  const gkpPoints = elements.filter(el => el.element_type === 1).map(el => el.event_points ?? 0)
-  const defPoints = elements.filter(el => el.element_type === 2).map(el => el.event_points ?? 0)
-  const midPoints = elements.filter(el => el.element_type === 3).map(el => el.event_points ?? 0)
-  const fwdPoints = elements.filter(el => el.element_type === 4).map(el => el.event_points ?? 0)
+  // Group points by position, filtering only players who actually played (minutes > 0)
+  const gkpPoints = elements
+    .filter(el => el.element_type === 1 && el.minutes > 0)
+    .map(el => el.event_points ?? 0)
+  const defPoints = elements
+    .filter(el => el.element_type === 2 && el.minutes > 0)
+    .map(el => el.event_points ?? 0)
+  const midPoints = elements
+    .filter(el => el.element_type === 3 && el.minutes > 0)
+    .map(el => el.event_points ?? 0)
+  const fwdPoints = elements
+    .filter(el => el.element_type === 4 && el.minutes > 0)
+    .map(el => el.event_points ?? 0)
 
-  console.log('Point distributions:', { gkpPoints, defPoints, midPoints, fwdPoints })
+  console.log('Point distributions (players with minutes > 0):', {
+    gkpPoints: gkpPoints.length,
+    defPoints: defPoints.length,
+    midPoints: midPoints.length,
+    fwdPoints: fwdPoints.length
+  })
 
-  // Create histogram bins
-  const maxPoints = 20 // Most players don't score more than 20 points
-  const binWidth = 1
+  // Get total counts for percentage calculation
+  const totalGkp = gkpPoints.length
+  const totalDef = defPoints.length
+  const totalMid = midPoints.length
+  const totalFwd = fwdPoints.length
+
+  // Define categories
+  const categories = [
+    { label: 'A (>9)', min: 10, max: Infinity },
+    { label: 'B (7-9)', min: 7, max: 9 },
+    { label: 'C (5-6)', min: 5, max: 6 },
+    { label: 'D (2-4)', min: 2, max: 4 },
+    { label: 'E (0-1)', min: 0, max: 1 }
+  ]
+
   const result: DistributionPoint[] = []
 
-  for (let i = 0; i <= maxPoints; i += binWidth) {
-    const x = i
-    const point: DistributionPoint = { x }
+  categories.forEach(category => {
+    const point: DistributionPoint = { x: category.label }
 
-    // Count players in each bin for each position
-    const gkpCount = gkpPoints.filter(p => p >= i && p < i + binWidth).length
-    const defCount = defPoints.filter(p => p >= i && p < i + binWidth).length
-    const midCount = midPoints.filter(p => p >= i && p < i + binWidth).length
-    const fwdCount = fwdPoints.filter(p => p >= i && p < i + binWidth).length
+    // Count players in each category for each position
+    const gkpCount = gkpPoints.filter(p => p >= category.min && p <= category.max).length
+    const defCount = defPoints.filter(p => p >= category.min && p <= category.max).length
+    const midCount = midPoints.filter(p => p >= category.min && p <= category.max).length
+    const fwdCount = fwdPoints.filter(p => p >= category.min && p <= category.max).length
 
-    point.gkp_points = gkpCount
-    point.def_points = defCount
-    point.mid_points = midCount
-    point.fwd_points = fwdCount
+    // Convert to percentages
+    point.gkp_points = totalGkp > 0 ? Math.round((gkpCount / totalGkp) * 100 * 10) / 10 : 0
+    point.def_points = totalDef > 0 ? Math.round((defCount / totalDef) * 100 * 10) / 10 : 0
+    point.mid_points = totalMid > 0 ? Math.round((midCount / totalMid) * 100 * 10) / 10 : 0
+    point.fwd_points = totalFwd > 0 ? Math.round((fwdCount / totalFwd) * 100 * 10) / 10 : 0
 
     result.push(point)
-  }
+  })
 
   return result
 }
@@ -123,10 +148,10 @@ export default function NormalDistributionChart() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className={isMobile ? "text-lg" : "text-xl"}>
-          Points Distribution by Position
+          Points Distribution by Category
         </CardTitle>
         <CardDescription className={isMobile ? "text-sm" : "text-base"}>
-          Distribution of event points across different player positions
+          Distribution of players across performance categories (only players with minutes played)
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0 sm:p-6">
@@ -139,8 +164,8 @@ export default function NormalDistributionChart() {
               data={distributionData}
               margin={
                 isMobile
-                  ? { top: 10, right: 10, left: 5, bottom: 5 }
-                  : { top: 20, right: 30, left: 20, bottom: 5 }
+                  ? { top: 10, right: 10, left: 5, bottom: 60 }
+                  : { top: 20, right: 30, left: 20, bottom: 40 }
               }
             >
               <CartesianGrid
@@ -150,14 +175,17 @@ export default function NormalDistributionChart() {
               />
               <XAxis
                 dataKey="x"
-                tickFormatter={(value: number) => value.toString()}
                 fontSize={isMobile ? 10 : 12}
                 tickMargin={isMobile ? 4 : 8}
                 axisLine={!isMobile}
                 tickLine={!isMobile}
+                interval={0}
+                angle={isMobile ? -45 : 0}
+                textAnchor={isMobile ? "end" : "middle"}
+                height={isMobile ? 60 : 40}
               />
               <YAxis
-                tickFormatter={(value: number) => value.toString()}
+                tickFormatter={(value: number) => `${value}%`}
                 fontSize={isMobile ? 10 : 12}
                 tickMargin={isMobile ? 4 : 8}
                 width={isMobile ? 25 : 35}

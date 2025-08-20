@@ -3,7 +3,7 @@
 import type { Element } from "@/lib/bootstrap-type"
 import { api } from "@/trpc/react"
 import { X } from "lucide-react"
-import { LabelList, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ReferenceLine } from "recharts"
+import { LabelList, Legend, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ReferenceLine, Line } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { useIsMobile } from "@/hooks/use-mobile"
 
@@ -32,13 +32,13 @@ function AppScatterPlot({ dataX, dataY }: AppScatterPlotProps) {
   if (!bootstrap) return <Skeleton />
   if (!bootstrap.elements) return <Skeleton />
 
-  const PpGs = bootstrap.elements.map((el: Element) => Number(el.points_per_game))
-  const xpo5s = bootstrap.elements.map((el: Element) => (el.xp_o5_current ?? 0));
+  const PpGs = bootstrap.elements.map((el: Element) => Number(el.points_per_game)).filter(val => !isNaN(val) && val !== null && val !== undefined)
+  const xpo5s = bootstrap.elements.map((el: Element) => (el.xp_o5_current ?? 0)).filter(val => !isNaN(val) && val !== null && val !== undefined);
 
-  const maxPpG = Math.max(...PpGs)
-  const maxXpo5 = Math.max(...xpo5s)
+  const maxPpG = PpGs.length > 0 ? Math.max(...PpGs.map(ppg => Number(ppg))) : 0
+  const maxXpo5 = xpo5s.length > 0 ? Math.max(...xpo5s.map(ppg => Number(ppg))) : 0
 
-  const bound = Math.max(maxPpG, maxXpo5) + 0.2;
+  const bound = Math.ceil(Math.max(maxPpG, maxXpo5));
 
   // Debug: Log filtered data counts
   const filteredCounts = dataSeparation.map(sep => ({
@@ -95,6 +95,18 @@ function AppScatterPlot({ dataX, dataY }: AppScatterPlotProps) {
             {!isMobile && <Legend />}
 
             {/* Reference line showing where points per game equals expected points */}
+            <Line
+              type="linear"
+              data={[
+                { x: 0, y: 0 },
+                { x: bound, y: bound }
+              ]}
+              stroke="#666"
+              strokeDasharray="5 5"
+              strokeWidth={isMobile ? 1 : 2}
+              opacity={0.7}
+              dot={false} // No dots on the diagonal line
+            />
             <ReferenceLine
               segment={[
                 { x: 0, y: 0 },
