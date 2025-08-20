@@ -79,7 +79,7 @@ export default function ElementCard({
   };
   return (
     <div className="flex flex-col gap-1">      <Card className={cn(
-        'w-12 h-16 md:w-20 md:h-28 relative overflow-hidden',
+        'w-[3.5rem] h-20 md:w-20 md:h-28 relative overflow-hidden',
         'bg-gradient-to-b from-white to-gray-50',
         'border border-gray-200 hover:border-blue-300',
         'transition-all duration-500 ease-out',
@@ -146,10 +146,10 @@ export default function ElementCard({
           </div>
 
             {/* Next Fixtures & Additional Info */}
-            <div className="px-0.5 md:px-1 space-y-0.5 md:space-y-1">
+            <div className="px-[0.01em] md:px-1 space-y-0.5 md:space-y-1">
               {/* Expected Points for upcoming games */}
               <div className="text-center">
-                <div className="text-[0.5em] flex items-center gap-2">
+                <div className="text-[0.5em] flex items-center gap-1">
                   {actualXp.toFixed(1)}xP
                   {nextFixtures && nextFixtures.length > 0 && (
                     <div>
