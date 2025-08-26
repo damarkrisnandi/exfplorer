@@ -9,7 +9,7 @@ export const bgMain = "flex min-h-screen flex-col items-center justify-center  b
 
 export const themeGradient = "bg-gradient-to-b from-[#2e026d] to-[#0f0f1a]"
 
-export const BASE_API_URL: Readonly<string> = "https://fantasy-pl-vercel-proxy.vercel.app";
+export const BASE_API_URL: Readonly<string> = "https://fantasy-pl-vercel-proxy-rs.vercel.app";
 export const ARCHIVED_API_URL: Readonly<string> = "https://fpl-static-data.vercel.app";
 export const currentSeason: Readonly<string> = '2025-2026';
 export const previousSeason: Readonly<string> = '2024-2025';

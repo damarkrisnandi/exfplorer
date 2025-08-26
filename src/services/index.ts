@@ -5,7 +5,7 @@ import { fromStorage } from "@/lib/storage";
 import type { ManagerFromAPI } from "@/server/api/routers/manager";
 import type { PickData } from "@/server/api/routers/squad-pick";
 
-const API_URL = "https://fantasy-pl-vercel-proxy.vercel.app";
+const API_URL = "https://fantasy-pl-vercel-proxy-rs.vercel.app";
 // const API_URL = "http://localhost:3001"
 const ARCHIVED_API_URL = "https://fpl-static-data.vercel.app";
 
