@@ -27,13 +27,14 @@ type MyTeamClientProps = {
 }
 
 export default function MyTeamClient({ session }: MyTeamClientProps) {
-  const [isClient, setIsClient] = useState(false)  const [selectedPlayer, setSelectedPlayer] = useState<PlayerPicked | null>(null)
+  const [isClient, setIsClient] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerPicked | null>(null)
   const [optimizerOpen, setOptimizerOpen] = useState(false)
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [squadData, setSquadData] = useState<PickData | null>(null)
-  
+
   const bootstrapStore = useBootstrapStore()
-  
+
   // Fetch current squad data
   const { data: currentSquad, isLoading: squadLoading, refetch: refetchSquad } = api.pick.getCurrentPickFromAPI.useQuery({
     managerId: session.user.manager.managerId,
@@ -89,7 +90,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
       event_points: inPlayer.event_points,
     }
 
-    const newPicks = squadData.picks.map(pick => 
+    const newPicks = squadData.picks.map(pick =>
       pick.element === outPlayer.element ? newPlayerPicked : pick
     )
 
@@ -179,7 +180,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   <DialogHeader>
                     <DialogTitle>Squad Optimizer</DialogTitle>
                   </DialogHeader>
-                  <SquadOptimizer 
+                  <SquadOptimizer
                     squadData={squadData}
                     bootstrap={bootstrap}
                     fixtures={fixtures}
@@ -188,7 +189,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   />
                 </DialogContent>
               </Dialog>
-              
+
               <Button variant="outline" onClick={() => refetchSquad()}>
                 <Shuffle className="h-4 w-4 mr-2" />
                 Refresh
