@@ -1,8 +1,7 @@
-// import { DashboardClient } from "../_components/dashboard-client";
 import { auth } from "@/server/auth";
-import PickView from "@/components/pick-view";
 import { ManagerForm } from "@/components/mapping-manager";
 import { cn } from "@/lib/utils";
+import MyTeamClient from "./client-component";
 
 export default async function Page() {
   const session = await auth();
@@ -16,13 +15,11 @@ export default async function Page() {
         </div>
       )}
         {session?.user?.manager && (
-          <>
-            <PickView session={{
-              user: {
-                manager: session.user.manager
-              }
-            }} />
-          </>
+          <MyTeamClient session={{
+            user: {
+              manager: session.user.manager
+            }
+          }} />
         )}
     </div>
   )
