@@ -12,6 +12,8 @@ import EditableElementCard from "@/components/editable-element-card"
 import SquadOptimizer from "@/components/squad-optimizer"
 import { optimizationProcess } from "@/lib/optimization"
 import PlayerTransferModal from '@/components/player-transfer-modal'
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog'
+import { DialogTitle } from '@radix-ui/react-dialog'
 
 type MyTeamClientProps = {
   session: {
@@ -185,7 +187,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   <SquadOptimizer
                     squadData={squadData}
                     bootstrap={bootstrap}
-                    fixtures={fixtures}
+                    fixtures={fixtures ?? []}
                     onOptimize={handleSquadOptimization}
                     isOptimizing={isOptimizing}
                   />
