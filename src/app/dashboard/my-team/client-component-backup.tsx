@@ -11,6 +11,7 @@ import type { PlayerPicked, PickData } from "@/server/api/routers/squad-pick"
 import EditableElementCard from "@/components/editable-element-card"
 import SquadOptimizer from "@/components/squad-optimizer"
 import { optimizationProcess } from "@/lib/optimization"
+import PlayerTransferModal from '@/components/player-transfer-modal'
 
 type MyTeamClientProps = {
   session: {
@@ -32,6 +33,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
   const [optimizerOpen, setOptimizerOpen] = useState(false)
   const [isOptimizing, setIsOptimizing] = useState(false)
   const [squadData, setSquadData] = useState<PickData | null>(null)
+  const [transferModalOpen, setTransferModalOpen] = useState(false)
 
   const bootstrapStore = useBootstrapStore()
 
