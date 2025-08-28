@@ -111,7 +111,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     return sum + (element?.now_cost ?? 0)
   }, 0)
 
-  const totalPoints = squadData.picks.reduce((sum, pick) => sum + (pick.event_points ?? 0), 0)
+  const totalPoints = squadData.picks.reduce((sum, pick) => sum + (pick.xp_o5 ?? 0), 0)
 
   return (
     <div className="container mx-auto py-6 space-y-6">
