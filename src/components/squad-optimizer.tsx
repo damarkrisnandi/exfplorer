@@ -186,7 +186,7 @@ export default function SquadOptimizer({
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold">{(player.xp_o5 ?? 0).toFixed(1)} xP</div>
+                      <div className="font-bold">{(player.xp_o5 ?? 0).toFixed(2)} xP</div>
                       <div className="text-sm text-gray-600">£{(player.now_cost / 10).toFixed(1)}m</div>
                     </div>
                   </div>

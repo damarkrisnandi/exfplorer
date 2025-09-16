@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { api } from "@/trpc/react"
 import useBootstrapStore from "@/stores/bootstrap"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -113,6 +114,26 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
   const totalPoints = squadData.picks.reduce((sum, pick) => sum + (pick.xp_o5 ?? 0), 0)
 
+  // Get transfer suggestions based on xp_o5 for 3-5 gameweeks
+  const getTransferSuggestions = () => {
+    if (!bootstrap || !squadData) return []
+    
+    return bootstrap.elements
+      .filter(el => !squadData.picks.find(pick => pick.element === el.id))
+      .sort((a, b) => (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0))
+      .slice(0, 5)
+      .map(player => {
+        const position = bootstrap.element_types.find(type => type.id === player.element_type)?.singular_name ?? 'Player'
+        const team = bootstrap.teams.find(team => team.id === player.team)?.short_name ?? 'UNK'
+        return {
+          ...player,
+          position_name: position,
+          team_name: team,
+          value_for_money: ((player.xp_o5 ?? 0) / (player.now_cost / 10)).toFixed(2)
+        }
+      })
+  }
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header with squad stats and controls */}
@@ -123,7 +144,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
               <CardTitle className="text-2xl font-bold">My Squad</CardTitle>
               <div className="flex gap-4 mt-2 text-sm text-gray-600">
                 <span>Value: £{(totalValue / 10).toFixed(1)}m</span>
-                <span>Total Points: {totalPoints}</span>
+                <span>Total XP (3-5 GW): {totalPoints.toFixed(2)}</span>
                 <span>Bank: £{(squadData.entry_history.bank / 10).toFixed(1)}m</span>
               </div>
             </div>
@@ -145,6 +166,44 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
         </CardHeader>
       </Card>
 
+      {/* Transfer Suggestions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Transfer Suggestions (3-5 GW Expected Points)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {getTransferSuggestions().map((player) => (
+              <div key={player.id} className="p-3 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden">
+                    <Image
+                      src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${player.code}.png`}
+                      alt={player.web_name}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                      onError={() => {
+                        // Fallback to default image
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm">{player.web_name}</div>
+                    <div className="text-xs text-gray-600">{player.team_name} • {player.position_name}</div>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-sm font-bold text-green-600">{(player.xp_o5 ?? 0).toFixed(2)} xP</span>
+                      <span className="text-xs text-gray-500">£{(player.now_cost / 10).toFixed(1)}m</span>
+                    </div>
+                    <div className="text-xs text-blue-600">Value: {player.value_for_money} xP/£</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Formation Display */}
       <Card>
         <CardContent className="p-6">
@@ -163,8 +222,8 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   is_captain={pick.is_captain}
                   is_vice_captain={pick.is_vice_captain}
                   multiplier={pick.multiplier}
-                  xp={pick.xp ?? 0}
-                  xp_current={pick.xp_current ?? 0}
+                  xp={pick.xp_o5 ?? 0}
+                  xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
                 />
@@ -182,8 +241,8 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   is_captain={pick.is_captain}
                   is_vice_captain={pick.is_vice_captain}
                   multiplier={pick.multiplier}
-                  xp={pick.xp ?? 0}
-                  xp_current={pick.xp_current ?? 0}
+                  xp={pick.xp_o5 ?? 0}
+                  xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
                 />
@@ -201,8 +260,8 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   is_captain={pick.is_captain}
                   is_vice_captain={pick.is_vice_captain}
                   multiplier={pick.multiplier}
-                  xp={pick.xp ?? 0}
-                  xp_current={pick.xp_current ?? 0}
+                  xp={pick.xp_o5 ?? 0}
+                  xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
                 />
@@ -220,8 +279,8 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   is_captain={pick.is_captain}
                   is_vice_captain={pick.is_vice_captain}
                   multiplier={pick.multiplier}
-                  xp={pick.xp ?? 0}
-                  xp_current={pick.xp_current ?? 0}
+                  xp={pick.xp_o5 ?? 0}
+                  xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
                 />
@@ -247,8 +306,8 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                 is_captain={pick.is_captain}
                 is_vice_captain={pick.is_vice_captain}
                 multiplier={pick.multiplier}
-                xp={pick.xp ?? 0}
-                xp_current={pick.xp_current ?? 0}
+                xp={pick.xp_o5 ?? 0}
+                xp_current={pick.xp_o5_current ?? 0}
                 delta_xp={pick.delta_xp ?? 0}
                 nextFixtures={pick.nextFixtures}
               />

@@ -140,7 +140,7 @@ export default function ElementCard({
             </div>
                 <div className="text-center mt-0.5 md:mt-1">
                   <div className="text-[0.5em] text-gray-600 bg-gray-100 rounded-full px-1.5 md:px-2 py-0.5 md:py-1">
-                    {actualXpCurrent.toFixed(1)}xP
+                    {actualXpCurrent.toFixed(2)}xP
                   </div>
                 </div>
           </div>
@@ -150,7 +150,7 @@ export default function ElementCard({
               {/* Expected Points for upcoming games */}
               <div className="text-center">
                 <div className="text-[0.5em] flex items-center gap-1">
-                  {actualXp.toFixed(1)}xP
+                  {actualXp.toFixed(2)}xP
                   {nextFixtures && nextFixtures.length > 0 && (
                     <div>
                       <div className="flex gap-0.5 md:gap-1 flex-wrap justify-center">

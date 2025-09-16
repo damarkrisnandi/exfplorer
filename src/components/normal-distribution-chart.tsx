@@ -66,11 +66,11 @@ function generateHistogramData(elements: Element[]): DistributionPoint[] {
 
   // Define categories
   const categories = [
-    { label: 'A (>9)', min: 10, max: Infinity },
-    { label: 'B (7-9)', min: 7, max: 9 },
-    { label: 'C (5-6)', min: 5, max: 6 },
+    { label: 'E (0-1)', min: 0, max: 1 },
     { label: 'D (2-4)', min: 2, max: 4 },
-    { label: 'E (0-1)', min: 0, max: 1 }
+    { label: 'C (5-6)', min: 5, max: 6 },
+    { label: 'B (7-9)', min: 7, max: 9 },
+    { label: 'A (>9)', min: 10, max: Infinity },
   ]
 
   const result: DistributionPoint[] = []

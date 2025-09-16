@@ -141,8 +141,8 @@ export const pickRouter = createTRPCRouter({
 
             xp,
             xp_current,
-            xp_o5,
-            xp_o5_current,
+            xp_o5: Math.round(xp_o5 * 100) / 100,
+            xp_o5_current: Math.round(xp_o5_current * 100) / 100,
             delta_xp: (foundElement?.event_points ?? 0) - xp_current,
             delta_xp_05: (foundElement?.event_points ?? 0) - xp_o5_current,
 
@@ -254,8 +254,8 @@ export const pickRouter = createTRPCRouter({
 
             xp,
             xp_current,
-            xp_o5,
-            xp_o5_current,
+            xp_o5: Math.round(xp_o5 * 100) / 100,
+            xp_o5_current: Math.round(xp_o5_current * 100) / 100,
             delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current,
 
             nextFixtures: viewNextFixtures

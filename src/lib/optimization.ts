@@ -813,8 +813,8 @@ export function optimizationProcess({
           ...el,
           xp,
           xp_current,
-          xp_o5,
-          xp_o5_current,
+          xp_o5: Math.round(xp_o5 * 100) / 100,
+          xp_o5_current: Math.round(xp_o5_current * 100) / 100,
           delta_xp: el.event_points - xp_current,
           delta_xp_05: el.event_points - xp_o5_current
         }
@@ -859,8 +859,8 @@ export function optimizationProcess({
 
             xp: el.xp,
             xp_current: el.xp_current,
-            xp_o5: el.xp_o5,
-            xp_o5_current: el.xp_o5_current,
+            xp_o5: Math.round((el.xp_o5 ?? 0) * 100) / 100,
+            xp_o5_current: Math.round((el.xp_o5_current ?? 0) * 100) / 100,
             delta_xp_05: el.event_points - (el.xp_o5_current ?? 0),
             delta_xp: el.event_points - (el.xp ?? 0)
           };
@@ -875,9 +875,9 @@ export function optimizationProcess({
           return {
             ...pick,
             xp: foundElement?.xp,
-            xp_o5: foundElement?.xp_o5,
+            xp_o5: Math.round((foundElement?.xp_o5 ?? 0) * 100) / 100,
             xp_current: foundElement?.xp_current,
-            xp_o5_current: foundElement?.xp_o5_current,
+            xp_o5_current: Math.round((foundElement?.xp_o5_current ?? 0) * 100) / 100,
             delta_xp_05: (foundElement?.event_points ?? 0) - (foundElement?.xp_o5_current ?? 0),
             delta_xp: (foundElement?.event_points ?? 0) - (foundElement?.xp ?? 0)
           }
