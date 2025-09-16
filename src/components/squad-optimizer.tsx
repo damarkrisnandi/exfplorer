@@ -1,14 +1,14 @@
 'use client'
 
+import type { Bootstrap } from "@/lib/bootstrap-type"
+import type { Fixture } from "@/lib/fixture-type"
+import type { PickData } from "@/server/api/routers/squad-pick"
+import { Loader2, Target, TrendingUp, Users, Zap } from "lucide-react"
 import { useState } from "react"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { Loader2, Zap, Target, TrendingUp, Users } from "lucide-react"
-import type { Bootstrap } from "@/lib/bootstrap-type"
-import type { PickData } from "@/server/api/routers/squad-pick"
-import type { Fixture } from "@/lib/fixture-type"
 
 type SquadOptimizerProps = {
   squadData: PickData
@@ -137,7 +137,7 @@ export default function SquadOptimizer({
               <li>• Uses linear programming (yalps library) to find optimal squad</li>
               <li>• Respects FPL constraints: budget, formation, team limits</li>
               <li>• Maximizes {objective === 'xp_o5' ? 'expected points based on recent form' :
-                                objective === 'total_points' ? 'total season points' : 'recent form metrics'}</li>
+                objective === 'total_points' ? 'total season points' : 'recent form metrics'}</li>
               <li>• {optimizationType === 'starting_xi' ? 'Optimizes starting XI selection from current squad' : 'Optimizes entire 15-man squad'}</li>
             </ul>
           </div>

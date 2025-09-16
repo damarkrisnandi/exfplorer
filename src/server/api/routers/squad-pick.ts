@@ -1,13 +1,13 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { ARCHIVED_API_URL, BASE_API_URL, currentSeason, getElementPhotoUrl, previousSeason } from "@/lib/utils";
-import axios from "axios";
-import type { Bootstrap, Event } from "@/lib/bootstrap-type";
-import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
+import { bootstrapHistoryQuery, bootstrapQuery, fixturesQuery, last5Queries } from "@/lib/api-queries";
+import type { Event } from "@/lib/bootstrap-type";
 import type { Fixture } from "@/lib/fixture-type";
 import type { LiveEvent } from "@/lib/live-event-type";
+import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
+import { BASE_API_URL, getElementPhotoUrl } from "@/lib/utils";
 import type { XPoint } from "@/lib/xp-type";
-import { bootstrapHistoryQuery, bootstrapQuery, fixturesQuery, last5Queries } from "@/lib/api-queries";
+import axios from "axios";
+import { z } from "zod";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 export type PickData = {
 
   active_chip: string | null;

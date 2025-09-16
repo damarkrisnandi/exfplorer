@@ -1,8 +1,8 @@
 import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick";
+import { solve, type Solution } from 'yalps';
 import type { Bootstrap, Element, Event, GameConfig, PointPerPosition, Team } from "./bootstrap-type";
 import type { Fixture, FixtureStat } from "./fixture-type";
 import type { LiveEvent } from "./live-event-type";
-import { solve, type Solution } from 'yalps';
 import type { XPoint } from "./xp-type";
 
 const calculateBaseExpected = (element: Element, game_config: GameConfig, fixtures: Fixture[]) => {
@@ -938,7 +938,7 @@ export function optimizationProcess({
           if (index === choosenCaptIndex) {
             multiplier = 2;
           }
-          
+
           if (index > 10) {
             multiplier = 0;
           }
@@ -992,4 +992,3 @@ export function optimizationProcess({
     picks: []
   } as PickData
 }
-

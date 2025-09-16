@@ -1,11 +1,11 @@
 'use client'
 
-import { api } from "@/trpc/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts"
-import type { Element } from "@/lib/bootstrap-type"
 import { useIsMobile } from "@/hooks/use-mobile"
+import type { Element } from "@/lib/bootstrap-type"
+import { api } from "@/trpc/react"
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
 // Chart configuration with colors for each position
 const chartConfig = {

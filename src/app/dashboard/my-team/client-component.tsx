@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { api } from "@/trpc/react"
-import useBootstrapStore from "@/stores/bootstrap"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Loader2, Shuffle, Zap } from "lucide-react"
-import type { PickData } from "@/server/api/routers/squad-pick"
 import ElementCard from "@/components/element-card"
 import SquadOptimizer from "@/components/squad-optimizer"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { optimizationProcess } from "@/lib/optimization"
+import type { PickData } from "@/server/api/routers/squad-pick"
+import useBootstrapStore from "@/stores/bootstrap"
+import { api } from "@/trpc/react"
+import { Loader2, Shuffle, Zap } from "lucide-react"
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 type MyTeamClientProps = {
   session: {
@@ -117,7 +117,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
   // Get transfer suggestions based on xp_o5 for 3-5 gameweeks
   const getTransferSuggestions = () => {
     if (!bootstrap || !squadData) return []
-    
+
     return bootstrap.elements
       .filter(el => !squadData.picks.find(pick => pick.element === el.id))
       .sort((a, b) => (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0))
