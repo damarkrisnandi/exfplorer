@@ -4,8 +4,7 @@ import ElementCard from "@/components/element-card"
 import SquadOptimizer from "@/components/squad-optimizer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Element } from "@/lib/bootstrap-type"
-import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick"
+import type { PickData } from "@/server/api/routers/squad-pick"
 import useBootstrapStore from "@/stores/bootstrap"
 import { api } from "@/trpc/react"
 import { Loader2, Shuffle, Zap } from "lucide-react"
@@ -69,7 +68,9 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
     setIsOptimizing(true)
     try {
-      setSquadData(optimizedSquad)
+      if (optimizedSquad) {
+        setSquadData(optimizedSquad)
+      }
     } catch (error) {
       console.error('Optimization failed:', error)
     } finally {
@@ -83,7 +84,9 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
     setIsOptimizing(true)
     try {
-      setSquadData(currentSquad)
+      if (currentSquad) {
+        setSquadData(currentSquad)
+      }
     } catch (error) {
       console.error('Optimization failed:', error)
     } finally {
@@ -117,12 +120,12 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
   const mid = startingXI.filter(pick => pick.element_type === 3)
   const fwd = startingXI.filter(pick => pick.element_type === 4)
 
-  const totalValue = squadData.picks.reduce((sum, pick) => {
+  const totalValue = currentSquad?.picks.reduce((sum, pick) => {
     const element = bootstrap.elements.find(el => el.id === pick.element)
     return sum + (element?.now_cost ?? 0)
-  }, 0)
+  }, 0) ?? 0
 
-  const totalPoints = squadData.picks.reduce((sum, pick) => sum + (pick.xp_o5 ?? 0), 0)
+  const totalPoints = squadData.picks.reduce((sum, pick) => sum + ((pick.xp_o5 ?? 0) * pick.multiplier), 0) ?? 0
 
   // Get transfer suggestions based on xp_o5 for 3-5 gameweeks with budget constraints
   const getTransferSuggestions = () => {
@@ -130,7 +133,14 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
     const availableMoney = squadData.entry_history.bank
 
-    type PlayerWithDetails = PlayerPicked & Element & {
+    type PlayerWithDetails = {
+      id: number
+      web_name: string
+      now_cost: number
+      xp_o5: number
+      code: string
+      element_type: number
+      team: number
       position_name: string
       team_name: string
     }
@@ -146,25 +156,40 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     // Get current squad players with their details
     const currentPlayers = squadData.picks.map(pick => {
       const element = bootstrap.elements.find(el => el.id === pick.element)
+      if (!element) return null
+
       return {
         ...pick,
-        ...element,
-        xp_o5: pick.xp_o5 ?? 0,
-        xp_o5_current: pick.xp_o5_current ?? 0
+        id: element.id,
+        web_name: element.web_name,
+        now_cost: element.now_cost,
+        xp_o5: pick.xp_o5 ?? element.xp_o5 ?? 0,
+        code: element.code.toString(),
+        element_type: element.element_type,
+        team: element.team,
+        position_name: bootstrap.element_types.find(type => type.id === element.element_type)?.singular_name ?? 'Player',
+        team_name: bootstrap.teams.find(team => team.id === element.team)?.short_name ?? 'UNK'
       }
-    })
+    }).filter(Boolean)
 
     // For each position, find the best transfers
     const positions = [1, 2, 3, 4] // GKP, DEF, MID, FWD
 
     positions.forEach(positionType => {
-      const currentPlayersInPosition = currentPlayers.filter(p => p.element_type === positionType)
+      const currentPlayersInPosition = currentPlayers.filter(p => p && p.element_type === positionType)
       const availablePlayersInPosition = bootstrap.elements
-        .filter(el => el.element_type === positionType && !squadData.picks.find(pick => pick.element === el.id))
+        .filter(el => {
+          const isNotInSquad = !squadData.picks.find(pick => pick.element === el.id)
+          const isCorrectPosition = el.element_type === positionType
+          const hasXpData = (el.xp_o5 ?? 0) > 0
+          return isNotInSquad && isCorrectPosition && hasXpData
+        })
         .sort((a, b) => (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0))
 
       // For each player in current squad of this position, check if there's a better option within budget
       currentPlayersInPosition.forEach(currentPlayer => {
+        if (!currentPlayer) return
+
         // Find the best affordable replacement
         const bestReplacement = availablePlayersInPosition.find(newPlayer => {
           const costDiff = (newPlayer.now_cost ?? 0) - (currentPlayer.now_cost ?? 0)
@@ -180,16 +205,27 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
           suggestions.push({
             playerIn: {
-              ...bestReplacement,
-              ...currentPlayer, // Include PlayerPicked properties
+              id: bestReplacement.id,
+              web_name: bestReplacement.web_name,
+              now_cost: bestReplacement.now_cost,
+              xp_o5: bestReplacement.xp_o5 ?? 0,
+              code: bestReplacement.code.toString(),
+              element_type: bestReplacement.element_type,
+              team: bestReplacement.team,
               position_name: bootstrap.element_types.find(type => type.id === bestReplacement.element_type)?.singular_name ?? 'Player',
               team_name: bootstrap.teams.find(team => team.id === bestReplacement.team)?.short_name ?? 'UNK'
-            } as PlayerWithDetails,
+            },
             playerOut: {
-              ...currentPlayer,
-              position_name: bootstrap.element_types.find(type => type.id === currentPlayer.element_type)?.singular_name ?? 'Player',
-              team_name: bootstrap.teams.find(team => team.id === currentPlayer.team)?.short_name ?? 'UNK'
-            } as PlayerWithDetails,
+              id: currentPlayer.id,
+              web_name: currentPlayer.web_name,
+              now_cost: currentPlayer.now_cost,
+              xp_o5: currentPlayer.xp_o5,
+              code: currentPlayer.code,
+              element_type: currentPlayer.element_type,
+              team: currentPlayer.team,
+              position_name: currentPlayer.position_name,
+              team_name: currentPlayer.team_name
+            },
             xpGain,
             costDifference,
             valueImprovement
@@ -199,6 +235,73 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     })
 
     // Sort by XP gain and return top 5
+    const topSuggestions = suggestions
+      .sort((a, b) => b.xpGain - a.xpGain)
+      .slice(0, 5)
+
+    // If no suggestions found, try with a more relaxed criteria (just better players, ignore budget temporarily)
+    if (topSuggestions.length === 0) {
+      positions.forEach(positionType => {
+        const currentPlayersInPosition = currentPlayers.filter(p => p && p.element_type === positionType)
+        const availablePlayersInPosition = bootstrap.elements
+          .filter(el => {
+            const isNotInSquad = !squadData.picks.find(pick => pick.element === el.id)
+            const isCorrectPosition = el.element_type === positionType
+            const hasXpData = (el.xp_o5 ?? 0) > 0
+            return isNotInSquad && isCorrectPosition && hasXpData
+          })
+          .sort((a, b) => (b.xp_o5 ?? 0) - (a.xp_o5 ?? 0))
+          .slice(0, 3) // Top 3 in each position
+
+        currentPlayersInPosition.forEach(currentPlayer => {
+          if (!currentPlayer) return
+
+          const worstInPosition = currentPlayersInPosition
+            .sort((a, b) => (a?.xp_o5 ?? 0) - (b?.xp_o5 ?? 0))[0]
+
+          if (currentPlayer === worstInPosition) {
+            availablePlayersInPosition.forEach(newPlayer => {
+              const costDiff = (newPlayer.now_cost ?? 0) - (currentPlayer.now_cost ?? 0)
+              const isBetter = (newPlayer.xp_o5 ?? 0) > (currentPlayer.xp_o5 ?? 0)
+
+              if (isBetter && suggestions.length < 3) {
+                const xpGain = (newPlayer.xp_o5 ?? 0) - (currentPlayer.xp_o5 ?? 0)
+                const valueImprovement = xpGain / Math.max(0.1, newPlayer.now_cost / 10)
+
+                suggestions.push({
+                  playerIn: {
+                    id: newPlayer.id,
+                    web_name: newPlayer.web_name,
+                    now_cost: newPlayer.now_cost,
+                    xp_o5: newPlayer.xp_o5 ?? 0,
+                    code: newPlayer.code.toString(),
+                    element_type: newPlayer.element_type,
+                    team: newPlayer.team,
+                    position_name: bootstrap.element_types.find(type => type.id === newPlayer.element_type)?.singular_name ?? 'Player',
+                    team_name: bootstrap.teams.find(team => team.id === newPlayer.team)?.short_name ?? 'UNK'
+                  },
+                  playerOut: {
+                    id: currentPlayer.id,
+                    web_name: currentPlayer.web_name,
+                    now_cost: currentPlayer.now_cost,
+                    xp_o5: currentPlayer.xp_o5,
+                    code: currentPlayer.code,
+                    element_type: currentPlayer.element_type,
+                    team: currentPlayer.team,
+                    position_name: currentPlayer.position_name,
+                    team_name: currentPlayer.team_name
+                  },
+                  xpGain,
+                  costDifference: costDiff,
+                  valueImprovement
+                })
+              }
+            })
+          }
+        })
+      })
+    }
+
     return suggestions
       .sort((a, b) => b.xpGain - a.xpGain)
       .slice(0, 5)
@@ -215,7 +318,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
               <div className="flex gap-4 mt-2 text-sm text-gray-600">
                 <span>Value: £{(totalValue / 10).toFixed(1)}m</span>
                 <span>Total XP (3-5 GW): {totalPoints.toFixed(2)}</span>
-                <span>Bank: £{(squadData.entry_history.bank / 10).toFixed(1)}m</span>
+                <span>Bank: £{((currentSquad?.entry_history.bank ?? 0) / 10).toFixed(1)}m</span>
               </div>
             </div>
             <div className="flex gap-2">
@@ -372,6 +475,13 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
           <p className="text-sm text-gray-600">
             Available budget: £{(squadData.entry_history.bank / 10).toFixed(1)}m
           </p>
+          {/* Debug info */}
+          <div className="text-xs text-gray-500 mt-2">
+            <p>Squad players with xP_o5 data: {squadData.picks.filter(p => (p.xp_o5 ?? 0) > 0).length} / {squadData.picks.length}</p>
+            <p>Available players with xP_o5 data: {bootstrap.elements.filter(el =>
+              !squadData.picks.find(pick => pick.element === el.id) && (el.xp_o5 ?? 0) > 0
+            ).length}</p>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -379,88 +489,106 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
               <div className="text-center py-8 text-gray-500">
                 <p>No profitable transfers available within your budget.</p>
                 <p className="text-sm">Consider saving for next gameweek or using a wildcard.</p>
+                <div className="mt-4 text-xs">
+                  <p>Debug: Checking {bootstrap.elements.filter(el => !squadData.picks.find(pick => pick.element === el.id)).length} available players</p>
+                  <p>Budget: £{(squadData.entry_history.bank / 10).toFixed(1)}m</p>
+                </div>
               </div>
             ) : (
-              getTransferSuggestions().map((suggestion, index) => (
-                <div key={index} className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-semibold text-green-700">
-                      +{suggestion.xpGain.toFixed(2)} XP Gain
-                    </span>
-                    <span className="text-sm font-semibold text-blue-700">
-                      {suggestion.costDifference >= 0 ? '+' : ''}£{(suggestion.costDifference / 10).toFixed(1)}m
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Player Out */}
-                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                      <div className="text-red-600 font-bold text-sm">OUT</div>
-                      <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden">
-                        <Image
-                          src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${suggestion.playerOut.code}.png`}
-                          alt={suggestion.playerOut.web_name}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          onError={() => {
-                            // Fallback to default image
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">{suggestion.playerOut.web_name}</div>
-                        <div className="text-xs text-gray-600">
-                          {suggestion.playerOut.team_name} • {suggestion.playerOut.position_name}
-                        </div>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-sm text-red-600">{(suggestion.playerOut.xp_o5 ?? 0).toFixed(2)} xP</span>
-                          <span className="text-xs text-gray-500">£{(suggestion.playerOut.now_cost / 10).toFixed(1)}m</span>
-                        </div>
+              getTransferSuggestions().map((suggestion, index) => {
+                const isAffordable = suggestion.costDifference <= squadData.entry_history.bank
+                return (
+                  <div key={index} className={`p-4 rounded-lg border ${isAffordable
+                    ? 'bg-gradient-to-r from-green-50 to-blue-50 border-green-200'
+                    : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200'
+                    }`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-semibold text-green-700">
+                        +{suggestion.xpGain.toFixed(2)} XP Gain
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-semibold ${isAffordable ? 'text-blue-700' : 'text-red-700'
+                          }`}>
+                          {suggestion.costDifference >= 0 ? '+' : ''}£{(suggestion.costDifference / 10).toFixed(1)}m
+                        </span>
+                        {!isAffordable && (
+                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                            Need £{((suggestion.costDifference - squadData.entry_history.bank) / 10).toFixed(1)}m more
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Player In */}
-                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <div className="text-green-600 font-bold text-sm">IN</div>
-                      <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden">
-                        <Image
-                          src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${suggestion.playerIn.code}.png`}
-                          alt={suggestion.playerIn.web_name}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          onError={() => {
-                            // Fallback to default image
-                          }}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm">{suggestion.playerIn.web_name}</div>
-                        <div className="text-xs text-gray-600">
-                          {suggestion.playerIn.team_name} • {suggestion.playerIn.position_name}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Player Out */}
+                      <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div className="text-red-600 font-bold text-sm">OUT</div>
+                        <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden">
+                          <Image
+                            src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${suggestion.playerOut.code}.png`}
+                            alt={suggestion.playerOut.web_name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                            onError={() => {
+                              // Fallback to default image
+                            }}
+                          />
                         </div>
-                        <div className="flex justify-between items-center mt-1">
-                          <span className="text-sm font-bold text-green-600">{(suggestion.playerIn.xp_o5 ?? 0).toFixed(2)} xP</span>
-                          <span className="text-xs text-gray-500">£{(suggestion.playerIn.now_cost / 10).toFixed(1)}m</span>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">{suggestion.playerOut.web_name}</div>
+                          <div className="text-xs text-gray-600">
+                            {suggestion.playerOut.team_name} • {suggestion.playerOut.position_name}
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-sm text-red-600">{(suggestion.playerOut.xp_o5 ?? 0).toFixed(2)} xP</span>
+                            <span className="text-xs text-gray-500">£{(suggestion.playerOut.now_cost / 10).toFixed(1)}m</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Transfer Summary */}
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Value Rating:</span>
-                      <span className="font-semibold text-blue-600">{suggestion.valueImprovement.toFixed(2)} xP/£m</span>
+                      {/* Player In */}
+                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-green-600 font-bold text-sm">IN</div>
+                        <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden">
+                          <Image
+                            src={`https://resources.premierleague.com/premierleague/photos/players/110x140/p${suggestion.playerIn.code}.png`}
+                            alt={suggestion.playerIn.web_name}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                            onError={() => {
+                              // Fallback to default image
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm">{suggestion.playerIn.web_name}</div>
+                          <div className="text-xs text-gray-600">
+                            {suggestion.playerIn.team_name} • {suggestion.playerIn.position_name}
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-sm font-bold text-green-600">{(suggestion.playerIn.xp_o5 ?? 0).toFixed(2)} xP</span>
+                            <span className="text-xs text-gray-500">£{(suggestion.playerIn.now_cost / 10).toFixed(1)}m</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm mt-1">
-                      <span className="text-gray-600">Remaining Budget:</span>
-                      <span className="font-semibold">£{((squadData.entry_history.bank - suggestion.costDifference) / 10).toFixed(1)}m</span>
+
+                    {/* Transfer Summary */}
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Value Rating:</span>
+                        <span className="font-semibold text-blue-600">{suggestion.valueImprovement.toFixed(2)} xP/£m</span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm mt-1">
+                        <span className="text-gray-600">Remaining Budget:</span>
+                        <span className="font-semibold">£{((squadData.entry_history.bank - suggestion.costDifference) / 10).toFixed(1)}m</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </CardContent>
