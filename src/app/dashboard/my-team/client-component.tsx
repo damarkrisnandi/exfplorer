@@ -362,6 +362,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
+                  showCurrent={false}
                 />
               ))}
             </div>
@@ -381,6 +382,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
+                  showCurrent={false}
                 />
               ))}
             </div>
@@ -400,6 +402,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
+                  showCurrent={false}
                 />
               ))}
             </div>
@@ -419,6 +422,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                   xp_current={pick.xp_o5_current ?? 0}
                   delta_xp={pick.delta_xp ?? 0}
                   nextFixtures={pick.nextFixtures}
+                  showCurrent={false}
                 />
               ))}
             </div>
@@ -428,15 +432,15 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
-            <div className="relative bg-white px-4">
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium text-gray-600">
+            <div className="relative bg-gray-100 px-4">
+              <span className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-medium">
                 Bench
               </span>
             </div>
           </div>
 
           {/* Bench */}
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4 justify-evenly">
             {bench.map((pick) => (
               <ElementCard
                 key={pick.element}
@@ -450,6 +454,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                 xp_current={pick.xp_o5_current ?? 0}
                 delta_xp={pick.delta_xp ?? 0}
                 nextFixtures={pick.nextFixtures}
+                showCurrent={false}
               />
             ))}
           </div>
