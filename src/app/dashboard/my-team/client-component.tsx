@@ -39,7 +39,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     currentEvent: bootstrapStore.currentEvent?.id ?? null
   })
 
-  const { data: optimizedSquad } = api.pick.getOptimizedPick.useQuery({
+  const { data: optimizedSquad, isLoading: optimizedSquadLoading } = api.pick.getOptimizedPick.useQuery({
     managerId: session.user.manager.managerId,
     currentEvent: bootstrapStore.currentEvent?.id ?? null
   })
@@ -95,7 +95,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     }
   }
 
-  if (!isClient || squadLoading || bootstrapLoading) {
+  if (!isClient || squadLoading || bootstrapLoading || optimizedSquadLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
