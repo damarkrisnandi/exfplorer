@@ -4,8 +4,8 @@ import ElementCard from "@/components/element-card"
 import SquadOptimizer from "@/components/squad-optimizer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick"
 import type { Element } from "@/lib/bootstrap-type"
+import type { PickData, PlayerPicked } from "@/server/api/routers/squad-pick"
 import useBootstrapStore from "@/stores/bootstrap"
 import { api } from "@/trpc/react"
 import { Loader2, Shuffle, Zap } from "lucide-react"
@@ -129,12 +129,12 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
     if (!bootstrap || !squadData) return []
 
     const availableMoney = squadData.entry_history.bank
-    
+
     type PlayerWithDetails = PlayerPicked & Element & {
       position_name: string
       team_name: string
     }
-    
+
     const suggestions: Array<{
       playerIn: PlayerWithDetails
       playerOut: PlayerWithDetails
@@ -156,7 +156,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
 
     // For each position, find the best transfers
     const positions = [1, 2, 3, 4] // GKP, DEF, MID, FWD
-    
+
     positions.forEach(positionType => {
       const currentPlayersInPosition = currentPlayers.filter(p => p.element_type === positionType)
       const availablePlayersInPosition = bootstrap.elements
@@ -391,7 +391,7 @@ export default function MyTeamClient({ session }: MyTeamClientProps) {
                       {suggestion.costDifference >= 0 ? '+' : ''}£{(suggestion.costDifference / 10).toFixed(1)}m
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Player Out */}
                     <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
