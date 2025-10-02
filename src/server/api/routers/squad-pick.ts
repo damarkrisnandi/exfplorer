@@ -83,7 +83,6 @@ export const pickRouter = createTRPCRouter({
         picksData,
         {
           elements,
-          game_config,
           teams,
           events
         },
@@ -118,20 +117,60 @@ export const pickRouter = createTRPCRouter({
           const foundElementHistory = elementsHistory.find((data: { code: number }) => foundElement && data.code === foundElement.code);
           const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
-          const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
-            element: foundElement!,
-            game_config,
-            teams,
-            fixtures,
-            elementHistory: foundElementHistory!,
-            fixturesHistory: fixtures,
+          // Guard missing data
+          if (!foundElement || !foundElementHistory) {
+            return {
+              ...pick,
+              web_name: undefined,
+              photo: undefined,
+              event_points: 0,
+              xp: 0,
+              xp_current: 0,
+              xp_o5: 0,
+              xp_o5_current: 0,
+              delta_xp: 0,
+              delta_xp_05: 0,
+              nextFixtures: []
+            };
           }
 
-          const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1, });
-          const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, });
-          const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
-          const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
+          const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
+
+          const xp = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            teams,
+            foundElementHistory
+          );
+          const xp_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            teams,
+            foundElementHistory
+          );
+
+          const xp_o5 = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            teams,
+            foundElementHistory,
+            last5
+          );
+          const xp_o5_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            teams,
+            foundElementHistory,
+            last5
+          );
 
           return {
             ...pick,
@@ -149,9 +188,7 @@ export const pickRouter = createTRPCRouter({
             nextFixtures: viewNextFixtures
               .filter((f: Fixture) => f.team_a === foundElement?.team || f.team_h === foundElement?.team)
               .map((f: Fixture) => {
-                const elementTeam = teams.find((t) => t.id === f.team_a || t.id === f.team_h);
-                const team = teams.find((t) => t.id === f.team_a || t.id === f.team_h)?.short_name ?? "NONE";
-
+                // ...removed unused variables
                 if (f.team_a === foundElement?.team) {
                   const opposite = teams.find((t) => t.id === f.team_h)?.short_name ?? "NONE";
                   return {
@@ -212,7 +249,6 @@ export const pickRouter = createTRPCRouter({
 
       const {
         elements,
-        game_config,
         teams,
         events
       } = bootstrap;
@@ -238,32 +274,72 @@ export const pickRouter = createTRPCRouter({
         bootstrapHistory,
         fixtures,
         fixturesHistory: fixtures,
-        last5
+        last5,
+        deltaEvent: 1
       }
 
-      const optimizedPicksData = optimizationProcess({ ...reference, picksData });
+      // optimizationProcess returns PlayerPicked[]
+      const optimizedPicks = optimizationProcess({ ...reference, picksData });
 
       const finalData: PickData = {
-        ...optimizedPicksData,
-        picks: optimizedPicksData.picks.map((pick: PlayerPicked) => {
+        ...picksData,
+        picks: optimizedPicks.map((pick: PlayerPicked) => {
           const foundElement = elements.find((data: { id: number }) => data.id === pick.element);
           const foundElementHistory = elementsHistory.find((data: { code: number }) => foundElement && data.code === foundElement.code);
           const foundCurrentEvent = events.find((data: Event) => data.is_current)
 
-          const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
-            element: foundElement!,
-            game_config,
-            teams,
-            fixtures,
-            elementHistory: foundElementHistory!,
-            fixturesHistory: fixtures,
+          if (!foundElement || !foundElementHistory) {
+            return {
+              ...pick,
+              web_name: undefined,
+              photo: undefined,
+              event_points: 0,
+              xp: 0,
+              xp_current: 0,
+              xp_o5: 0,
+              xp_o5_current: 0,
+              delta_xp: 0,
+              delta_xp_05: 0,
+              nextFixtures: []
+            };
           }
 
-          const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1, });
-          const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, });
-          const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
-          const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
+          const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
+
+          const xp = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            teams,
+            foundElementHistory
+          );
+          const xp_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            teams,
+            foundElementHistory
+          );
+          const xp_o5 = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            teams,
+            foundElementHistory,
+            last5
+          );
+          const xp_o5_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            teams,
+            foundElementHistory,
+            last5
+          );
 
           return {
             ...pick,
@@ -281,9 +357,6 @@ export const pickRouter = createTRPCRouter({
             nextFixtures: viewNextFixtures
               .filter((f: Fixture) => f.team_a === foundElement?.team || f.team_h === foundElement?.team)
               .map((f: Fixture) => {
-                const elementTeam = teams.find((t) => t.id === f.team_a || t.id === f.team_h);
-                const team = teams.find((t) => t.id === f.team_a || t.id === f.team_h)?.short_name ?? "NONE";
-
                 if (f.team_a === foundElement?.team) {
                   const opposite = teams.find((t) => t.id === f.team_h)?.short_name ?? "NONE";
                   return {
@@ -310,6 +383,8 @@ export const pickRouter = createTRPCRouter({
         }),
 
       }
+
+      console.log('finalData', finalData)
       return finalData
     }),
 
@@ -350,33 +425,104 @@ export const pickRouter = createTRPCRouter({
         bootstrapHistory,
         fixtures,
         fixturesHistory: fixtures,
-        last5
+        last5,
+        deltaEvent: 1
       }
-      const wildCardDraftAsPickData = optimizationProcess({ ...reference });
-      const picksData = optimizationProcess({ ...reference, picksData: wildCardDraftAsPickData });
+      // First, generate wildcard picks from full pool
+      const wildCardDraftPicks = optimizationProcess({ ...reference });
 
+      // Build a PickData using wildcard picks to feed into a second optimization (if desired)
+      const currentGwId = bootstrap.events.find((e) => e.is_current)?.id ?? 1;
+      const wcPickData: PickData = {
+        active_chip: null,
+        automatic_subs: [],
+        entry_history: {
+          event: currentGwId,
+          points: 0,
+          total_points: 0,
+          rank: 0,
+          rank_sort: 0,
+          overall_rank: 0,
+          percentile_rank: 0,
+          bank: 1000,
+          value: 1000,
+          event_transfers: 0,
+          event_transfers_cost: 0,
+          points_on_bench: 0,
+        },
+        picks: wildCardDraftPicks.map((p) => ({
+          element: p.element,
+          position: p.position ?? 1,
+          multiplier: p.multiplier ?? 1,
+          is_captain: p.is_captain ?? false,
+          is_vice_captain: p.is_vice_captain ?? false,
+          element_type: p.element_type,
+        })),
+      };
+
+      // Optionally re-optimize using those picks as constraints
+      const optimizedPicks = optimizationProcess({ ...reference, picksData: wcPickData });
 
       const finalData: PickData = {
-        ...picksData,
-        picks: picksData.picks.map((pick: PlayerPicked) => {
+        ...wcPickData,
+        picks: optimizedPicks.map((pick: PlayerPicked) => {
           const foundElement = bootstrap.elements.find((data: { id: number }) => data.id === pick.element);
           const foundElementHistory = bootstrapHistory.elements.find((data: { code: number }) => foundElement && data.code === foundElement.code);
           const foundCurrentEvent = bootstrap.events.find((data: Event) => data.is_current)
 
-          const xpRef = {
-            currentGameWeek: foundCurrentEvent ? foundCurrentEvent.id : 0,
-            element: foundElement!,
-            game_config: bootstrap.game_config,
-            teams: bootstrap.teams,
-            fixtures,
-            elementHistory: foundElementHistory!,
-            fixturesHistory: fixtures,
+          if (!foundElement || !foundElementHistory) {
+            return {
+              ...pick,
+              web_name: undefined,
+              photo: undefined,
+              event_points: 0,
+              xp: 0,
+              xp_current: 0,
+              xp_o5: 0,
+              xp_o5_current: 0,
+              delta_xp: 0,
+              delta_xp_05: 0,
+              nextFixtures: []
+            };
           }
-          const xp = getExpectedPoints({ ...xpRef, deltaEvent: 1 })
-          const xp_current = getExpectedPoints({ ...xpRef, deltaEvent: 0 })
 
-          const xp_o5 = getExpectedPoints({ ...xpRef, deltaEvent: 1, last5 })
-          const xp_o5_current = getExpectedPoints({ ...xpRef, deltaEvent: 0, last5 })
+          const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
+
+          const xp = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            bootstrap.teams,
+            foundElementHistory
+          )
+          const xp_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            bootstrap.teams,
+            foundElementHistory
+          )
+
+          const xp_o5 = getExpectedPoints(
+            foundElement,
+            currentGw,
+            1,
+            fixtures,
+            bootstrap.teams,
+            foundElementHistory,
+            last5
+          )
+          const xp_o5_current = getExpectedPoints(
+            foundElement,
+            currentGw,
+            0,
+            fixtures,
+            bootstrap.teams,
+            foundElementHistory,
+            last5
+          )
 
           return {
             ...pick,
@@ -389,13 +535,11 @@ export const pickRouter = createTRPCRouter({
             xp_o5: Math.round(xp_o5 * 100) / 100,
             xp_o5_current: Math.round(xp_o5_current * 100) / 100,
             delta_xp: (foundElement?.event_points ?? 0) - xp_o5_current,
+            delta_xp_05: (foundElement?.event_points ?? 0) - xp_o5_current,
 
             nextFixtures: viewNextFixtures
               .filter((f: Fixture) => f.team_a === foundElement?.team || f.team_h === foundElement?.team)
               .map((f: Fixture) => {
-                const elementTeam = bootstrap.teams.find((t) => t.id === f.team_a || t.id === f.team_h);
-                const team = bootstrap.teams.find((t) => t.id === f.team_a || t.id === f.team_h)?.short_name ?? "NONE";
-
                 if (f.team_a === foundElement?.team) {
                   const opposite = bootstrap.teams.find((t) => t.id === f.team_h)?.short_name ?? "NONE";
                   return {
