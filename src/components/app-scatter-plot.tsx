@@ -32,8 +32,8 @@ function AppScatterPlot({ dataX, dataY }: AppScatterPlotProps) {
   if (!bootstrap) return <Skeleton />
   if (!bootstrap.elements) return <Skeleton />
 
-  const PpGs = bootstrap.elements.map((el: Element) => Number(el.points_per_game)).filter((val number) => !isNaN(val) && val !== null && val !== undefined)
-  const xpo5s = bootstrap.elements.map((el: Element) => (el.xp_o5_current ?? 0)).filter((val number) => !isNaN(val) && val !== null && val !== undefined);
+  const PpGs = bootstrap.elements.map((el: Element) => Number(el.points_per_game)).filter((val: number) => !isNaN(val) && val !== null && val !== undefined)
+  const xpo5s = bootstrap.elements.map((el: Element) => (el.xp_o5_current ?? 0)).filter((val: number) => !isNaN(val) && val !== null && val !== undefined);
 
   const maxPpG = PpGs.length > 0 ? Math.max(...PpGs.map(ppg => Number(ppg))) : 0
   const maxXpo5 = xpo5s.length > 0 ? Math.max(...xpo5s.map(ppg => Number(ppg))) : 0
