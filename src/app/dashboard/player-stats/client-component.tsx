@@ -229,7 +229,9 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
                       </option>
                     ))}
                   </select>
-                  </div>
+                  <Separator orientation="vertical" className="h-8" />
+
+
                 </div>
               </div>
             </CardContent>
