@@ -25,7 +25,7 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
   const [teamFilter, setTeamFilter] = useState<number | null>(null)
   const [sortField, setSortField] = useState<SortField>('points')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-  const [viewMode, setViewMode] = useState<ViewMode>('card')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1)
@@ -229,42 +229,9 @@ export default function PlayerStatsClient() {  const [isClient, setIsClient] = u
                       </option>
                     ))}
                   </select>
-                  <Separator orientation="vertical" className="h-8" />                  <div className="flex gap-1 border border-gray-300 rounded-md p-1" role="group" aria-label="View mode toggle">
-                    <Button
-                      size="sm"
-                      variant={viewMode === 'card' ? 'default' : 'ghost'}
-                      onClick={() => setViewMode('card')}
-                      className="flex items-center gap-1"
-                      aria-label="Card view"
-                      aria-pressed={viewMode === 'card'}
-                      onKeyDown={(e: KeyboardEvent<HTMLButtonElement>) => {
-                        // Left/right arrows to switch between buttons
-                        if (e.key === 'ArrowRight' && viewMode === 'card') {
-                          e.preventDefault();
-                          setViewMode('list');
-                        }
-                      }}
-                    >
-                      <LayoutGrid size={16} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={viewMode === 'list' ? 'default' : 'ghost'}
-                      onClick={() => setViewMode('list')}
-                      className="flex items-center gap-1"
-                      aria-label="List view"
-                      aria-pressed={viewMode === 'list'}
-                      onKeyDown={(e: KeyboardEvent<HTMLButtonElement>) => {
-                        // Left/right arrows to switch between buttons
-                        if (e.key === 'ArrowLeft' && viewMode === 'list') {
-                          e.preventDefault();
-                          setViewMode('card');
-                        }
-                      }}
-                    >
-                      <List size={16} />
-                    </Button>
-                  </div>
+                  <Separator orientation="vertical" className="h-8" />
+
+
                 </div>
               </div>
             </CardContent>
