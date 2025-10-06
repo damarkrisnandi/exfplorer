@@ -1,5 +1,5 @@
 import { bootstrapHistoryQuery, bootstrapQuery, fixturesQuery, last5Queries } from "@/lib/api-queries";
-import type { Event } from "@/lib/bootstrap-type";
+import type { Bootstrap, Event } from "@/lib/bootstrap-type";
 import type { Fixture } from "@/lib/fixture-type";
 import type { LiveEvent } from "@/lib/live-event-type";
 import { getExpectedPoints, optimizationProcess } from "@/lib/optimization";
@@ -136,41 +136,43 @@ export const pickRouter = createTRPCRouter({
 
           const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
 
-          const xp = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
+          const xp = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: { teams } as Bootstrap,
             fixtures,
-            teams,
-            foundElementHistory
-          );
-          const xp_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          });
+          const xp_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: { teams } as Bootstrap,
             fixtures,
-            teams,
-            foundElementHistory
-          );
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          });
 
-          const xp_o5 = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
+          const xp_o5 = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: { teams } as Bootstrap,
             fixtures,
-            teams,
-            foundElementHistory,
-            last5
-          );
-          const xp_o5_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          });
+          const xp_o5_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: { teams } as Bootstrap,
             fixtures,
-            teams,
-            foundElementHistory,
-            last5
-          );
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          });
 
           return {
             ...pick,
@@ -273,7 +275,7 @@ export const pickRouter = createTRPCRouter({
         bootstrap,
         bootstrapHistory,
         fixtures,
-        fixturesHistory: fixtures,
+        _fixturesHistory: fixtures,
         last5,
         deltaEvent: 1
       }
@@ -306,40 +308,46 @@ export const pickRouter = createTRPCRouter({
 
           const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
 
-          const xp = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
+          // Create a minimal bootstrap object with just the teams
+          // The getExpectedPoints function only uses the teams property
+          const bootstrapObj = { teams } as Bootstrap;
+
+          const xp = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            teams,
-            foundElementHistory
-          );
-          const xp_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          });
+          const xp_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            teams,
-            foundElementHistory
-          );
-          const xp_o5 = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          });
+          const xp_o5 = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            teams,
-            foundElementHistory,
-            last5
-          );
-          const xp_o5_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          });
+          const xp_o5_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            teams,
-            foundElementHistory,
-            last5
-          );
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          });
 
           return {
             ...pick,
@@ -424,7 +432,7 @@ export const pickRouter = createTRPCRouter({
         bootstrap,
         bootstrapHistory,
         fixtures,
-        fixturesHistory: fixtures,
+        _fixturesHistory: fixtures,
         last5,
         deltaEvent: 1
       }
@@ -488,41 +496,47 @@ export const pickRouter = createTRPCRouter({
 
           const currentGw = foundCurrentEvent ? foundCurrentEvent.id : 0;
 
-          const xp = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
-            fixtures,
-            bootstrap.teams,
-            foundElementHistory
-          )
-          const xp_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
-            fixtures,
-            bootstrap.teams,
-            foundElementHistory
-          )
+          // Create a minimal bootstrap object with just the teams
+          // The getExpectedPoints function only uses the teams property
+          const bootstrapObj = { teams: bootstrap.teams } as Bootstrap;
 
-          const xp_o5 = getExpectedPoints(
-            foundElement,
-            currentGw,
-            1,
+          const xp = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            bootstrap.teams,
-            foundElementHistory,
-            last5
-          )
-          const xp_o5_current = getExpectedPoints(
-            foundElement,
-            currentGw,
-            0,
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          })
+          const xp_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
             fixtures,
-            bootstrap.teams,
-            foundElementHistory,
-            last5
-          )
+            last5: undefined,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          })
+
+          const xp_o5 = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
+            fixtures,
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 1
+          })
+          const xp_o5_current = getExpectedPoints({
+            element: foundElement,
+            elementHistory: foundElementHistory,
+            bootstrap: bootstrapObj,
+            fixtures,
+            last5,
+            currentGameWeek: currentGw,
+            deltaEvent: 0
+          })
 
           return {
             ...pick,

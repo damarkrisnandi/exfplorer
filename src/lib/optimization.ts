@@ -230,15 +230,28 @@ const getHomeAwayIndex = (
   return haIdxValue;
 };
 
-export const getExpectedPoints = (
+export const getExpectedPoints = ({
+  element,
+  elementHistory,
+  bootstrap,
+  // bootstrapHistory,
+  fixtures,
+  last5,
+  currentGameWeek,
+  deltaEvent
+
+}: {
   element: Element,
-  currentGameWeek: number,
-  deltaEvent: number,
-  fixtures: Fixture[],
-  teams: Team[],
   elementHistory?: Element,
-  last5?: LiveEvent[] | null
-): number => {
+  bootstrap: Bootstrap,
+  fixtures: Fixture[],
+  last5: LiveEvent[] | null | undefined,
+  currentGameWeek: number,
+  deltaEvent: number
+}): number => {
+  // destructure
+  const { teams } = bootstrap;
+
   const gameWeek = currentGameWeek + deltaEvent;
 
   if (gameWeek > 38) {
@@ -566,17 +579,17 @@ export const optimizationProcess = ({
         ...picksData1,
         picks: solution2.variables.map((sol) => {
           const elementId = Number(sol[0].split("_")[1]);
-          const foundElement = bootstrap.elements.find((e) => e.id === elementId);
-          if (!foundElement) {
+          const element = bootstrap.elements.find((e) => e.id === elementId);
+          if (!element) {
             throw new Error(`Element with id ${elementId} not found`);
           }
           return {
-            element: foundElement.id,
+            element: element.id,
             position: 1,
             multiplier: 1,
             is_captain: false,
             is_vice_captain: false,
-            element_type: foundElement.element_type,
+            element_type: element.element_type,
           };
         }),
       };
@@ -585,26 +598,28 @@ export const optimizationProcess = ({
     const benched: PlayerPicked[] = picksData
       ? picksData1.picks
         .map((p) => {
-          const foundElement = bootstrap.elements.find((el) => el.id === p.element);
-          const foundElementHistory = bootstrapHistory.elements.find((eh) =>
-            foundElement && foundElement.code === eh.code
+          const element = bootstrap.elements.find((el) => el.id === p.element);
+          const elementHistory = bootstrapHistory.elements.find((eh) =>
+            element && element.code === eh.code
           );
-          if (!foundElement) {
+          if (!element) {
             throw new Error(`Element with id ${p.element} not found`);
           }
+
           return {
             ...p,
             multiplier: 0,
-            web_name: foundElement.web_name,
-            xp: getExpectedPoints(
-              foundElement,
-              (currentEvent?.id ?? 1),
+            web_name: element.web_name,
+            xp: getExpectedPoints({
+              element,
+              elementHistory,
               deltaEvent,
+              currentGameWeek: (currentEvent?.id ?? 1),
+              bootstrap,
               fixtures,
-              bootstrap.teams,
-              foundElementHistory,
               last5
-            ),
+
+            }),
           };
         })
         .filter(
@@ -617,29 +632,30 @@ export const optimizationProcess = ({
     const solutionAsObject: PlayerPicked[] = [
       ...solution2.variables.map((v, idx) => {
         const elementId = Number(v[0].split("_")[1]);
-        const foundElement = bootstrap.elements.find((e) => e.id === elementId);
-        const foundElementHistory = bootstrapHistory.elements.find((eh) =>
-          foundElement && foundElement.code === eh.code
+        const element = bootstrap.elements.find((e) => e.id === elementId);
+        const elementHistory = bootstrapHistory.elements.find((eh) =>
+          element && element.code === eh.code
         );
-        if (!foundElement) {
+        if (!element) {
           throw new Error(`Element with id ${elementId} not found`);
         }
         return {
-          element: foundElement.id,
+          element: element.id,
           position: idx + 1,
           is_captain: false,
           is_vice_captain: false,
           multiplier: 1,
-          element_type: foundElement.element_type,
-          xp: getExpectedPoints(
-            foundElement,
-            (currentEvent?.id ?? 1),
+          element_type: element.element_type,
+          xp: getExpectedPoints({
+            element,
+            elementHistory,
             deltaEvent,
+            currentGameWeek: (currentEvent?.id ?? 1),
+            bootstrap,
             fixtures,
-            bootstrap.teams,
-            foundElementHistory,
             last5
-          ),
+
+          }),
         };
       }),
       ...benched,
@@ -651,13 +667,13 @@ export const optimizationProcess = ({
       .slice(0, 2);
 
     const result = solutionAsObject.map((res, idx) => {
-      const foundElement = bootstrap.elements.find((el) => el.id === res.element);
-      if (!foundElement) {
+      const element = bootstrap.elements.find((el) => el.id === res.element);
+      if (!element) {
         throw new Error(`Element with id ${res.element} not found`);
       }
       return {
         ...res,
-        web_name: foundElement.web_name,
+        web_name: element.web_name,
         position: idx + 1,
         multiplier: captaincySolution[0]?.element === res.element
           ? 2
@@ -706,15 +722,71 @@ const createVariables = (
           mid: e.element_type === 3 ? 1 : 0,
           def: e.element_type === 2 ? 1 : 0,
           gkp: e.element_type === 1 ? 1 : 0,
-          xp: getExpectedPoints(e, currentGameWeek, 1, fixtures, teams, elementHist, last5),
-          xp_next_2: getExpectedPoints(e, currentGameWeek, 2, fixtures, teams, elementHist, last5),
-          xp_next_3: getExpectedPoints(e, currentGameWeek, 3, fixtures, teams, elementHist, last5),
+          xp: getExpectedPoints({
+            element: e,
+            elementHistory: elementHist,
+            bootstrap: { teams } as Bootstrap,
+            fixtures,
+            last5,
+            currentGameWeek,
+            deltaEvent: 1
+          }),
+          xp_next_2: getExpectedPoints({
+            element: e,
+            elementHistory: elementHist,
+            bootstrap: { teams } as Bootstrap,
+            fixtures,
+            last5,
+            currentGameWeek,
+            deltaEvent: 2
+          }),
+          xp_next_3: getExpectedPoints({
+            element: e,
+            elementHistory: elementHist,
+            bootstrap: { teams } as Bootstrap,
+            fixtures,
+            last5,
+            currentGameWeek,
+            deltaEvent: 3
+          }),
           xp_sigm_3:
-            getExpectedPoints(e, currentGameWeek, 1, fixtures, teams, elementHist, last5) +
-            getExpectedPoints(e, currentGameWeek, 2, fixtures, teams, elementHist, last5) +
-            getExpectedPoints(e, currentGameWeek, 3, fixtures, teams, elementHist, last5),
+            getExpectedPoints({
+              element: e,
+              elementHistory: elementHist,
+              bootstrap: { teams } as Bootstrap,
+              fixtures,
+              last5,
+              currentGameWeek,
+              deltaEvent: 1
+            }) +
+            getExpectedPoints({
+              element: e,
+              elementHistory: elementHist,
+              bootstrap: { teams } as Bootstrap,
+              fixtures,
+              last5,
+              currentGameWeek,
+              deltaEvent: 2
+            }) +
+            getExpectedPoints({
+              element: e,
+              elementHistory: elementHist,
+              bootstrap: { teams } as Bootstrap,
+              fixtures,
+              last5,
+              currentGameWeek,
+              deltaEvent: 3
+            }),
           surplus_point:
-            e.event_points - getExpectedPoints(e, currentGameWeek, 0, fixtures, teams, elementHist, last5),
+            e.event_points - getExpectedPoints({
+              element: e,
+              elementHistory: elementHist,
+              bootstrap: { teams } as Bootstrap,
+              fixtures,
+              last5,
+              currentGameWeek,
+              deltaEvent: 0
+            }),
           [`team_${e.team_code}`]: 1,
           is_playing_next: typeof e.chance_of_playing_next_round === "number" ? e.chance_of_playing_next_round : 0,
           max_pick: 1,
