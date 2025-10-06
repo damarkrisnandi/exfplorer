@@ -375,7 +375,7 @@ const wildcardOptimizationModel = (
     fixtures,
     teams,
     "",
-    (v: Element) => true,
+    (_v: Record<string, number>) => true,
     [],
     currentEvent.id,
     last5
@@ -447,7 +447,7 @@ const picksOptimizationModel = (
     fixtures,
     teams,
     "",
-    (v: Element) => true,
+    (_v: Record<string, number>) => true,
     [],
     currentEvent.id,
     last5
@@ -489,7 +489,7 @@ export const optimizationProcess = ({
   bootstrap,
   bootstrapHistory,
   fixtures,
-  fixturesHistory,
+  _fixturesHistory,
   last5,
   picksData,
   deltaEvent
@@ -497,7 +497,7 @@ export const optimizationProcess = ({
   bootstrap: Bootstrap,
   bootstrapHistory: Bootstrap,
   fixtures: Fixture[],
-  fixturesHistory: Fixture[],
+  _fixturesHistory: Fixture[],
   last5?: LiveEvent[],
   picksData?: PickData,
   deltaEvent: number
@@ -693,7 +693,7 @@ const createVariables = (
   addEntries: Array<[string, number]>,
   inputGw?: number,
   last5?: LiveEvent[]
-) =>
+): Record<string, Record<string, number>> =>
   Object.fromEntries(
     elements
       .map((e) => {
@@ -724,7 +724,7 @@ const createVariables = (
         return [`player_${e.id}`, coefficients];
       })
       .filter(([_, coeffs]) => filterCat(coeffs as Record<string, number>))
-  );
+  ) as Record<string, Record<string, number>>;
 
 
 export const getLocalStorageUsagePercentage = () => {
