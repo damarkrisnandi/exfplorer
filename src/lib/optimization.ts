@@ -689,8 +689,8 @@ const createVariables = (
   fixtures: Fixture[],
   teams: Team[],
   suffix: string,
-  filterCat: (element: Element & Record<string, unknown>) => boolean,
-  addEntries: Array<[string, unknown]>,
+  filterCat: (coeffs: Record<string, number>) => boolean,
+  addEntries: Array<[string, number]>,
   inputGw?: number,
   last5?: LiveEvent[]
 ) =>
@@ -700,38 +700,30 @@ const createVariables = (
         const elementHist = elementsHistory.find((eh) => e.code === eh.code);
 
         const currentGameWeek = inputGw ?? 1;
-        const entries = Object.fromEntries([
-          [`player_${e.id}`, 1],
-          ...addEntries,
-          ["fwd", e.element_type === 4 ? 1 : 0],
-          ["mid", e.element_type === 3 ? 1 : 0],
-          ["def", e.element_type === 2 ? 1 : 0],
-          ["gkp", e.element_type === 1 ? 1 : 0],
-          ["xp", getExpectedPoints(e, currentGameWeek, 1, fixtures, teams, elementHist, last5)],
-          ["xp_next_2", getExpectedPoints(e, currentGameWeek, 2, fixtures, teams, elementHist, last5)],
-          ["xp_next_3", getExpectedPoints(e, currentGameWeek, 3, fixtures, teams, elementHist, last5)],
-          [
-            "xp_sigm_3",
+        // Coefficients for the variable
+        const coefficients: Record<string, number> = {
+          fwd: e.element_type === 4 ? 1 : 0,
+          mid: e.element_type === 3 ? 1 : 0,
+          def: e.element_type === 2 ? 1 : 0,
+          gkp: e.element_type === 1 ? 1 : 0,
+          xp: getExpectedPoints(e, currentGameWeek, 1, fixtures, teams, elementHist, last5),
+          xp_next_2: getExpectedPoints(e, currentGameWeek, 2, fixtures, teams, elementHist, last5),
+          xp_next_3: getExpectedPoints(e, currentGameWeek, 3, fixtures, teams, elementHist, last5),
+          xp_sigm_3:
             getExpectedPoints(e, currentGameWeek, 1, fixtures, teams, elementHist, last5) +
             getExpectedPoints(e, currentGameWeek, 2, fixtures, teams, elementHist, last5) +
             getExpectedPoints(e, currentGameWeek, 3, fixtures, teams, elementHist, last5),
-          ],
-          [
-            "surplus_point",
+          surplus_point:
             e.event_points - getExpectedPoints(e, currentGameWeek, 0, fixtures, teams, elementHist, last5),
-          ],
-          [`team_${e.team_code}`, 1],
-          [`is_playing_next`, e.chance_of_playing_next_round || 0],
-        ]);
-
-        return {
-          ...e,
+          [`team_${e.team_code}`]: 1,
+          is_playing_next: typeof e.chance_of_playing_next_round === "number" ? e.chance_of_playing_next_round : 0,
           max_pick: 1,
-          ...entries,
+          ...Object.fromEntries(addEntries.map(([k, v]) => [k, typeof v === "number" ? v : 0])),
         };
+
+        return [`player_${e.id}`, coefficients];
       })
-      .filter(filterCat)
-      .map((e: Element) => [`player_${e.id}`, e]),
+      .filter(([_, coeffs]) => filterCat(coeffs as Record<string, number>))
   );
 
 
